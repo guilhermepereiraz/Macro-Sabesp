@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro JGL</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+
+    </style>
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+</head>
+
+<body>
+    <header class="text-white">
+        <div class="container-fluid">
+            <h1><img src="imagens/logo-sabesp-1024.png" alt="" style="width: 70px; margin-right: 15px;">Macro JGL</h1>
+        </div>
+    </header>
+
+    <div class="full-height">
+        <div class="left-div">
+            <div class="infop">
+                <img src="imagens/perfil.jpg" alt=""
+                    style="width: 4em; border-radius: 100px; border: 2px solid rgb(100, 100, 100);">
+                <h1 id="nome-usuario">Nome do Usuario</h1>
+                <h3 id="horario-atual" style="font-size: 1.2em; width: 300px; margin-left: 4em; margin-top: 1em;"><img
+                        src="imagens/relogio.png" alt="" style="width: 60px;">Horario atual</h3>
+                <h3 style="font-size: 1.2em; width: 200px; margin-left: 4em;"><img src="imagens/relogio.png" alt=""
+                        style="width: 60px;">Horario logado</h3>
+            </div>
+
+            <h1 id="macros-trigger"><img src="imagens/macro.png" alt="" style="width: 40px; margin-right: 10px;">Macros
+            </h1>
+
+            <div id="macros-content" class="content-transition">
+                <ul>
+                    <li onclick="mostrarmacro()" id="macro"><img src="imagens/macro.png" alt=""
+                            style="width: 30px; margin-right: 10px;">Macro SITE</li>
+                    <li><img src="imagens/macro.png" alt="" style="width: 30px; margin-right: 10px;">Macro Segunda Via
+                    </li>
+                    <li><img src="imagens/macro.png" alt="" style="width: 30px; margin-right: 10px;">Macro Consulta
+                        Geral</li>
+                </ul>
+            </div>
+
+            <h1 id="ajuda-trigger"><img src="imagens/ajuda.png" alt="" style="width: 45px; margin-right: 8px;">Ajuda
+            </h1>
+            <div id="ajuda-content" class="content-transition">
+            </div>
+
+            <h1 id="sugestao-trigger"><img src="imagens/teste.png" alt=""
+                    style="width: 40px; margin-left: -2px;">Sugestão</h1>
+            <div id="sugestao-content" class="content-transition">
+            </div>
+
+            <h1 id="configuracoes-trigger"><img src="imagens/configuracoes.png" alt=""
+                    style="width: 40px; margin-right: 10px;">Configurações</h1>
+
+            <div id="configuracoes-content" class="content-transition">
+                <ul>
+                    <li>Arquivo de Configuração A.json</li>
+                    <li>Arquivo de Configuração B.ini</li>
+                    <li>Opção de Configuração 1</li>
+                    <li>Opção de Configuração 2</li>
+                </ul>
+            </div>
+
+
+            <h1 id="deslogar-trigger"><img src="imagens/deslogar.png" alt=""
+                    style="width: 40px; margin-right: 10px;">Deslogar</h1>
+            <div id="deslogar-content" class="content-transition">
+                <p>Clique no botão para deslogar.</p>
+                <button style="color: black; background-color: white;" id="deslog"
+                    onclick="deslogar()">Deslogar</button>
+            </div>
+
+
+
+        </div>
+
+        <div class="right-div">
+            <div class="site" id="macrosite">
+                <h1>Macro SITE - WFM </h1>
+                <h3>Area de dados</h1>
+                    <input type="file" id="arquivo-csv" accept=".csv" style="margin-left: 10%; margin-top: 5%;">
+                    <hr style="background-color: white; width: 80%;">
+                    <h3>Area de acesso</h1>
+                        <p>Login</p> <input type="text" id="login2" name="login" placeholder="Login" required>
+                        <p>Senha</p><input type="password" id="password2" name="password" class="inputsn"
+                            placeholder="Senha" required>
+                        <h2 class="h2p" style="font-size: 1.5em;" onclick="lerArquivoSelecionado()">Processar</h2>
+                        <h2 class="h2p2" style="font-size: 1.5em;" id="fecharsite" onclick="fecharsite()">Fechar</h2>
+            </div>
+
+            <div class="sitepross" id="sitepross2">
+                <h1>Processamento - SITE</h1>
+                <h3 style="margin-top: 3%;">Processando arquivo...</h1>
+                    <div class="spinner-border text-light" role="status"
+                        style="width: 5em; height: 5em; margin-left: 43%; margin-top: 10%;">
+                        <span class="visually-hidden"></span>
+                    </div>
+                    <h3 style="margin-top: 5%;">0 de 9999</h3>
+                    <h3 id="os-processando">OS: </h3>
+                    <h3>Tempo estimado:</h3>
+                    <h3 id="porcentagem-concluida">0%</h3>
+                    <h2 class="h2p" id="btnpause" style="font-size: 1.5em;" onclick="pausarMacro()">Pausar</h2>
+                    <h2 class="h2p2" style="font-size: 1.5em;" id="fecharPopup" onclick="fecharPopup()">Fechar</h2>
+            </div>
+
+            <div class="sitepop" id="sitepopup">
+                <h1>SITE</h1>
+                <h3 style="font-weight: bolder; font-size: 2em; margin-top: 5%; margin-bottom: 5%;">ATENÇÃO!</h3>
+                <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">Deseja realmente fechar a aplicação?</h3>
+                <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">Todas as operações em andamento serão
+                    interrompidas,</h3>
+                <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">podendo gerar resultados incompletos.</h3>
+                <h2 class="h3p" id="voltarbnt" style="font-size: 1.5em;" onclick="voltarParaProcessar()">Não</h2>
+                <h2 class="h3ps" style="font-size: 1.5em;" onclick="confirmarFecharAplicacao()">Sim</h2>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"
+        integrity="sha384-eMNCOe7tCwlWPjSj1jikR5+ebnQlEV+TnOOvfTmFGMKTmcX69jKnaYiwVP0klHW"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

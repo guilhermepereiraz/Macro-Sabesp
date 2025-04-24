@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login JLG</title>
+    <link rel="stylesheet" href="css/login-cadastro.css">
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript">
+async function verificarLogin() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const mensagemErroElement = document.getElementById('mensagem-erro');
+
+    const identificador = await eel.verificar_credenciais(email, password)();
+
+    if (identificador) {
+        // Redirecionar para a página principal e passar o identificador
+        window.location.href = `index.html?identificador=${encodeURIComponent(identificador)}`;
+    } else {
+        mensagemErroElement.innerText = 'Email ou senha incorretos.';
+    }
+}
+    </script>
+</head>
+<body>
+    <div id="principal" style="display: flex;">
+        <img src="imagens/sabesp_login.png" alt="Imagem de Login">
+        <div id="formulario-container">
+            <h3 class="login">Login</h3>
+            <p id="mensagem-erro" style="color: red;"></p>
+            <form id="login-form">
+                <div>
+                    <label for="email"></label>
+                    <input type="email" id="email" name="email" placeholder="E-mail" required>
+                </div>
+                <div>
+                    <label for="password"></label>
+                    <input type="password" id="password" name="password" class="inputsn" placeholder="Senha" required>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="input11" name="saveLogin">
+                    <label for="input1" class="label1">Salvar Login</label>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="input22" name="agreeTerms">
+                    <label for="input2" class="label2">Eu concordo com os termos da licença</label>
+                </div>
+                <button type="button" onclick="verificarLogin()">Entrar</button>
+            </form>
+            <p class="cadstro">Não tem uma conta?<a href="#" onclick="mostrarCadastro()"> Cadastre-se aqui.</a></p>
+        </div>
+    </div>
+    <script src="javascript/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+@charset "UTF-8";
+
+body {
+    background-color: #dfe7f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bolder;
+}
+
+/* LOGIN */
+
+#principal {
+    display: flex;
+    background-color: white;
+    box-shadow: 2px 2px 8px rgba(99, 99, 99, 0.596);
+    max-width: 900px;
+    width: 90%;
+}
+
+img {
+    width: 50%;
+    height: auto;
+    object-fit: cover;
+}
+
+#formulario-container {
+    width: 50%;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#formulario-container h2 {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+#formulario-container form div {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#formulario-container label {
+    font-weight: bold;
+}
+
+button {
+    margin-top: 2em;
+}
+
+#formulario-container input,
+#formulario-container button {
+    padding: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;;
+}
+
+#formulario-container button {
+    background-color: rgb(33, 153, 223);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#formulario-container button:hover {
+    transform: scale(0.95);
+    background-color: rgb(7, 73, 110);
+}
+
+.inputsn {
+    margin-top: 1rem;
+}
+
+.label1{
+    margin-left: -14em;
+    margin-top: 2em;
+}
+
+#input11 {
+    position: absolute;
+    margin-left: -20.5em;
+    margin-top: 2.1em;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+}
+
+.label2{
+    margin-left: -1em;
+    margin-top: 1em;
+}
+
+#input22 {
+    position: absolute;
+    margin-left: -20.5em;
+    margin-top: 1em;
+}
+
+.checkbox-container input {
+    margin-right: 0.5rem;
+}
+
+.cadstro {
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.cadstro a {
+    text-decoration: none;
+    color: rgb(3, 111, 252);
+    transition: all 0.3s ease;
+}
+
+.cadstro a:hover {
+    text-decoration: underline;
+    color: blue;
+}
+
+#principal, #principal2 {
+    /* ... outros estilos ... */
+    transition: opacity 0.5s ease-in-out; /* Adiciona a transição de opacidade */
+}
+
+#principal.show, #principal2.show {
+    opacity: 1; /* Define opacidade 1 para exibir a div com fade-in */
+}
+
+h3 {
+    margin: auto;
+    font-size: 1.5em;
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+/* Media Queries para Responsividade */
+@media (max-width: 768px) {
+    #principal {
+        flex-direction: column;
+    }
+
+    img {
+        display: none; /* Oculta a imagem em telas menores */
+    }
+
+    #formulario-container {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    #formulario-container h2 {
+        margin: auto;
+    }
+
+    .cadstro {
+        text-align: center;
+    }
+
+
+    /* Ajuste para inputs e botões em telas menores */
+    #formulario-container input,
+    #formulario-container button {
+        width: calc(100% - 2rem); /* Reduz a largura para compensar o padding */
+    }
+}
+
+@media (max-width: 480px) {
+    #formulario-container input,
+    #formulario-container button {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    /* Correção do checkbox em telas pequenas */
+    .checkbox-container {
+        flex-direction: row;
+    }
+
+    .checkbox-container input {
+        margin-right: 0.5rem;
+    }
+
+    /* Oculta a imagem em telas de celular */
+    #principal img { /* Aumenta a especificidade da regra */
+        display: none !important;
+    }
+
+    img {
+        display: none;
+    }
+}
+
+/* Ajuste para telas ainda menores */
+@media (max-width: 320px) {
+    #formulario-container input,
+    #formulario-container button {
+        padding: 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    img {
+        display: none;
+    }
+}
+
+/* CADASTRO */
+
+#principal2 {
+    display: flex;
+    background-color: white;
+    box-shadow: 2px 2px 8px rgba(99, 99, 99, 0.596);
+    max-width: 900px;
+    width: 90%;
+}
+
+img {
+    width: 50%;
+    height: auto;
+    object-fit: cover;
+}
+
+#formulario-container2 {
+    width: 50%;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#formulario-container h2 {
+    text-align: left;
+    margin-bottom: 5em;
+}
+
+#email2{
+    margin-top: 1em;
+}
+
+#formulario-container form div {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#formulario-container label {
+    font-weight: bold;
+}
+
+button {
+    margin-top: 2em;
+}
+
+#formulario-container2 input,
+#formulario-container2 button {
+    padding: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;;
+}
+
+#formulario-container2 button {
+    background-color: rgb(255, 140, 64);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#formulario-container2 button:hover {
+    transform: scale(0.95);
+    background-color: rgb(172, 72, 6);
+}
+
+.inputsn2 {
+    margin-top: 1rem;
+}
+
+#input112 {
+    position: absolute;
+    margin-left: -58em;
+    margin-top: 1.2em;
+}
+
+.checkbox-container2 {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+}
+
+.label12{
+    margin-left: 2em;
+    margin-top: 1em;
+}
+
+#input222 {
+    position: absolute;
+    margin-left: -58em;
+    margin-top: 1em;
+}
+
+.checkbox-container2 input {
+    margin-right: 0.5rem;
+}
+
+.cadstro2 {
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.cadstro2 a {
+    text-decoration: none;
+    color: rgb(3, 111, 252);
+    transition: all 0.3s ease;
+}
+
+.cadstro2 a:hover {
+    text-decoration: underline;
+    color: blue;
+}
+
+h2 {
+    margin: auto;
+}
+
+/* Media Queries para Responsividade */
+@media (max-width: 768px) {
+    #principal2 {
+        flex-direction: column;
+    }
+
+    img {
+        display: none; /* Oculta a imagem em telas menores */
+    }
+
+    #formulario-container2 {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    #formulario-container2 h2 {
+        margin: auto;
+    }
+
+    .cadstro2 {
+        text-align: center;
+    }
+
+
+    /* Ajuste para inputs e botões em telas menores */
+    #formulario-container2 input,
+    #formulario-container2 button {
+        width: calc(100% - 2rem); /* Reduz a largura para compensar o padding */
+    }
+}
+
+@media (max-width: 480px) {
+    #formulario-container2 input,
+    #formulario-container2 button {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    /* Correção do checkbox em telas pequenas */
+    .checkbox-container2 {
+        flex-direction: row;
+    }
+
+    .checkbox-container2 input {
+        margin-right: 0.5rem;
+    }
+
+    /* Oculta a imagem em telas de celular */
+    #principal2 img { /* Aumenta a especificidade da regra */
+        display: none !important;
+    }
+
+    img {
+        display: none;
+    }
+}
+
+/* Ajuste para telas ainda menores */
+@media (max-width: 320px) {
+    #formulario-container2 input,
+    #formulario-container2 button {
+        padding: 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    img {
+        display: none;
+    }
+}

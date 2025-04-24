@@ -1,0 +1,674 @@
+@charset "UTF-8";
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.full-height {
+    height: calc(100% - 66px); /* Ajuste para a altura do seu header */
+    display: flex;
+}
+
+.container-fluid {
+    background-color: rgb(33, 153, 223);
+    padding: 10px;
+    border: 1px solid black;
+    margin-bottom: 0.4px;
+}
+
+.left-div {
+    background-color: rgb(33, 153, 223);
+    width: 20%; /* Aumentei a largura para melhor visualização */
+    padding: 15px;
+    color: white;
+    border: 1px solid black;
+    overflow: hidden; /* Importante para a transição */
+    overflow-y: auto;
+}
+
+.left-div > h1 {
+    font-size: 1.4em;
+    padding: 6%;
+    margin-left: 30%;
+    margin-top: 10%;
+    cursor: pointer;
+    transition: background-color ease-in 0.3s;
+    margin-bottom: 0; /* Remove a margem inferior padrão dos h1 */
+}
+
+.left-div > h1:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+}
+
+.content-transition {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.5s ease-in-out;
+    margin-left: 30%;
+    color: white;
+    padding-left: 6%;
+    padding-right: 6%;
+    padding-bottom: 10px;
+}
+
+li{
+    font-size: 1.2em;
+    padding: 10px;
+    transition: background-color ease-in 0.3s;
+    cursor: pointer;
+    list-style-type: none;
+
+}
+
+li:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+}
+
+.content-transition.expanded {
+    max-height: 500px;
+    opacity: 1;
+}
+
+/* Macro SITE */
+
+.right-div {
+    background-color: #424040;
+    flex-grow: 1; /* Ajustei para ocupar o restante do espaço */
+    padding: 15px;
+    color: white;
+    z-index: 99;
+    box-shadow: 3px 3px 10px 5px inset rgb(128, 127, 127);
+}
+.site > h1 {
+    background-color: rgb(33, 153, 223);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.site {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 40%;
+    height: 62%;
+    color: white;
+    margin: auto;
+    margin-top: 10%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: none;
+}
+
+.site > h2 {
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    padding: 10px;
+    text-align: center;
+    height: 11%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.site > h2:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.h2p {
+    margin-top: 8%;
+    margin-left: 10%;
+    border-radius: 20px;
+}
+
+.h2p2 {
+    margin-top: -11%;
+    margin-left: 60%;
+    border-radius: 20px;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.site > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.site > h3 {
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .site {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px); /* Reduzir um pouco a largura */
+        margin-left: 20px;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .site > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .site > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .site {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px);
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+
+    .site > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .site > h3 {
+        font-size: 0.8em;
+    }
+}
+
+/* Site processando OS */
+
+.sitepross > h1 {
+    background-color: rgb(33, 153, 223);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.sitepross {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 40%;
+    height: 62%;
+    color: white;
+    margin: auto;
+    margin-top: 10%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: none;
+    
+}
+
+.sitepross > h2 {
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    padding: 10px;
+    text-align: center;
+    height: 11%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.sitepross > h2:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.h2p {
+    margin-top: 8%;
+    margin-left: 10%;
+    border-radius: 20px;
+}
+
+.h2p2 {
+    margin-top: -11%;
+    margin-left: 60%;
+    border-radius: 20px;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.sitepross > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.sitepross > h3 {
+    font-size: 1.5em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .site {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px); /* Reduzir um pouco a largura */
+        margin-left: 20px;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .site > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .site > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .site {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px);
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+
+    .site > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .site > h3 {
+        font-size: 0.8em;
+    }
+}
+
+/* PopUP SITE */
+
+
+.sitepop > h1 {
+    background-color: rgb(136, 10, 5);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.sitepop {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 40%;
+    height: 42%;
+    color: white;
+    margin: auto;
+    margin-top: 10%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: none;
+}
+
+.h3p {
+    background-color: rgb(33, 153, 223);
+    width: 40%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 5%;
+    margin-top: 5%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h3p:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+
+.h3ps {
+    background-color: rgb(136, 10, 5);
+    width: 40%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 55%;
+    margin-top: -10%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h3ps:hover {
+    transition: 0.3s;
+    background-color: rgb(189, 11, 5);
+    cursor: pointer;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.sitepop > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.sitepop > h3 {
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .sitepop {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px); /* Reduzir um pouco a largura */
+        margin-left: 20px;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .sitepop > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .sitepop > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .sitepop {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px);
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+
+    .sitepop > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .site > h3 {
+        font-size: 0.8em;
+    }
+}

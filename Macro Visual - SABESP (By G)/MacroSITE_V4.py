@@ -15,6 +15,11 @@ import io
 import eel
 import threading
 import sys
+import mysql.connector
+import pandas as pd
+import openpyxl 
+import base64
+from threading import Event
 
 
 # Variáveis globais para o driver e wait
@@ -65,88 +70,213 @@ def parar_macro_backend():
     sys.exit() # Encerra o script Python
 
 @eel.expose
-def iniciar_macro_com_arquivo(conteudo_csv, login_usuario, senha_usuario):
+def iniciar_macro_com_arquivo(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario):
     global driver, wait, macro_pausada, pausa_event
-    # ... (seu código de inicialização e login) ...
+
+    tempo_inicial_geral = datetime.datetime.now() # Captura o tempo de início
+    mensagem_erro = None  # Inicializa a variável para mensagens de erro
 
     try:
-        df = pd.read_csv(io.StringIO(conteudo_csv))
-        if df.empty:
-            print("Arquivo CSV está vazio.")
-            return "Erro: Arquivo CSV vazio."
-
-        login_status = login(login_usuario, senha_usuario)
-        if login_status:
-            indices_valores = df.iloc[:, 0].tolist()
-            total_processar = len(indices_valores)
-            print(f"Total de valores para processar: {total_processar}")
-            tempo_inicial_geral = datetime.datetime.now()
-            tempos_processamento = []
-            n_itens_para_media = 5  # Usar os últimos 5 tempos para calcular a média
-
-            for idx, id_os in enumerate(indices_valores):
-                # Verificar se a macro está pausada
-                if macro_pausada:
-                    print(f"Macro pausada no item {idx + 1}. Aguardando para continuar...")
-                    pausa_event.wait() # Bloqueia a execução até que pausa_event.set() seja chamado
-                    pausa_event.clear() # Limpa o evento para a próxima pausa
-                    print(f"Macro continuando do item {idx + 1}.")
-
-                tempo_inicial_item = datetime.datetime.now()
-                print(f"Processando OS {id_os} ({idx + 1}/{total_processar})")
-                resultado = macro(id_os)
-                print("Função macro retornou:", resultado)
-                if resultado:
-                    fornecimento_wfm, valor, str_status_site = resultado
-
-                tempo_final_item = datetime.datetime.now()
-                tempo_processamento = (tempo_final_item - tempo_inicial_item).total_seconds()
-                tempos_processamento.append(tempo_processamento)
-
-                if len(tempos_processamento) > n_itens_para_media:
-                    tempos_processamento.pop(0)  # Remove o tempo mais antigo
-
-                media_tempo_por_item = sum(tempos_processamento) / len(tempos_processamento) if tempos_processamento else 0
-                itens_restantes = total_processar - (idx + 1)
-                tempo_restante_segundos = media_tempo_por_item * itens_restantes
-                tempo_restante_formatado = formatar_tempo(tempo_restante_segundos)
-
-                porcentagem_concluida = round(((float(idx + 1)) / total_processar) * 100) if total_processar > 0 else 0
-
-                print(f"DEBUG: item_atual: {idx + 1}, total_processar: {total_processar}, porcentagem_calculada: {porcentagem_concluida}, tempo_estimado: {tempo_restante_formatado}")
-                print(f"**ANTES de chamar atualizar_status_os: OS={id_os}, item={idx + 1}, total={total_processar}, porcentagem={porcentagem_concluida}, tempo_estimado={tempo_restante_formatado}**")
-                try:
-                    eel.atualizar_status_os(id_os, idx + 1, total_processar, porcentagem_concluida, tempo_restante_formatado)()
-                except Exception as e:
-                    print(f"**ERRO ao chamar atualizar_status_os: {e}**")
-                print("**DEPOIS de tentar chamar atualizar_status_os**")
-
-                restantes = total_processar - (idx + 1)
-                print(f"Valores restantes para processar: {restantes}")
-                if restantes == 0:
-                    pass
-
-                time.sleep(0.5)
-
-            tempo_final_geral = datetime.datetime.now()
-            tempo_total = tempo_final_geral - tempo_inicial_geral
-            print("Tempo total de processamento:", tempo_total)
-            return "Macro processada com sucesso."
+        if tipo_arquivo == 'csv':
+            df = pd.read_csv(io.StringIO(conteudo_arquivo), sep=';', encoding='utf-8')
+        elif tipo_arquivo == 'excel':
+            try:
+                decoded_bytes = base64.b64decode(conteudo_arquivo)
+                excel_file = io.BytesIO(decoded_bytes)
+                df = pd.read_excel(excel_file, engine='openpyxl')
+            except Exception as e:
+                mensagem_erro = f"Erro ao ler o arquivo Excel: {e}"
+                return {"status": "erro", "mensagem": mensagem_erro}
         else:
-            print("Erro no login detectado.")
-            return "Login ou senha inexistentes. Verifique e tente novamente."
+            mensagem_erro = "Tipo de arquivo não suportado."
+            return {"status": "erro", "mensagem": mensagem_erro}
 
+        print(f"Colunas encontradas no DataFrame: {df.columns}") # ADICIONADO PARA DEBUG
+
+        if df.empty:
+            mensagem_erro = "Erro: Arquivo vazio."
+        else:
+            coluna_os_encontrada = False
+            coluna_os_nome = None
+            for col in df.columns:
+                if col.strip().lower() == "os":
+                    coluna_os_nome = col
+                    coluna_os_encontrada = True
+                    break
+
+            if not coluna_os_encontrada:
+                mensagem_erro = f"Não foi encontrada nenhuma coluna com o nome 'OS' (após remover espaços)."
+            else:
+                if coluna_os_nome != 'OS':
+                    df.rename(columns={coluna_os_nome: 'OS'}, inplace=True)
+
+                login_status = login(login_usuario, senha_usuario)
+                if login_status:
+                    indices_valores = df['OS'].tolist() # Acessa a coluna 'OS'
+                    total_processar = len(indices_valores)
+                    os_processadas_com_sucesso = 0 # Inicializa o contador de OS processadas
+                    print(f"Total de valores para processar: {total_processar}")
+                    tempos_processamento = []
+                    n_itens_para_media = 5   # Usar os últimos 5 tempos para calcular a média
+
+                    for idx, id_os in enumerate(indices_valores):
+                        # Verificar se a macro está pausada
+                        if macro_pausada:
+                            print(f"Macro pausada no item {idx + 1}. Aguardando para continuar...")
+                            pausa_event.wait() # Bloqueia a execução até que pausa_event.set() seja chamado
+                            pausa_event.clear() # Limpa o evento para a próxima pausa
+                            print(f"Macro continuando do item {idx + 1}.")
+
+                        tempo_inicial_item = datetime.datetime.now()
+                        print(f"Processando OS {id_os} ({idx + 1}/{total_processar})")
+                        resultado = macro(id_os)
+                        print("Função macro retornou:", resultado)
+                        if resultado:
+                            fornecimento_wfm, valor, str_status_site = resultado
+                            # inserir_dados_banco(valor, fornecimento_wfm, str_status_site, nome_arquivo, tipo_arquivo, identificador_usuario) # Use o identificador aqui
+                            os_processadas_com_sucesso += 1 # Incrementa o contador
+
+                        tempo_final_item = datetime.datetime.now()
+                        tempo_processamento = (tempo_final_item - tempo_inicial_item).total_seconds()
+                        tempos_processamento.append(tempo_processamento)
+
+                        if len(tempos_processamento) > n_itens_para_media:
+                            tempos_processamento.pop(0)     # Remove o tempo mais antigo
+
+                        media_tempo_por_item = sum(tempos_processamento) / len(tempos_processamento) if tempos_processamento else 0
+                        itens_restantes = total_processar - (idx + 1)
+                        tempo_restante_segundos = media_tempo_por_item * itens_restantes
+                        tempo_restante_formatado = formatar_tempo(tempo_restante_segundos)
+
+                        porcentagem_concluida = round(((float(idx + 1)) / total_processar) * 100) if total_processar > 0 else 0
+
+                        print(f"DEBUG: item_atual: {idx + 1}, total_processar: {total_processar}, porcentagem_calculada: {porcentagem_concluida}, tempo_estimado: {tempo_restante_formatado}")
+                        print(f"**ANTES de chamar atualizar_status_os: OS={id_os}, item={idx + 1}, total={total_processar}, porcentagem={porcentagem_concluida}, tempo_estimado={tempo_restante_formatado}**")
+                        try:
+                            eel.atualizar_status_os(id_os, idx + 1, total_processar, porcentagem_concluida, tempo_restante_formatado)()
+                        except Exception as e:
+                            print(f"**ERRO ao chamar atualizar_status_os: {e}**")
+                        print("**DEPOIS de tentar chamar atualizar_status_os**")
+
+                        restantes = total_processar - (idx + 1)
+                        print(f"Valores restantes para processar: {restantes}")
+
+                        time.sleep(0.5)
+
+                    tempo_final_geral = datetime.datetime.now() # Captura o tempo de término
+                    tempo_total = tempo_final_geral - tempo_inicial_geral
+
+                    total_segundos = int(tempo_total.total_seconds())
+                    total_minutos = int(tempo_total.total_seconds() // 60)
+                    total_horas = int(total_minutos // 60)
+
+                    if total_segundos < 60:
+                        tempo_total_formatado_str = f"{total_segundos} segundos"
+                    elif total_minutos < 60:
+                        tempo_total_formatado_str = f"{total_minutos} minutos e {total_segundos % 60} segundos"
+                    else:
+                        tempo_total_formatado_str = f"{total_horas} horas e {total_minutos % 60} minutos"
+
+                    # Envia os dados de conclusão para o frontend
+                    eel.exibir_conclusao_site(
+                        tempo_inicial_geral.strftime("%H:%M"),
+                        tempo_inicial_geral.strftime("%d/%m"),
+                        tempo_final_geral.strftime("%H:%M"),
+                        tempo_final_geral.strftime("%d/%m"),
+                        os_processadas_com_sucesso,
+                        tempo_total_formatado_str,
+                        nome_arquivo
+
+                    )()
+
+                    print("----------------------------------")
+                    print("Começo da operação:", tempo_inicial_geral.strftime("%H:%M -- %d/%m"))
+                    print("Termino da operação:", tempo_final_geral.strftime("%H:%M -- %d/%m"))
+                    print(f"Total de OS processadas ({os_processadas_com_sucesso})")
+                    print(f"Tempo total da operação: {tempo_total_formatado_str}")
+                    print("----------------------------------")
+
+                    print("Macro concluída com sucesso.")
+                    return {"status": "sucesso"}
+                else:
+                    mensagem_erro = "Login ou senha inexistentes. Verifique e tente novamente."
+
+    except pd.errors.EmptyDataError:
+        mensagem_erro = "Erro: Arquivo vazio."
     except Exception as e:
-        print(f"Erro ao processar o arquivo CSV e executar a macro: {str(e)}")
-        return f"Erro ao encerrar macro incorretamente"
+        mensagem_erro = f"Erro ao processar o arquivo e executar a macro: {str(e)}"
+    finally:
+        if 'driver' in globals() and driver:
+            try:
+                driver.quit()
+                print("Navegador fechado (finally).")
+            except Exception as e:
+                print(f"Erro ao fechar o driver no finally: {e}")
 
+    if mensagem_erro:
+        print(mensagem_erro)
+        return {"status": "erro", "mensagem": mensagem_erro}
+    return {"status": "sucesso"} # Retorna sucesso se não houve erro e não houve mensagem de erro
+
+def inserir_dados_banco(os_valor, fornecimento_valor, resultado_site_valor, nome_arquivo, tipo_arquivo, autor):
+    db_user = 'root'
+    db_password = 'SB28@sabesp'
+    db_host = '10.51.109.123'  # Verifique se o IP está correto
+    db_name = 'pendlist'
+    connection = None  # Inicializa a variável de conexão fora do try
+
+    try:
+        # Estabelecendo a conexão com o MySQL
+        connection = mysql.connector.connect(
+            host=db_host,
+            user=db_user,
+            password=db_password,
+            database=db_name
+        )
+
+        if connection.is_connected():
+            print("Conexão com o banco de dados bem-sucedida!")
+
+        # Criar um cursor para executar comandos SQL
+        cursor = connection.cursor()
+
+        # Comando SQL para inserção **(ADICIONEI A COLUNA 'autor')**
+        sql = """
+        INSERT INTO tb_consulta_site(Os, fornecimento, resultado_site, nome_arquivo, tipo_arquivo, autor)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        # Valores a serem inseridos **(ADICIONEI A VARIÁVEL 'autor')**
+        values = (os_valor, fornecimento_valor, resultado_site_valor, nome_arquivo, tipo_arquivo, autor)
+        print(os_valor, fornecimento_valor, resultado_site_valor, nome_arquivo, tipo_arquivo, autor) # ADICIONADO PARA DEBUG
+
+        # Executar o comando SQL
+        cursor.execute(sql, values)
+
+        # Confirmar a transação
+        connection.commit()
+        print(f"Dados inseridos com sucesso! OS: {os_valor}, Fornecimento: {fornecimento_valor}, Resultado Site: {resultado_site_valor}, Autor: {autor}")
+
+    except mysql.connector.Error as e:
+        print(f"Erro ao inserir os dados: {e}")
+        if connection and connection.is_connected():
+            connection.rollback()   # Em caso de erro, desfaz as alterações
+    finally:
+        # Fechar a conexão
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Conexão com o banco de dados fechada.")
+            
+            
 def formatar_tempo(segundos):
     horas = int(segundos // 3600)
     minutos = int((segundos % 3600) // 60)
     seg = int(segundos % 60)
     return f"{horas:02d}:{minutos:02d}:{seg:02d}"
 
+
 def reiniciar_macro(valor):
+    time.sleep(1)
     global driver, wait
     xpath_principal = '//*[@id="box"]/div[3]/div/div/div/div/div[3]'
     xpath_alternativo = '//*[@id="box"]/div[3]/div/div/div/div/div[2]'
@@ -173,6 +303,7 @@ def reiniciar_macro(valor):
     except TimeoutException:
         print("Elemento principal não encontrado, tentando o alternativo...")
         try:
+            time.sleep(1)
             novainstancia = WebDriverWait(driver, 10).until(
                 EC.visibility_of_element_located((By.XPATH, xpath_alternativo))
             )
@@ -185,6 +316,7 @@ def reiniciar_macro(valor):
             return login()
 
     try:
+        time.sleep(1)
         print("Tentando clicar em 'planejamento'...")
         planejamento = WebDriverWait(driver, 60).until(
             EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div/div[2]/div[6]'))
@@ -205,6 +337,7 @@ def reiniciar_macro(valor):
         print("Elemento 'planejamento' não encontrado dentro do limite de tempo. Reiniciando a macro...")
 
     try:
+        time.sleep(1)
         print("Tentando clicar em 'busca execução'...")
         busca_execucao = WebDriverWait(driver, 60).until(
             EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
@@ -255,31 +388,31 @@ def apagar_processada():
         print(f"Arquivo {arquivo} não encontrado.")
         
 def login(login_digitado, senha_digitada):
-    global driver, wait
+    global driver, wait, usuario_logado_identificador # Adicione a variável global aqui
     prefs = {"profile.default_content_setting_values.notifications": 2}  # Bloqueia notificações do navegador
     options = Options()
-    # options.add_argument("--headless") # Deixa o navegador invisivel
-    # options.add_argument("--disable-gpu") # Deixa o navegador invisivel
-    # options.add_argument("--start-fullscreen")  # Abre em tela cheia
+    options.add_argument("--headless") # Deixa o navegador invisivel
+    options.add_argument("--disable-gpu") # Deixa o navegador invisivel
+    # options.add_argument("--start-fullscreen")   # Abre em tela cheia
 
     driver = webdriver.ChromiumEdge(options=options)
     wait = WebDriverWait(driver, 10)
 
     driver.get('https://geoprd.sabesp.com.br/sabespwfm/')
 
-    l_login = login_digitado  # Usando o valor passado como argumento
-    s_senha = senha_digitada  # Usando o valor passado como argumento
+    l_login = login_digitado   # Usando o valor passado como argumento
+    s_senha = senha_digitada   # Usando o valor passado como argumento
 
     driver.maximize_window()
 
-    try:  # Clicar no campo de nome de usuário
+    try:   # Clicar no campo de nome de usuário
         # Ajuste as coordenadas conforme necessário
 
         driver.switch_to.frame(driver.find_element(By.NAME, "mainFrame"))
         time.sleep(2)
-        username_field = driver.find_element(By.CSS_SELECTOR, "input[id='USER']")  # Altere "username" para o ID correto do campo de usuário
-        password_field = driver.find_element(By.CSS_SELECTOR, 'input[id="INPUTPASS"]')  # Altere "password" para o ID correto do campo de senha
-        login_button = driver.find_element("id", "submbtn")  # Altere "login-button" para o ID correto do botão de login
+        username_field = driver.find_element(By.CSS_SELECTOR, "input[id='USER']")   # Altere "username" para o ID correto do campo de usuário
+        password_field = driver.find_element(By.CSS_SELECTOR, 'input[id="INPUTPASS"]')   # Altere "password" para o ID correto do campo de senha
+        login_button = driver.find_element("id", "submbtn")   # Altere "login-button" para o ID correto do botão de login
 
         # Preencher os campos e enviar o formulário
         username_field.send_keys(l_login)
@@ -293,16 +426,16 @@ def login(login_digitado, senha_digitada):
 
         busca_execucao = WebDriverWait(driver, 120).until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]')))
         busca_execucao.click()
-        return True
+        return True # Retorna True em caso de sucesso
 
     except Exception as e:
         print(f"Erro durante o login: {str(e)}")
-        return False
+        return False # Retorna False em caso de falha
     
 def macro(valor):
     global driver, wait
 
-    time.sleep(0.5)
+    time.sleep(1)
     try:
         busca_execucao = WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
@@ -488,8 +621,11 @@ def macro(valor):
             pass
         except Exception:
             i=0
-
+            
+    
     armazenar_dados_proc_final(fornecimento_wfm, valor, str_status_site)
     apagar_processada()
+    
+    
 
     return fornecimento_wfm, valor, str_status_site

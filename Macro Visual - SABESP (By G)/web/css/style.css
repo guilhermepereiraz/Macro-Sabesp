@@ -3,6 +3,7 @@
 html, body {
     height: 100%;
     margin: 0;
+    overflow-y: hidden;
 }
 
 .full-height {
@@ -93,7 +94,7 @@ li:hover {
 .site {
     background-color: rgba(22, 22, 22, 0.651);
     width: 40%;
-    height: 62%;
+    height: 68%;
     color: white;
     margin: auto;
     margin-top: 10%;
@@ -103,32 +104,42 @@ li:hover {
     display: none;
 }
 
-.site > h2 {
+.h2p22{
     background-color: rgb(33, 153, 223);
     width: 30%;
     padding: 10px;
+    text-align: center;
+    border-radius: 20px;
+    margin-top: 6%;
+    margin-left: 15%;
+    height: 11%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h2p22:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.h2p2ss {
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    border-radius: 20px;
+    padding: 10px;
+    margin-left: 55%;
+    margin-top: -12%;
     text-align: center;
     height: 11%;
     transition: background-color ease-in 0.3s;
     box-sizing: border-box;
 }
 
-.site > h2:hover {
+.h2p2ss:hover {
     transition: 0.3s;
     background-color: rgb(7, 73, 110);
     cursor: pointer;
-}
-
-.h2p {
-    margin-top: 8%;
-    margin-left: 10%;
-    border-radius: 20px;
-}
-
-.h2p2 {
-    margin-top: -11%;
-    margin-left: 60%;
-    border-radius: 20px;
 }
 
 #nome-usuario {
@@ -297,32 +308,43 @@ li:hover {
     
 }
 
-.sitepross > h2 {
+
+.h2puu {
     background-color: rgb(33, 153, 223);
     width: 30%;
     padding: 10px;
+    text-align: center;
+    margin-top: 1%;
+    margin-left: 15%;
+    border-radius: 20px;
+    height: 11%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h2puu:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.h2p2su {
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    padding: 10px;
+    border-radius: 20px;
+    margin-left: 55%;
+    margin-top: -11%;
     text-align: center;
     height: 11%;
     transition: background-color ease-in 0.3s;
     box-sizing: border-box;
 }
 
-.sitepross > h2:hover {
+.h2p2su:hover {
     transition: 0.3s;
     background-color: rgb(7, 73, 110);
     cursor: pointer;
-}
-
-.h2p {
-    margin-top: 8%;
-    margin-left: 10%;
-    border-radius: 20px;
-}
-
-.h2p2 {
-    margin-top: -11%;
-    margin-left: 60%;
-    border-radius: 20px;
 }
 
 #nome-usuario {
@@ -484,7 +506,7 @@ li:hover {
     height: 42%;
     color: white;
     margin: auto;
-    margin-top: 10%;
+    margin-top: 15%;
     border-radius: 10px;
     box-sizing: border-box;
     position: relative;
@@ -669,6 +691,436 @@ li:hover {
     }
 
     .site > h3 {
+        font-size: 0.8em;
+    }
+}
+
+/* Final SITE */
+
+
+.sitefinish > h1 {
+    background-color: rgb(33, 153, 223);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.sitefinish {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 30%;
+    height: 42%;
+    color: white;
+    margin: auto;
+    margin-top: 15%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: none;
+    
+}
+
+.h3p {
+    background-color: rgb(33, 153, 223);
+    width: 40%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 5%;
+    margin-top: 5%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h3p:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+
+.h3p2 {
+    background-color: rgb(33, 153, 223);
+    width: 80%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 10%;
+    margin-top: 14%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h3p2:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.sitefinish > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.sitefinish > h3 {
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .sitefinish {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px); /* Reduzir um pouco a largura */
+        margin-left: 20px;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .sitefinish > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .sitefinish > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .sitefinish {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px);
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+
+    .sitefinish > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .sitefinish > h3 {
+        font-size: 0.8em;
+    }
+}
+
+/* Site conclusão */
+
+.siteconclusao > h1 {
+    background-color: rgb(33, 153, 223);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.siteconclusao {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 55%;
+    height: 75%;
+    color: white;
+    margin: auto;
+    margin-top: 7%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: none;
+    
+
+}
+
+.h2p {
+    background-color: rgb(33, 153, 223);
+    width: 25%;
+    padding: 10px;
+    text-align: center;
+    margin-top: 3%;
+    margin-left: 5%;
+    height: 9%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+    border-radius: 20px;
+}
+
+.h2p:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.siteh2 {
+    background-color: rgb(33, 153, 223);
+    width: 25%;
+    padding: 10px;
+    text-align: center;
+    margin-top: -8%;
+    margin-left: 36%;
+    height: 9%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+    border-radius: 20px;
+}
+
+.siteh2:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.siteh22 {
+    background-color: rgb(33, 153, 223);
+    width: 28%;
+    padding: 10px;
+    text-align: center;
+    margin-top: -8%;
+    margin-left: 67%;
+    height: 9%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+    border-radius: 20px;
+}
+
+.siteh22:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.siteconclusao > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.siteconclusao > h3 {
+    font-size: 1.3em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .siteconclusao {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px); /* Reduzir um pouco a largura */
+        margin-left: 20px;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .siteconclusao > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .siteconclusao > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .siteconclusao {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px);
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+
+    .siteconclusao > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .siteconclusao > h3 {
         font-size: 0.8em;
     }
 }

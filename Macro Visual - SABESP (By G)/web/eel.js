@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Conteúdo CSV:', conteudoCSV);
                     console.log('Login Usuário:', loginUsuario);
                     console.log('Senha Usuário:', senhaUsuario);
-                    const resultadoPython = await eel.iniciar_macro_com_arquivo(conteudoCSV, loginUsuario, senhaUsuario)();
+                    const resultadoPython = await eel.iniciar_macro_multi_thread(conteudoCSV, loginUsuario, senhaUsuario)();
                     console.log('Resultado da macro:', resultadoPython);
                     alert(resultadoPython);
                 };

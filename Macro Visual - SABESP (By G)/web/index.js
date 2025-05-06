@@ -411,17 +411,17 @@ function finalizarProcesso() {
 
     if (bntfechar) {
         final.style.display = 'none';                                        // Esconde a tela de conclusão
-        quantidadedeprocessadors.innerText = '0 de 9999';                    // Reseta a quantidade
+        quantidadedeprocessadors.innerText = '0 de 9999: Processando..';                    // Reseta a quantidade
         osprocessadas.innerText = 'OS: ';                                     // Reseta a OS
-        tempoestimado.innerText = 'Tempo estimado:';                        // Reseta o tempo estimado
-        porcentagem.innerText = '0%';
+        tempoestimado.innerText = 'Tempo estimado: Processando..';                        // Reseta o tempo estimado
+        porcentagem.innerText = '0%: Processando..';
 
 
         if (inicio)
-            quantidadedeprocessadors.innerText = '0 de 9999';                // Reseta a quantidade
+            quantidadedeprocessadors.innerText = '0 de 9999: Processando..';                // Reseta a quantidade
         osprocessadas.innerText = 'OS: ';                                 // Reseta a OS
-        tempoestimado.innerText = 'Tempo estimado:';                      // Reseta o tempo estimado
-        porcentagem.innerText = '0%';                                   // Reseta a porcentagem
+        tempoestimado.innerText = 'Tempo estimado: Processando..';                      // Reseta o tempo estimado
+        porcentagem.innerText = '0%: Processando..';                                   // Reseta a porcentagem
 
     }
     else {

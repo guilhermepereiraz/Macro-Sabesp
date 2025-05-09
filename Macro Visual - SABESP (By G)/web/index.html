@@ -13,6 +13,7 @@
     </style>
     <script type="text/javascript" src="/eel.js"></script>
     <script type="text/javascript" src="index.js"></script>
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -21,6 +22,8 @@
             <h1><img src="imagens/logo-sabesp-1024.png" alt="" style="width: 70px; margin-right: 15px;">Macro JGL</h1>
         </div>
     </header>
+
+   
 
     <div class="full-height">
         <div class="left-div">
@@ -43,7 +46,8 @@
                 <ul>
                     <li onclick="mostrarmacro()" id="macro"><img src="imagens/macro.png" alt=""
                             style="width: 30px; margin-right: 10px;">Macro SITE</li>
-                    <li><img src="imagens/macro.png" alt="" style="width: 30px; margin-right: 10px;">Macro Segunda Via
+                    <li onclick="mostrarconsultageral()" id="consultagr"><img src="imagens/macro.png" alt="" style="width: 30px; margin-right: 10px;">Macro Consulta
+                        Geral
                     </li>
                     <li><img src="imagens/macro.png" alt="" style="width: 30px; margin-right: 10px;">Macro Consulta
                         Geral</li>
@@ -77,20 +81,41 @@
                     style="width: 40px; margin-right: 10px;">Deslogar</h1>
             <div id="deslogar-content" class="content-transition">
                 <p>Clique no botão para deslogar.</p>
-                <button style="color: black; background-color: white;" id="deslog"
+                <button style="color: black; background-color: white; margin-bottom: 15%;" id="deslog"
                     onclick="deslogar()">Deslogar</button>
             </div>
-
-
-
         </div>
 
+        <!-- MACRO SITE -->
+
         <div class="right-div">
+             <!-- Primeiro login -->
+
+             <div id="carregandocerto" style="display: flex;">
+                <div id="formulario-container">
+                    <h3>Boas-vindas!</h3>
+                    <p>Olá! Identificamos que este é o seu primeiro acesso ao sistema. Para sua segurança, é necessário criar uma nova senha agora.</p>
+                    <p>Por favor, utilize o formulário abaixo para definir sua nova senha e continuar.</p>
+                    <p id="mensagem-erro-troca-senha" style="color: red;"></p>
+                    <div>
+                        <label for="password-provisoria"></label>
+                        <input type="text" id="password-provisoria" name="password" class="inputsn" placeholder="Senha Atual" required>
+                    </div>
+                    <div>
+                        <label for="password-nova"></label>
+                        <input type="text" id="password-nova" style="margin-bottom: 10%;" name="passwordrepeat" class="inputsn" placeholder="Nova Senha" required>
+                        <button type="button" onclick="salvarNovaSenha()">Entrar</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="site" id="macrosite">
-                <h1>Macro SITE - WFM </h1>
+                <h1>SITE - WFM </h1>
                 <h3>Area de dados</h3>
                 <input type="file" id="arquivo-csv" accept=".csv" style="margin-left: 10%; margin-top: 5%;"><br>
-                <input type="radio" id="csvOption" checked name="arquivoTipo" value="csv" style="margin-left: 10%; margin-top: 5%;">
+                <input type="radio" id="csvOption" checked name="arquivoTipo" value="csv"
+                    style="margin-left: 10%; margin-top: 5%;">
                 <label for="csvOption">CSV</label>
                 <input type="radio" name="arquivoTipo" id="excelOption" value="excel">
                 <label for="excelOption">Excel</label>
@@ -98,48 +123,55 @@
                 <hr style="background-color: white; width: 80%;">
                 <h3>Area de acesso</h3>
                 <p>Login</p> <input type="text" id="login2" name="login" placeholder="Login" required>
-                <p>Senha</p><input type="password" id="password2" name="password" class="inputsn"
-                                       placeholder="Senha" required>
-        
-                <h2 class="h2p22" style="font-size: 1.5em; cursor: pointer;" id="processar" onclick="lerArquivoSelecionado()">Processar</h2>
-                <h2 class="h2p2ss" style="font-size: 1.5em; cursor: pointer;" id="fecharsite" onclick="fecharsite()">Fechar</h2>
+                <p>Senha</p><input type="password" id="password2" name="password" class="inputsn" placeholder="Senha"
+                    required>
+
+                <h2 class="h2p22" style="font-size: 1.5em; cursor: pointer;" id="processar"
+                    onclick="lerArquivoSelecionado()">Processar</h2>
+                <h2 class="h2p2ss" style="font-size: 1.5em; cursor: pointer;" id="fecharsite" onclick="fecharsite()">
+                    Fechar</h2>
             </div>
-        
+
             <div class="sitepross" id="sitepross2" style="display: none;">
                 <h1>Processamento - SITE</h1>
                 <h3 style="margin-top: 3%;">Processando arquivo...</h3>
                 <div class="spinner-border text-light" role="status"
-                     style="width: 5em; height: 5em; margin-left: 43%; margin-top: 10%;">
+                    style="width: 5em; height: 5em; margin-left: 43%; margin-top: 10%;">
                     <span class="visually-hidden"></span>
                 </div>
                 <h3 style="margin-top: 5%;" id="quantidade">0 de 9999: Processando..</h3>
                 <h3 id="tempoestimado">Tempo estimado: Processando..</h3>
-                <h3 id="porcentagem-concluida">0%: Processando..</h3>
-                <h2 class="h2puu" id="btnpause" style="font-size: 1.5em; cursor: pointer;" onclick="pausarMacro()">Pausar</h2>
-                <h2 class="h2p2su" id="fecharPopup" style="font-size: 1.5em; cursor: pointer;" onclick="fecharPopup()">Fechar</h2>
+                <h3 id="porcentagem-concluida" style="margin-bottom: 5%;">0%: Processando..</h3>
+                <h2 class="h2puu" id="btnpause" style="font-size: 1.5em; cursor: pointer;" onclick="pausarMacro()">
+                    Pausar</h2>
+                <h2 class="h2p2su" id="fecharPopup" style="font-size: 1.5em; cursor: pointer;" onclick="fecharPopup()">
+                    Fechar</h2>
             </div>
-        
+
             <div class="sitepop" id="sitepopup" style="display: none;">
-                <h1>SITE</h1>
+                <h1>SITE - WFM </h1>
                 <h3 style="font-weight: bolder; font-size: 2em; margin-top: 5%; margin-bottom: 5%;">ATENÇÃO!</h3>
                 <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">Deseja realmente encerrar o processamento da
                     macro?</h3>
                 <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">Todas as operações em andamento serão
                     interrompidas,</h3>
                 <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">podendo gerar resultados incompletos.</h3>
-                <h2 class="h3p" id="voltarbnt" style="font-size: 1.5em; cursor: pointer;" onclick="voltarParaProcessar()">Não</h2>
-                <h2 class="h3ps" id="bntfecharr" style="font-size: 1.5em; cursor: pointer;" onclick="confirmarFecharAplicacao()">Sim</h2>
+                <h2 class="h3p" id="voltarbnt" style="font-size: 1.5em; cursor: pointer;"
+                    onclick="voltarParaProcessar()">Não</h2>
+                <h2 class="h3ps" id="bntfecharr" style="font-size: 1.5em; cursor: pointer;"
+                    onclick="confirmarFecharAplicacao()">Sim</h2>
             </div>
-        
+
             <div class="sitefinish" id="sitefinish" style="display: none;">
                 <h1>SITE</h1>
                 <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%; margin-top: 15%;">Macro encerrada com sucesso
                 </h3>
                 <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%; margin-top: 2%;">Clique em "OK" para
                     continuar..</h3>
-                <h2 class="h3p2" id="voltarbnt2" style="font-size: 1.5em; cursor: pointer;" onclick="finalizarProcesso()">OK</h2>
+                <h2 class="h3p2" id="voltarbnt2" style="font-size: 1.5em; cursor: pointer;"
+                    onclick="finalizarProcesso()">OK</h2>
             </div>
-        
+
             <div class="siteconclusao" id="siteconclusao">
                 <h1>SITE - Resultado </h1>
                 <h3 style="font-size: 1.3em; margin-top: 5%;">Inicio da Operação</h3>
@@ -152,14 +184,93 @@
                     <h3 style="margin-left: 40%; margin-top: -4%; position: absolute" id="data_termino">Data:</h3>
                     <h3 style="margin-left: -60%; margin-top: 5%;" id="total_os_processadas">OS Processadas:
                     </h3>
-                    <h3 style="margin-left: 40%; margin-top: -4%; position: absolute" id="tempo_total_operacao">Tempo da Operação:</h3>
+                    <h3 style="margin-left: 40%; margin-top: -4%; position: absolute" id="tempo_total_operacao">Tempo da
+                        Operação:</h3>
                     <hr style="background-color: white; width: 80%; margin-top: 5%;">
-                    <h2 class="h2p" style="font-size: 1.5em; cursor: pointer;" id="concluido" onclick="concluido()">Concluido</h2>
-                    <h2 class="siteh2" style="font-size: 1.5em; cursor: pointer;" id="fecharsite" onclick="fecharsite()">Ver Resultados</h2>
-                    <h2 class="siteh22" style="font-size: 1.5em; cursor: pointer;" onclick="rodarNovamente()">Rodar Novamente</h2>
+                    <h2 class="h2p" style="font-size: 1.5em; cursor: pointer;" id="concluido" onclick="concluido()">
+                        Concluido</h2>
+                    <h2 class="siteh2" style="font-size: 1.5em; cursor: pointer;" id="fecharsite"
+                        onclick="fecharsite()">Ver Resultados</h2>
+                    <h2 class="siteh22" style="font-size: 1.5em; cursor: pointer;" onclick="rodarNovamente()">Rodar
+                        Novamente</h2>
             </div>
-        </div>
 
+              <!-- MACRO CONSUTAL GERAL-->
+               
+                <div class="csgelra" id="consultageral">
+                    <h1>Consulta Geral - NETA </h1>
+                    <h3>Area de dados</h3>
+                    <input type="file" id="cs-arquivo-csv" accept=".csv" style="margin-left: 10%; margin-top: 5%;"><br>
+                    <input type="radio" id="cs-csvOption" checked name="tipocsv" value="csv"
+                        style="margin-left: 10%; margin-top: 5%;">
+                    <label for="cs-csvOption">CSV</label>
+                    <input type="radio" name="tipocsv" id="cs-excelOption" value="excel">
+                    <label for="cs-excelOption">Excel</label>
+                    <div id="cs-mensagem-de-erro" style="color: red; display: none; margin-top: 10px; margin-left: 10%;"></div>
+                    <hr style="background-color: white; width: 80%;">
+                    <h3>Filtragem</h3>
+                    <input type="radio" id="cs-pdeOption" checked name="tipodemacro"
+                        style="margin-left: 40%;">
+                    <label for="cs-pdeOption">PDE</label>
+
+                    <input type="radio" name="tipodemacro" id="cs-hidroOption">
+                    <label for="cs-hidroOption">HIDRO</label>
+                    <hr style="background-color: white; width: 80%;">
+                    <h3>Area de acesso</h3>
+                    <p>Login</p> <input type="text" id="login3" name="cs-login" placeholder="Login" required>
+                    <p>Senha</p><input type="password" id="password3" name="cs-password" class="inputsn" placeholder="Senha"
+                        required>
+    
+                    <h2 class="h2consultaprocessar" style="font-size: 1.5em; cursor: pointer;" id="processargeral"
+                        onclick="lerArquivoSelecionadoconsultageral()">Processar</h2>
+                    <h2 class="h2consultafechar" style="font-size: 1.5em; cursor: pointer;" id="fecharconsultageral" onclick="fecharconsultageral()">
+                        Fechar</h2>
+                </div>
+
+                <div class="consultageralpross" id="consultpross2">
+                    <h1>Processamento - NETA</h1>
+                    <h3 style="margin-top: 3%;">Processando arquivo...</h3>
+                    <div class="spinner-border text-light" role="status"
+                        style="width: 5em; height: 5em; margin-left: 43%; margin-top: 10%;">
+                        <span class="visually-hidden"></span>
+                    </div>
+                    
+                    <h3 style="margin-top: 5%;" id="cs-quantidade">0 de 9999: Processando..</h3>
+                    <h3 id="cs-tipodepesquisa">Tipo de Filtro: Processando..</h3>
+                    <h3 id="cs-tempoestimado">Tempo estimado: Processando..</h3>
+                    <h3 id="cs-error">Erros: Processando..</h3>
+                    <h3 id="cs-porcentagem-concluida">0%: Processando..</h3>
+                    <h2 class="h2cspr" id="btnpause" style="font-size: 1.5em; cursor: pointer;" onclick="pausarMacro()">
+                        Pausar</h2>
+                    <h2 class="h2cspr2" id="fecharPopup" style="font-size: 1.5em; cursor: pointer;" onclick="fecharPopupCS()">
+                        Fechar</h2>
+                </div>
+
+                <div class="csspop" id="cs-popup" style="display: none;">
+                    <h1>Consulta Geral - NETA </h1>
+                    <h3 style="font-weight: bolder; font-size: 2em; margin-top: 5%; margin-bottom: 5%;">ATENÇÃO!</h3>
+                    <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">Deseja realmente encerrar o processamento da
+                        macro?</h3>
+                    <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">Todas as operações em andamento serão
+                        interrompidas,</h3>
+                    <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%;">podendo gerar resultados incompletos.</h3>
+                    <h2 class="cs-h3p" id="cs-voltarbnt" style="font-size: 1.5em; cursor: pointer;"
+                        onclick="voltarParaProcessarCS()">Não</h2>
+                    <h2 class="cs-h3ps" id="cs-bntfecharr" style="font-size: 1.5em; cursor: pointer;"
+                        onclick="CSconfirmarFecharAplicacao()">Sim</h2>
+                </div>
+
+                <div class="cs-finish" id="csfinish" style="display: none;">
+                    <h1>Consulta Geral</h1>
+                    <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%; margin-top: 15%;">Macro encerrada com sucesso
+                    </h3>
+                    <h3 style="width: 90%; font-size: 1.3em; margin-left: 5%; margin-top: 2%;">Clique em "OK" para
+                        continuar..</h3>
+                    <h2 class="csh3p2" id="csvoltarbnt3" style="font-size: 1.5em; cursor: pointer;"
+                        onclick="CSfinalizarProcesso()">OK</h2>
+                </div>
+
+        </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
@@ -177,10 +288,10 @@
 
             if (identificadorUsuario && nomeUsuarioElement) {
                 nomeUsuarioElement.textContent = identificadorUsuario;
-            } else {
+            } /* else {
                 alert('Erro: Identificador do usuário não encontrado. Faça login novamente.');
                 window.location.href = './login.html';
-            }
+            } */
         };
 
         function lerArquivoSelecionado() {
@@ -192,12 +303,14 @@
                 mensagemErroDiv.textContent = 'Por favor, selecione um arquivo.';
                 mensagemErroDiv.style.display = 'block';
                 return;
+            }else {
+                alert('Erro: Identificador do usuário não encontrado. Faça login novamente.');
+                window.location.href = './login.html';
             }
-
             // Processar o arquivo selecionado
         }
     </script>
 </body>
 
 </html>
-``` 
+```

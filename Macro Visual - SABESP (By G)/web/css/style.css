@@ -43,6 +43,43 @@ html, body {
     background-color: rgb(7, 73, 110);
 }
 
+/* Primeiro login */
+
+#carregandocerto {
+    position: fixed;
+    top: 50%;
+    left: 58%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 2px 2px 8px rgba(99, 99, 99, 0.596);
+    max-width: 500px;
+    width: 90%;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+
+#formulario-container-crc {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+}
+
+#formulario-container-crc h3 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+
 .content-transition {
     max-height: 0;
     opacity: 0;
@@ -53,6 +90,48 @@ html, body {
     padding-left: 6%;
     padding-right: 6%;
     padding-bottom: 10px;
+}
+
+button {
+    margin-top: 2em;
+}
+
+#formulario-container input,
+#formulario-container button {
+    padding: 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;;
+}
+
+#formulario-container button {
+    background-color: rgb(33, 153, 223);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#formulario-container button:hover {
+    transform: scale(0.95);
+    background-color: rgb(7, 73, 110);
+}
+
+.inputsn {
+    margin-top: 1rem;
+}
+
+.label1{
+    margin-left: -14em;
+    margin-top: 2em;
+}
+
+#input11 {
+    position: absolute;
+    margin-left: -20.5em;
+    margin-top: 2.2em;
 }
 
 li{
@@ -304,7 +383,7 @@ li:hover {
     border-radius: 10px;
     box-sizing: border-box;
     position: relative;
-    display: none;
+
     
 }
 
@@ -1121,6 +1200,773 @@ li:hover {
     }
 
     .siteconclusao > h3 {
+        font-size: 0.8em;
+    }
+}
+
+
+/* MACRO CONSULTA GERAL */
+
+.csgelra > h1 {
+    background-color: rgb(33, 153, 223);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.csgelra {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 40%;
+    height: 78%;
+    color: white;
+    margin: auto;
+    margin-top: 5%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: none;
+}
+
+.h2consultaprocessar{
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    padding: 10px;
+    text-align: center;
+    border-radius: 20px;
+    margin-top: 6%;
+    margin-left: 15%;
+    height: 10%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h2consultaprocessar:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.h2consultafechar {
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    border-radius: 20px;
+    padding: 10px;
+    margin-left: 55%;
+    margin-top: -12.5%;
+    text-align: center;
+    height: 10%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h2consultafechar:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.csgelra > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login3 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password3 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.csgelra > h3 {
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .csgelra {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    #login3,
+    #password3 {
+        width: calc(100% - 40px); /* Reduzir um pouco a largura */
+        margin-left: 20px;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .csgelra > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .csgelra > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .csgelra {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    #login3,
+    #password3 {
+        width: calc(100% - 40px);
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+
+    .csgelra > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .csgelra > h3 {
+        font-size: 0.8em;
+    }
+}
+
+/* ConsultaGR processando */
+
+.consultageralpross > h1 {
+    background-color: rgb(33, 153, 223);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.consultageralpross {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 40%;
+    height: 78%;
+    color: white;
+    margin: auto;
+    margin-top: 5%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: none;
+    
+}
+
+
+.h2cspr {
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    padding: 10px;
+    text-align: center;
+    margin-top: 1%;
+    margin-left: 15%;
+    border-radius: 20px;
+    height: 10%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h2cspr:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+.h2cspr2 {
+    background-color: rgb(33, 153, 223);
+    width: 30%;
+    padding: 10px;
+    border-radius: 20px;
+    margin-left: 55%;
+    margin-top: -12%;
+    text-align: center;
+    height: 10%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.h2cspr2:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.consultageralpross > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.consultageralpross > h3 {
+    font-size: 1.5em;
+    margin-bottom: 5%;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .site {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px); /* Reduzir um pouco a largura */
+        margin-left: 20px;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .site > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .site > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .site {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    #login,
+    #password {
+        width: calc(100% - 40px);
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+
+    .site > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .h2p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .h2p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .site > h3 {
+        font-size: 0.8em;
+    }
+}
+
+/* CONSULTA GERAL POPUP */
+
+.csspop > h1 {
+    background-color: rgb(136, 10, 5);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.csspop {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 40%;
+    height: 42%;
+    color: white;
+    margin: auto;
+    margin-top: 15%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+
+}
+
+.cs-h3p {
+    background-color: rgb(33, 153, 223);
+    width: 40%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 5%;
+    margin-top: 5%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.cs-h3p:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+
+.cs-h3ps {
+    background-color: rgb(136, 10, 5);
+    width: 40%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 55%;
+    margin-top: -10%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.cs-h3ps:hover {
+    transition: 0.3s;
+    background-color: rgb(189, 11, 5);
+    cursor: pointer;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.csspop > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+
+.csspop > h3 {
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .csspop {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+    .csspop > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .cs-h3p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .cs-h3ps {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .csspop > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .csspop {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+    .csspop > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .cs-h3p {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .cs-h3ps {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .csspop > h3 {
+        font-size: 0.8em;
+    }
+}
+
+/* CONSULTA GERAL FINAL */
+
+.cs-finish > h1 {
+    background-color: rgb(33, 153, 223);
+    text-align: center;
+    border-radius: 10px 10px 0px 0px;
+    padding: 10px;
+}
+
+.cs-finish {
+    background-color: rgba(22, 22, 22, 0.651);
+    width: 30%;
+    height: 42%;
+    color: white;
+    margin: auto;
+    margin-top: 15%;
+    border-radius: 10px;
+    box-sizing: border-box;
+    position: relative;
+    
+}
+
+.csh3p2 {
+    background-color: rgb(33, 153, 223);
+    width: 40%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 5%;
+    margin-top: 5%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.csh3p2:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+
+.csh3p2 {
+    background-color: rgb(33, 153, 223);
+    width: 80%;
+    border-radius: 20px;
+    padding: 10px;
+    text-align: center;
+    height: 15%;
+    margin-left: 10%;
+    margin-top: 14%;
+    transition: background-color ease-in 0.3s;
+    box-sizing: border-box;
+}
+
+.csh3p2:hover {
+    transition: 0.3s;
+    background-color: rgb(7, 73, 110);
+    cursor: pointer;
+}
+
+#nome-usuario {
+    font-size: 1.5em;
+    margin-left: 23%;
+    margin-top: -13%;
+}
+
+.cs-finish > p {
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#login2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+#password2 {
+    margin-left: 23%;
+    width: 20em;
+    background-color: rgba(22, 22, 22, 0.651);
+    padding: 8px;
+    color: white;
+    border: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.cs-finish > h3 {
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Telas médias e menores (ajustes para evitar quebra) */
+@media (max-width: 991.98px) {
+    .cs-finish {
+        width: 90%; /* Ocupar mais largura */
+        height: auto; /* Ajustar altura */
+        margin-top: 15%;
+    }
+
+
+    .cs-finish > p {
+        font-size: 1em;
+    }
+
+    #nome-usuario {
+        font-size: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10%;
+        text-align: center;
+        display: block;
+    }
+
+    h2 {
+        width: 70%; /* Aumentar a largura dos botões */
+        font-size: 1em;
+        margin-top: 15%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    .csh3p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .csh3p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5%;
+    }
+
+    .cs-finish > h3 {
+        font-size: 0.9em;
+    }
+}
+
+/* Telas extra pequenas (celulares) */
+@media (max-width: 575.98px) {
+    .cs-finish {
+        width: 95%;
+        margin-top: 20%;
+    }
+
+
+    .cs-finish > p {
+        font-size: 0.9em;
+    }
+
+    #nome-usuario {
+        font-size: 1em;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 2%;
+    }
+
+    h2 {
+        width: 80%;
+        font-size: 0.9em;
+        margin-top: 20%;
+    }
+
+    .csh3p2 {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10%;
+    }
+
+    .csh3p2 {
+        margin-top: 5%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cs-finish > h3 {
         font-size: 0.8em;
     }
 }

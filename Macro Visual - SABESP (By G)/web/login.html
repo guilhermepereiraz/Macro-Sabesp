@@ -1,34 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login JLG</title>
     <link rel="stylesheet" href="css/login-cadastro.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <script type="text/javascript" src="/eel.js"></script>
-    <script type="text/javascript">
-async function verificarLogin() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const mensagemErroElement = document.getElementById('mensagem-erro');
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+    </head>
 
-    const identificador = await eel.verificar_credenciais(email, password)();
-
-    if (identificador) {
-        // Redirecionar para a página principal e passar o identificador
-        window.location.href = `index.html?identificador=${encodeURIComponent(identificador)}`;
-    } else {
-        mensagemErroElement.innerText = 'Email ou senha incorretos.';
-    }
-}
-    </script>
-</head>
 <body>
     <div id="principal" style="display: flex;">
         <img src="imagens/sabesp_login.png" alt="Imagem de Login">
         <div id="formulario-container">
-            <h3 class="login">Login</h3>
-            <p id="mensagem-erro" style="color: red;"></p>
+            <h3 class="login" style="margin-bottom: 10%; margin-top: 5%; font-weight: 700;">Login</h3>
+            <p  id="mensagem-erro" name="erromsg" style="color: red; margin-bottom: -5%;" ></p>
             <form id="login-form">
                 <div>
                     <label for="email"></label>
@@ -39,18 +28,82 @@ async function verificarLogin() {
                     <input type="password" id="password" name="password" class="inputsn" placeholder="Senha" required>
                 </div>
                 <div class="checkbox-container">
-                    <input type="checkbox" id="input11" name="saveLogin">
+                    <input type="checkbox" id="input11" name="saveLogin" style="margin-top: 2%;">
                     <label for="input1" class="label1">Salvar Login</label>
                 </div>
                 <div class="checkbox-container">
-                    <input type="checkbox" id="input22" name="agreeTerms">
-                    <label for="input2" class="label2">Eu concordo com os termos da licença</label>
+                    <input type="checkbox" id="input22" name="agreeTerms" style="margin-top: 0.1%;">
+                    <label for="input2" class="label2" style="margin-top: -1%; margin-left: -8%;">Eu concordo com os termos da licença</label>
                 </div>
                 <button type="button" onclick="verificarLogin()">Entrar</button>
             </form>
-            <p class="cadstro">Não tem uma conta?<a href="#" onclick="mostrarCadastro()"> Cadastre-se aqui.</a></p>
+            <p class="cadstro">Não tem uma conta?<a href="#" onclick="mostrarCadastro()"> Solicite aqui.</a></p>
         </div>
     </div>
-    <script src="javascript/index.js"></script>
+
+    <div id="carregandocerto" style="display: none;">
+        <div id="formulario-container-crc">
+            <h3 class="verificandocred">Verificando Credenciais</h3>
+            <img src="imagens/icone-de-tique-ronde-verte.png" alt="Ícone de verificação verde" id="verificado"
+                style="display: none; width: 20%; margin-top: 5%; margin-bottom: 5%;">
+            <div class="spinner-border text-success" role="status"
+                style="width: 7em; height: 7em; text-align: center; margin-top: 8%;">
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="carregandoerrado" style="display: none;">
+        <div id="formulario-container-cre">
+            <h3 class="verificandocred">Verificando Credenciais</h3>
+            <div class="spinner-border text-danger" role="status"
+                style="width: 7em; height: 7em; text-align: center; margin-top: 8%;">
+                <span class="visually-hidden"></span>
+            </div>
+            <img src="imagens/icone-de-incorreto.png" alt="Ícone de verificação errado" id="nao-verificado"
+                style="display: none; width: 25%; margin-top: 5%; margin-bottom: 5%;">
+        </div>
+    </div>
+
+    <div id="cadastro" style="display: none;">
+        <img src="imagens/sabesp_login.png" alt="Imagem de Login" id="imgcad">
+        <div id="formulario-container-cadastro">
+            <h3 class="login2" style="margin-bottom: 10%; margin-top: 5%; font-weight: 700;">Solicitação de Cadastro</h3>
+            <p id="mensagem-2" style="color: red; margin-bottom: -5%;"></p>
+            <form id="login-form2">
+                <div>
+                    <input type="text" id="cargo" name="cargo" placeholder="Cargo" list="listadecargo">
+                    
+                    <datalist id="listadecargo">
+                      <option value="Técnico"></option>
+                      <option value="Gerencial"></option>
+                      <option value="Diretoria"></option>
+                    </datalist>
+                </div>
+                <div>
+                    <label for="nome"></label>
+                    <input type="nome" id="nome" name="nome" placeholder="Nome" required>
+                </div>
+                <div>
+                    <label for="email"></label>
+                    <input type="email" id="email2" name="email2" placeholder="E-mail" required>
+                </div>
+                <div>
+                    <label for="matricula"></label>
+                    <input type="text" id="matricula" name="matricula" class="inputsn2" placeholder="Matricula" required>
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="input222" name="agreeTerms">
+                    <label for="input2" class="label2">Eu concordo com os termos da licença</label>
+                </div>
+                <button type="button" onclick="verificarLogindasd()">Solicitar</button>
+            </form>
+            <p class="cadstro">Possui uma conta?<a href="#" onclick="mostrarLogin()"> Faça seu login agora.</a></p>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="login.js"></script>
+
 </body>
+
 </html>

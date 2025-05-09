@@ -1,4 +1,6 @@
+
 // MACRO SITE
+
 // Transição de rolagem macro
 document.addEventListener('DOMContentLoaded', function () {
     const triggers = document.querySelectorAll('.left-div > h1[id$="-trigger"]');
@@ -119,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
             mensagemErroDiv.textContent = 'Por favor, selecione o tipo de arquivo (CSV ou Excel).';
             mensagemErroDiv.style.display = 'block';
             console.log('Por favor, selecione o tipo de arquivo (CSV ou Excel).');
+            
         } else if (!identificadorUsuario) {
             console.error('Identificador do usuário não encontrado na URL.');
             alert('Erro: Identificador do usuário não encontrado. Faça login novamente.');
@@ -161,33 +164,69 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function mostrarmacro() {
-    const macro = document.getElementById('macro');
-    const macrosite = document.getElementById('macrosite');
-    const siteProssDiv = document.getElementById('sitepross2');
-    const sitePopupDiv = document.getElementById('sitepopup');
-    const siteFinishDiv = document.getElementById('sitefinish');
-    const conclusaosite = document.getElementById('siteconclusao');
+    // Obter referências para todas as divs relevantes de AMBAS as macros
+    const macro = document.getElementById('macro'); // Container geral do SITE, se aplicável
+    const macrosite = document.getElementById('macrosite'); // Tela inicial do SITE
+    const siteProssDiv = document.getElementById('sitepross2'); // Tela de processamento do SITE
+    const sitePopupDiv = document.getElementById('sitepopup'); // Popup do SITE
+    const siteFinishDiv = document.getElementById('sitefinish'); // Tela de finalização do SITE (do SITE)
+    const conclusaosite = document.getElementById('siteconclusao'); // Outra tela de conclusão do SITE, se aplicável
 
-    console.log("Elemento 'macro' encontrado:", macro);
-    console.log("Elemento 'macrosite' encontrado:", macrosite);
-    console.log("Elemento 'siteProssDiv' encontrado:", siteProssDiv);
-    console.log("Elemento 'sitepopup' encontrado:", sitePopupDiv);
-    console.log("Elemento 'sitefinish' encontrado:", siteFinishDiv);
+    const consultageralDiv = document.getElementById('consultageral'); // Tela inicial da Consulta Geral
+    const consultpross2Div = document.getElementById('consultpross2'); // Tela de processamento da Consulta Geral
+    const csPopupDiv = document.getElementById('cs-popup'); // Popup da Consulta Geral
+    const csFinishDiv = document.getElementById('cs-finish'); // Tela de finalização da Consulta Geral
 
-    if (macro && macrosite && siteProssDiv && sitePopupDiv && siteFinishDiv) {
-        if (siteProssDiv.style.display === 'block' || sitePopupDiv.style.display === 'block' || conclusaosite.style.display == 'block' || siteFinishDiv.style.display === 'block') {
-            console.log("Uma das divs ('siteProssDiv', 'sitepopup' ou 'sitefinish') está visível. Impedindo a exibição de 'macrosite'.");
-            return;
-        }
+
+    console.log("Verificando estado das interfaces antes de mostrar 'macrosite'...");
+    console.log("Estado 'macrosite':", macrosite ? macrosite.style.display : 'Elemento não encontrado');
+    console.log("Estado 'siteProssDiv':", siteProssDiv ? siteProssDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'sitePopupDiv':", sitePopupDiv ? sitePopupDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'siteFinishDiv':", siteFinishDiv ? siteFinishDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'conclusaosite':", conclusaosite ? conclusaosite.style.display : 'Elemento não encontrado');
+    console.log("Estado 'consultageralDiv':", consultageralDiv ? consultageralDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'consultpross2Div':", consultpross2Div ? consultpross2Div.style.display : 'Elemento não encontrado');
+    console.log("Estado 'csPopupDiv':", csPopupDiv ? csPopupDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'csFinishDiv':", csFinishDiv ? csFinishDiv.style.display : 'Elemento não encontrado');
+
+
+    // --- VERIFICAÇÃO PREDOMINANTE: Se QUALQUER tela de processamento/popup/finalização está aberta, não mostre a tela inicial do SITE ---
+    if (
+        (siteProssDiv && siteProssDiv.style.display === 'block') ||
+        (sitePopupDiv && sitePopupDiv.style.display === 'block') ||
+        (siteFinishDiv && siteFinishDiv.style.display === 'block') ||
+        (conclusaosite && conclusaosite.style.display === 'block') || // Verifica telas do SITE
+        (consultageralDiv && consultageralDiv.style.display === 'block') || // Verifica telas da Consulta Geral
+        (consultpross2Div && consultpross2Div.style.display === 'block') ||
+        (csPopupDiv && csPopupDiv.style.display === 'block') ||
+        (csFinishDiv && csFinishDiv.style.display === 'block')
+    ) {
+        console.log("Uma interface predominante (Macro SITE ou Consulta Geral) já está visível. Impedindo a exibição de 'macrosite'.");
+        // Opcional: Adicionar um alerta ou mensagem para o usuário aqui
+        // alert("Por favor, feche a outra macro antes de abrir a Macro SITE.");
+        return; // Sai da função sem mostrar 'macrosite'
+    }
+    // --- FIM DA VERIFICAÇÃO PREDOMINANTE ---
+
+
+    // Se nenhuma interface predominante estiver aberta, mostre a tela inicial da Macro SITE
+    if (macrosite) {
         if (macrosite.style.display === 'none' || macrosite.style.display === '') {
+             // Opcional: Ocultar outras telas iniciais aqui se houver (ex: tela inicial da Consulta Geral)
+             if (consultageralDiv) consultageralDiv.style.display = 'none';
+
             macrosite.style.display = 'block';
             console.log("Exibindo 'macrosite'.");
         } else {
             console.log("'macrosite' já está visível.");
         }
     } else {
-        console.error("Um ou mais elementos com IDs não foram encontrados.");
+        console.error("Elemento 'macrosite' não encontrado.");
     }
+
+    // A verificação original dos elementos da Macro SITE ainda é útil se você quiser garantir
+    // que não está tentando mostrar a tela inicial do SITE enquanto o processamento/popup do SITE já está ativo.
+    // No entanto, a verificação predominante acima já cobre a maioria desses casos.
 }
 
 function fecharsite() {
@@ -492,3 +531,525 @@ function concluir() {
 }
 
 // MACRO CONSULTA GERAL
+
+function mostrarconsultageral() {
+    // Obter a referência para a div inicial da Consulta Geral
+    // Assumindo que 'consultagr' é uma div pai ou não a tela que queremos mostrar inicialmente
+    // const consultagr = document.getElementById('consultagr');
+    const consultageralDiv = document.getElementById('consultageral'); // A div principal da tela inicial da Consulta Geral
+
+    // Obter referências para as divs da Macro SITE (para verificar se alguma está ativa)
+    const macrositeDiv = document.getElementById('macrosite'); // Tela inicial da Macro SITE
+    const siteProssDiv = document.getElementById('sitepross2'); // Tela de processamento da Macro SITE
+    const sitePopupDiv = document.getElementById('sitepopup'); // Popup da Macro SITE
+    const siteFinishDiv = document.getElementById('sitefinish'); // Tela de finalização da Macro SITE
+    const conclusaositeDiv = document.getElementById('siteconclusao'); // Outra tela de conclusão da Macro SITE
+
+
+    console.log("Verificando estado das interfaces antes de mostrar 'consultageral'...");
+    console.log("Estado 'consultageralDiv':", consultageralDiv ? consultageralDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'macrositeDiv':", macrositeDiv ? macrositeDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'siteProssDiv':", siteProssDiv ? siteProssDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'sitePopupDiv':", sitePopupDiv ? sitePopupDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'siteFinishDiv':", siteFinishDiv ? siteFinishDiv.style.display : 'Elemento não encontrado');
+    console.log("Estado 'conclusaositeDiv':", conclusaositeDiv ? conclusaositeDiv.style.display : 'Elemento não encontrado');
+
+
+    // --- VERIFICAÇÃO PREDOMINANTE: Se QUALQUER tela da Macro SITE está aberta, não mostre a tela inicial da Consulta Geral ---
+    // Verifica se a tela inicial OU qualquer tela de estado (processamento, popup, finalização) da Macro SITE está visível
+    if (
+        (macrositeDiv && macrositeDiv.style.display === 'block') || // Inclui a tela inicial da Macro SITE
+        (siteProssDiv && siteProssDiv.style.display === 'block') ||
+        (sitePopupDiv && sitePopupDiv.style.display === 'block') ||
+        (siteFinishDiv && siteFinishDiv.style.display === 'block') ||
+        (conclusaositeDiv && conclusaositeDiv.style.display === 'block')
+    ) {
+        console.log("A Macro SITE está ativa em alguma tela. Impedindo a exibição de 'consultageral'.");
+        // Opcional: Adicionar um alerta ou mensagem para o usuário aqui
+        // alert("Por favor, feche a Macro SITE antes de abrir a Consulta Geral.");
+        return; // Sai da função sem mostrar 'consultageral'
+    }
+    // --- FIM DA VERIFICAÇÃO PREDOMINANTE ---
+
+
+    // Se nenhuma tela da Macro SITE estiver aberta, mostre a tela inicial da Consulta Geral
+    if (consultageralDiv) {
+        // Opcional: Ocultar outras telas iniciais aqui se houver (ex: tela inicial de outra macro)
+        // Você pode querer esconder a tela inicial da Macro SITE aqui, se ela não estiver já 'block'
+        // if (macrositeDiv) macrositeDiv.style.display = 'none';
+
+
+        if (consultageralDiv.style.display === 'none' || consultageralDiv.style.display === '') {
+            consultageralDiv.style.display = 'block';
+            console.log("Exibindo 'consultageral'.");
+        } else {
+            console.log("'consultageral' já está visível.");
+        }
+    } else {
+        console.error("Elemento 'consultageral' não encontrado.");
+    }
+}
+
+
+function fecharconsultageral() {
+    const macroconsultageral = document.getElementById('consultageral');
+    const csloginInput = document.getElementById('login3');
+    const cssenhaInput = document.getElementById('password3');
+    const csarquivoCsvInput = document.getElementById('cs-arquivo-csv');
+
+    if (macroconsultageral && csloginInput && cssenhaInput && csarquivoCsvInput) {
+        macroconsultageral.style.display = 'none';
+        csloginInput.value = '';
+        cssenhaInput.value = '';
+        csarquivoCsvInput.value = '';
+    } else {
+        console.error("Um ou mais elementos com IDs 'macrosite', 'login2', 'password2' ou 'arquivo-csv' não foram encontrados.");
+    }
+}
+
+// Ler aquivo e processar 
+
+document.addEventListener('DOMContentLoaded', () => {
+    const csArquivoInput = document.getElementById('cs-arquivo-csv');
+    const cscsvOption = document.getElementById('cs-csvOption');
+    const csexcelOption = document.getElementById('cs-excelOption');
+    const csmensagemErroDiv = document.getElementById('cs-mensagem-de-erro');
+    const csLoginInput = document.getElementById('login3');
+    const csSenhaInput = document.getElementById('password3');
+    const csProcessarBotao = document.getElementById('processargeral');
+    const consultageralDiv = document.getElementById('consultageral'); // Div da tela inicial
+    const consultpross2Div = document.getElementById('consultpross2'); // Div da tela de processamento
+
+    const osprocessandoDiv = document.getElementById('os-processando'); // Elemento para OS (Pode não existir no HTML #consultpross2 fornecido)
+    const csQuantidadeProcessadaDiv = document.getElementById('cs-quantidade'); // Elemento para quantidade (ID do HTML #consultpross2)
+    const csTipoPesquisaDiv = document.getElementById('cs-tipodepesquisa'); // Elemento para tipo de pesquisa (ID do HTML #consultpross2)
+    // Elemento para exibir a contagem de erros
+    const csErrorDiv = document.getElementById('cs-error'); // <<< Adicionado para pegar o elemento de erros
+    const csTempoEstimadoDiv = document.getElementById('cs-tempoestimado'); // Elemento para tempo estimado (ID do HTML #consultpross2)
+    const csPorcentagemConcluidaDiv = document.getElementById('cs-porcentagem-concluida'); // Elemento para porcentagem (ID do HTML #consultpross2)
+
+
+    const csPdeOption = document.getElementById('cs-pdeOption');
+    const csHidroOption = document.getElementById('cs-hidroOption');
+
+    function atualizarFiltroArquivoConsultaGeral() {
+        if (csArquivoInput && cscsvOption && csexcelOption) {
+             csArquivoInput.accept = cscsvOption.checked ? '.csv' : (csexcelOption.checked ? '.xlsx, .xls' : '');
+        }
+    }
+
+    if (cscsvOption) {
+        cscsvOption.addEventListener('change', atualizarFiltroArquivoConsultaGeral);
+    }
+    if (csexcelOption) {
+        csexcelOption.addEventListener('change', atualizarFiltroArquivoConsultaGeral);
+    }
+
+    atualizarFiltroArquivoConsultaGeral();
+
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+    }
+
+    function obterParametroDaURL(nome) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(nome);
+    }
+
+    async function lerArquivoSelecionadoconsultageral() {
+        const arquivo = csArquivoInput ? csArquivoInput.files[0] : null;
+        const loginUsuario = csLoginInput ? csLoginInput.value : '';
+        const senhaUsuario = csSenhaInput ? csSenhaInput.value : '';
+        let tipoArquivo = cscsvOption && cscsvOption.checked ? 'csv' : (csexcelOption && csexcelOption.checked ? 'excel' : '');
+        const tipoMacroSelecionado = csPdeOption && csPdeOption.checked ? 'PDE' : (csHidroOption && csHidroOption.checked ? 'HIDRO' : '');
+
+        const identificadorUsuario = obterParametroDaURL('identificador');
+
+        if (csmensagemErroDiv) {
+            csmensagemErroDiv.style.display = 'none';
+            csmensagemErroDiv.textContent = '';
+        }
+
+        // Resetar status na tela de processamento ao iniciar
+        if (osprocessandoDiv) osprocessandoDiv.innerText = 'OS: ';
+        if (csQuantidadeProcessadaDiv) csQuantidadeProcessadaDiv.innerText = '0 de 9999'; // Melhor iniciar com 0 de Total (que será atualizado)
+        if (csErrorDiv) csErrorDiv.innerText = 'Erros: 0'; // <<< Resetar erros para 0
+        if (csTipoPesquisaDiv) csTipoPesquisaDiv.innerText = `Tipo de Filtro: ${tipoMacroSelecionado}`;
+        if (csTempoEstimadoDiv) csTempoEstimadoDiv.innerText = 'Tempo estimado: Calculando...'; // Iniciar como 'Calculando...'
+        if (csPorcentagemConcluidaDiv) csPorcentagemConcluidaDiv.innerText = '0%'; // Iniciar com 0%
+
+
+        if (!arquivo) {
+            if (csmensagemErroDiv) {
+                csmensagemErroDiv.textContent = 'Por favor, selecione um arquivo.';
+                csmensagemErroDiv.style.display = 'block';
+            } else {
+                alert('Por favor, selecione um arquivo.');
+            }
+            console.log('Por favor, selecione um arquivo.');
+            return;
+        }
+
+         if (!loginUsuario || !senhaUsuario) {
+             if (csmensagemErroDiv) {
+                 csmensagemErroDiv.textContent = 'Por favor, digite o login e a senha para continuar.';
+                 csmensagemErroDiv.style.display = 'block';
+             } else {
+                 alert('Por favor, digite o login e a senha para continuar.');
+             }
+             console.log('Por favor, faça login.');
+              return;
+           }
+
+           if (!tipoArquivo) {
+             if (csmensagemErroDiv) {
+                 csmensagemErroDiv.textContent = 'Por favor, selecione o tipo de arquivo (CSV ou Excel).';
+                 csmensagemErroDiv.style.display = 'block';
+             } else {
+                 alert('Por favor, selecione o tipo de arquivo (CSV ou Excel).');
+             }
+             console.log('Por favor, selecione o tipo de arquivo (CSV ou Excel).');
+             return;
+           }
+
+           if (!identificadorUsuario) {
+             console.error('Identificador do usuário não encontrado na URL.');
+             alert('Erro: Identificador do usuário não encontrado. Faça login novamente.');
+             return;
+           }
+
+
+        try {
+            const leitor = new FileReader();
+
+            leitor.onload = async function (evento) {
+                const conteudoArquivo = tipoArquivo === 'csv' ? evento.target.result : arrayBufferToBase64(evento.target.result);
+                const nomeArquivo = arquivo.name;
+
+                console.log('Tipo de Arquivo Selecionado:', tipoArquivo);
+                console.log('Tipo de Macro Selecionado:', tipoMacroSelecionado);
+
+                if (consultageralDiv) consultageralDiv.style.display = 'none';
+                if (consultpross2Div) consultpross2Div.style.display = 'block';
+
+
+                try {
+                     // Chama a função Eel no backend
+                    const resultadoPython = await eel.iniciar_consulta_geral_frontend(conteudoArquivo, loginUsuario, senhaUsuario, nomeArquivo, tipoArquivo, tipoMacroSelecionado, identificadorUsuario)();
+                     console.log('Resultado da macro:', resultadoPython);
+
+                     if (resultadoPython) {
+                          if (resultadoPython.status === "erro") {
+                              console.error("Erro do Python:", resultadoPython.mensagem);
+                              if (csmensagemErroDiv) {
+                                  csmensagemErroDiv.textContent = resultadoPython.mensagem;
+                                  csmensagemErroDiv.style.display = 'block';
+                                 if (consultpross2Div) consultpross2Div.style.display = 'none';
+                                 if (consultageralDiv) consultageralDiv.style.display = 'block';
+                              } else {
+                                  alert("Erro: " + resultadoPython.mensagem);
+                              }
+                          } else if (resultadoPython.status === "sucesso") {
+                              console.log("Macro processada com sucesso.");
+                              // Opcional: Exibir resumo final retornado pelo backend
+                              // if (resultadoPython.resumo) {
+                              //     console.log("Resumo:", resultadoPython.resumo);
+                              //     // Atualizar elementos finais na tela com o resumo, se necessário
+                              //     // Ex: csQuantidadeProcessadaDiv.innerText = `${resultadoPython.resumo.processados} de ${resultadoPython.resumo.total_inicial}`;
+                              //     // csErrorDiv.innerText = 'Erros: ' + resultadoPython.resumo.erros;
+                              //     // csTempoEstimadoDiv.innerText = 'Tempo total: ' + resultadoPython.resumo.tempo_total;
+                              // }
+                          } else {
+                              console.warn("Resposta inesperada do Python:", resultadoPython);
+                              alert("Ocorreu um erro inesperado ao processar.");
+                               if (consultpross2Div) consultpross2Div.style.display = 'none';
+                               if (consultageralDiv) consultageralDiv.style.display = 'block';
+                          }
+                     } else {
+                          console.error("Nenhuma resposta do Python.");
+                          alert("Erro na comunicação com o servidor.");
+                           if (consultpross2Div) consultpross2Div.style.display = 'none';
+                           if (consultageralDiv) consultageralDiv.style.display = 'block';
+                     }
+                } catch (eelError) {
+                     console.error('Erro ao chamar função Eel:', eelError);
+                     alert('Erro ao comunicar com o backend de processamento.');
+                      if (consultpross2Div) consultpross2Div.style.display = 'none';
+                      if (consultageralDiv) consultageralDiv.style.display = 'block';
+                }
+            };
+
+            leitor.onerror = function (evento) {
+                console.error('Erro ao ler o arquivo:', evento.target.error);
+                 if (csmensagemErroDiv) {
+                     csmensagemErroDiv.textContent = 'Erro ao ler o arquivo.';
+                     csmensagemErroDiv.style.display = 'block';
+                 } else {
+                     alert('Erro ao ler o arquivo.');
+                 }
+            };
+
+            if (tipoArquivo === 'csv') {
+                 leitor.readAsText(arquivo, 'UTF-8');
+            } else if (tipoArquivo === 'excel') {
+                 leitor.readAsArrayBuffer(arquivo);
+            }
+
+
+        } catch (erro) {
+            console.error('Ocorreu um erro durante o processamento:', erro);
+             if (csmensagemErroDiv) {
+                 csmensagemErroDiv.textContent = 'Ocorreu um erro ao processar o arquivo.';
+                 csmensagemErroDiv.style.display = 'block';
+             } else {
+                 alert('Ocorreu um erro ao processar o arquivo.');
+             }
+             if (consultpross2Div) consultpross2Div.style.display = 'none';
+             if (consultageralDiv) consultageralDiv.style.display = 'block';
+        }
+    }
+
+    // Exponha a função para ser chamada no HTML
+    window.lerArquivoSelecionadoconsultageral = lerArquivoSelecionadoconsultageral;
+
+
+    if (csArquivoInput) {
+        csArquivoInput.addEventListener('change', () => {
+            if (csArquivoInput.files.length > 0) {
+                console.log('Arquivo selecionado:', csArquivoInput.files[0].name);
+                if (csmensagemErroDiv) {
+                    csmensagemErroDiv.style.display = 'none';
+                    csmensagemErroDiv.textContent = '';
+                }
+            }
+        });
+    }
+
+    // Função para fechar a tela de processamento e voltar para a inicial
+    function fecharconsultageral() {
+        console.log("Função fecharconsultageral chamada.");
+         if (consultpross2Div && consultpross2Div.style.display !== 'none') {
+             consultpross2Div.style.display = 'none';
+             if (consultageralDiv) consultageralDiv.style.display = 'block';
+         } else if (consultageralDiv && consultageralDiv.style.display !== 'none') {
+              // Se estiver na tela inicial e chamar fecharconsultageral, esconde ela também
+              consultageralDiv.style.display = 'none';
+         }
+         // Nota: Se precisar parar a automação ao fechar, você precisará de uma função Eel correspondente no backend.
+    }
+     window.fecharconsultageral = fecharconsultageral;
+
+
+    // --- Funções Eel expostas para o backend chamar ---
+    if (typeof eel !== 'undefined') {
+         // Função para atualizar o status na tela de processamento
+         // Recebe: id_os (não usado aqui), processados, total, erros, porcentagem, status_msg, tempo_estimado
+         eel.expose(atualizar_status_os, 'atualizar_status_os');
+         function atualizar_status_os(id_os, total_processadas, total_a_processar, erros_count, porcentagem, status_msg, tempo_estimado) { // <<< Assinatura atualizada
+              // Note: id_os é o primeiro parâmetro do backend, mas pode ser None para atualizações gerais
+              if (osprocessandoDiv && id_os) osprocessandoDiv.innerText = `OS: ${id_os}`; // Atualiza apenas se id_os for fornecido
+              if (csQuantidadeProcessadaDiv) csQuantidadeProcessadaDiv.innerText = `${total_processadas} de ${total_a_processar}`;
+              // Atualiza o elemento de erros
+              if (csErrorDiv) csErrorDiv.innerText = `Erros: ${erros_count}`; // <<< Atualizando erros
+              if (csPorcentagemConcluidaDiv) csPorcentagemConcluidaDiv.innerText = `${porcentagem}%`; // Porcentagem já vem calculada
+
+              // Atualiza o elemento de tempo estimado
+              if (csTempoEstimadoDiv) {
+                   csTempoEstimadoDiv.innerText = `Tempo estimado: ${tempo_estimado}`; // <<< Atualizando tempo estimado
+              }
+              console.log(`[Consulta Geral] Processadas: ${total_processadas}/${total_a_processar}, Erros: ${erros_count}, %: ${porcentagem}, Tempo Estimado: ${tempo_estimado}, Status: ${status_msg}`);
+
+         }
+
+
+    } else {
+        console.warn("Eel object not found. Python communication functions will not work.");
+    }
+
+
+});
+
+function fecharPopupCS() {
+    const csfecharBotao = document.getElementById('cs-voltarbnt');
+    const csprocessandosite = document.getElementById('consultpross2');
+    const cserropopup = document.getElementById('cs-popup');
+
+    if (csfecharBotao) {
+        csprocessandosite.style.display = 'none';
+        cserropopup.style.display = 'block';
+    } else {
+        console.error("Um ou mais elementos com IDs 'fecharsite', 'macrosite', 'login2', 'password2' ou 'arquivo-csv' não foram encontrados.");
+    }
+}
+
+function voltarParaProcessarCS() {
+    const csfecharBotao = document.getElementById('cs-voltarbnt');
+    const csprocessando = document.getElementById('consultpross2');
+    const cserropopup = document.getElementById('cs-popup');
+
+    if (csfecharBotao) {
+        cserropopup.style.display = 'none';
+        csprocessando.style.display = 'block';
+    } else {
+        console.error("Um ou mais elementos com IDs 'cs-voltarbnt', 'consultpross2', 'cs-popup', não foram encontrados.");
+    }
+}
+
+function CSfinalizarProcesso() {
+    const csbntfechar = document.getElementById('csvoltarbnt3');                                    // Botão "OK" na tela de conclusão
+    const csfinal = document.getElementById('csfinish');                                      // Tela de conclusão
+    const csquantidadedeprocessadors = document.getElementById('cs-quantidade');                   // Texto de quantidade     
+    const cserross = document.getElementById('cs-error');                      // Texto da OS
+    const cstempoestimado = document.getElementById('cs-tempoestimado');                             // Texto do tempo estimado
+    const csporcentagem = document.getElementById('cs-porcentagem-concluida');                     // Texto da porcentagem
+    const csinicio = document.getElementById('consultpross2');                                      // Texto da porcentagem
+
+    if (csbntfechar) {
+        csfinal.style.display = 'none';                                        // Esconde a tela de conclusão
+        csquantidadedeprocessadors.innerText = '0 de 9999: Processando..';                    // Reseta a quantidade                                  // Reseta a OS
+        cstempoestimado.innerText = 'Tempo estimado: Processando..';       
+        cserross.innerText = 'Erros: Processando..';                     // Reseta o tempo estimado
+        csporcentagem.innerText = '0%: Processando..';
+
+
+        if (csinicio)
+        csquantidadedeprocessadors.innerText = '0 de 9999: Processando..';
+        cserross.innerText = 'Erros: Processando..';                    // Reseta a quantidade                              // Reseta a OS
+        cstempoestimado.innerText = 'Tempo estimado: Processando..';                      // Reseta o tempo estimado
+        csporcentagem.innerText = '0%: Processando..';                                   // Reseta a porcentagem
+
+    }
+    else {
+        console.error("Elemento com ID 'csvoltarbnt3' nãfoi encontrado.");
+    }
+}
+
+function CSconfirmarFecharAplicacao() {
+    console.log("Usuário clicou em 'Sim' para fechar a aplicação e interromper a macro.");
+
+    // Chama a função Python para parar a macro
+    eel.csparar_macro_backend()();
+
+    // Obtém a referência ao popup de confirmação
+    const csPopup = document.getElementById('cs-popup');
+
+    // Esconde o popup se ele existir
+    if (csPopup) {
+        csPopup.style.display = 'none';
+        console.log("Popup de fechamento escondido.");
+    } else {
+        console.warn("Elemento 'cs-popup' não encontrado!");
+    }
+
+    // Obtém a referência à tela de "Macro encerrada com sucesso"
+    const csfinal = document.getElementById('csfinish');
+
+    // Exibe a tela de conclusão se ela existir
+    if (csfinal) {
+        csfinal.style.display = 'block';
+        console.log("Tela de 'Macro encerrada com sucesso' exibida.");
+    } else {
+        console.warn("Elemento 'csfinish' não encontrado!");
+    }
+
+}
+
+
+// PRIMEIRO LOGIN
+
+function trocarlogin() {
+    // 1. Coletar os valores dos campos de senha
+    const senhaAtualInput = document.getElementById('password'); // Campo "Senha Atual" (seria a senha provisória)
+    const novaSenhaInput = document.getElementById('passwordrepeat'); // Campo "Nova Senha"
+    const mensagemErroDiv = document.getElementById('mensagem-2'); // Adicionei este ID no seu HTML para mensagens, ou crie um novo elemento dentro de #carregandocerto
+
+    const senhaAtual = senhaAtualInput.value;
+    const novaSenha = novaSenhaInput.value;
+
+    // Limpa mensagens de erro anteriores
+    if (mensagemErroDiv) {
+        mensagemErroDiv.textContent = '';
+    }
+
+    // Adicionar validações básicas no frontend (opcional, mas recomendado)
+    if (novaSenha.length < 8) { // Exemplo: verificar tamanho mínimo
+        if (mensagemErroDiv) {
+            mensagemErroDiv.textContent = 'A nova senha deve ter pelo menos 8 caracteres.';
+        }
+        return; // Interrompe a função se a validação falhar
+    }
+    // Adicionar outras validações de formato de senha se necessário
+
+    // 2. Preparar os dados para enviar ao backend
+    // Você precisará de alguma forma obter o identificador do usuário aqui
+    // Isso pode ter sido guardado em uma variável JavaScript após o login inicial
+    const usuarioIdentificador = 'algum_valor_do_identificador_do_usuario'; // SUBSTITUA PELA FORMA CORRETA DE OBTER O ID/LOGIN DO USUÁRIO
+
+    const dadosParaBackend = {
+        identificador: usuarioIdentificador,
+        senhaAtualFornecida: senhaAtual, // Senha provisória/inicial digitada
+        novaSenha: novaSenha
+    };
+
+    // 3. Enviar os dados para o backend para validar e trocar a senha
+    // Substitua '/api/trocar-senha-primeiro-acesso' pelo endereço (endpoint) real no seu servidor
+    fetch('/api/trocar-senha-primeiro-acesso', {
+        method: 'POST', // Use POST para enviar dados de forma segura
+        headers: {
+            'Content-Type': 'application/json',
+            // Se estiver usando tokens de autenticação, adicione aqui
+            // 'Authorization': 'Bearer SEU_TOKEN_AQUI'
+        },
+        body: JSON.stringify(dadosParaBackend) // Envia os dados como JSON
+    })
+    .then(response => {
+        // Verifica se a resposta indica sucesso (status 2xx)
+        if (!response.ok) {
+            // Se a resposta não for bem-sucedida, lança um erro para ser pego no .catch
+            // Você pode verificar o status ou o corpo da resposta para detalhes do erro
+            return response.json().then(errorData => { throw new Error(errorData.message || 'Erro ao trocar a senha.'); });
+        }
+        // Se a resposta for bem-sucedida, retorna os dados da resposta
+        return response.json();
+    })
+    .then(data => {
+        // 4. Lidar com a resposta de sucesso do backend
+        console.log('Resposta do backend:', data);
+        if (data.sucesso) { // Supondo que o backend retorna { sucesso: true } em caso de sucesso
+            alert('Senha alterada com sucesso! Você será redirecionado.'); // Mensagem de sucesso
+            // Ocultar a div de troca de senha
+            document.getElementById('carregandocerto').style.display = 'none';
+            // Ocultar a div de login principal (se ainda estiver visível por algum motivo)
+             const divLoginPrincipal = document.getElementById('principal'); // Ou o ID correto da sua div de login inicial
+             if(divLoginPrincipal) {
+                divLoginPrincipal.style.display = 'none';
+             }
+             const divCadastroPrincipal = document.getElementById('cadastro'); // Ou o ID correto da sua div de cadastro
+             if(divCadastroPrincipal) {
+                divCadastroPrincipal.style.display = 'none';
+             }
+
+
+            // 5. Redirecionar o usuário para a página principal ou de dashboard
+            window.location.href = '/pagina-principal.html'; // SUBSTITUA PELO ENDEREÇO DA SUA PÁGINA PRINCIPAL
+
+        } else {
+            // Lidar com falhas reportadas pelo backend (ex: senha atual incorreta)
+             if (mensagemErroDiv) {
+                mensagemErroDiv.textContent = data.mensagem || 'Erro ao trocar a senha. Verifique os dados.'; // Exibe mensagem do backend
+             }
+        }
+    })
+    .catch(error => {
+        // 6. Lidar com erros na requisição (ex: problema de rede, erro no servidor)
+        console.error('Erro na requisição:', error);
+         if (mensagemErroDiv) {
+            mensagemErroDiv.textContent = 'Ocorreu um erro ao processar sua solicitação. Tente novamente.';
+         }
+    });
+}

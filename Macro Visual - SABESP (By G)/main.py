@@ -35,10 +35,10 @@ logging.info("--- main.py Iniciado ---")
 
 
 DB_CONFIG = {
-    'host': '10.51.109.123',
+    'host': '127.0.0.1',
     'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
-    'password': 'SB28@sabesp', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
-    'database': 'pendlist'
+    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendilist'
 }
 
 EMAIL_CONFIG = {
@@ -80,7 +80,7 @@ def enviar_email_cadastro_automatico(dados_cadastro, destinatario_fixo):
     try:
         # Opcional: Gerar um número de chamado real aqui (ou obter de onde for gerado)
         # Este número será usado em ambos os emails.
-        numero_chamado_gerado = "CAD" + str(random.randint(10000, 99999))
+        numero_chamado_gerado = "JLG" + str(random.randint(10000, 99999))
         logging.info(f"Número de chamado gerado: {numero_chamado_gerado}")
 
         # --- ENVIO PARA O DESTINATÁRIO FIXO (DETALHES) ---
@@ -193,96 +193,246 @@ Equipe de Cadastro [Sabesp|Macro JGL]
         return {'sucesso': False, 'mensagem': f'Erro interno ao processar solicitação: {e}', 'numeroChamado': numero_chamado_gerado} # Retorna número gerado se disponível
 # <<< FIM DA FUNÇÃO PARA ENVIAR DOIS EMAILS AUTOMÁTICOS >>>
 
+
+@eel.expose
+def get_username_by_id(user_id):
+    connection = None
+    cursor = None
+    logging.info(f"Tentativa de obter nome do usuário para o ID: {user_id}")
+    try:
+        connection = pymysql.connect(**DB_CONFIG)
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        # Seleciona a coluna 'nome'
+        sql = "SELECT nome FROM tb_usuarios WHERE id = %s"
+        cursor.execute(sql, (user_id,))
+        usuario = cursor.fetchone() # Pega a primeira linha
+
+        if usuario:
+            # Retorna o valor da coluna 'nome'
+            logging.info(f"Nome '{usuario.get('nome')}' encontrado para o ID: {user_id}")
+            return {"status": "success", "username": usuario.get('nome')}
+        else:
+            logging.warning(f"Usuário com ID '{user_id}' não encontrado.")
+            return {"status": "user_not_found"}
+
+    except pymysql.Error as e:
+        logging.error(f"Erro DB ao obter nome por ID: {e}")
+        logging.exception("Detalhes do erro DB ao obter nome por ID:")
+        return {"status": "db_error"}
+    except Exception as e:
+        logging.error(f"Ocorreu um erro interno ao obter nome por ID: {e}")
+        logging.exception("Detalhes do erro interno ao obter nome por ID:")
+        return {"status": "internal_error"}
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+# >>> FIM DA NOVA FUNÇÃO <<<
+
+@eel.expose
+def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha): # Recebe os 3 argumentos do JS
+    connection = None
+    cursor = None
+    logging.info(f"Tentativa de alterar senha para o usuário ID: {user_id}")
+    print("--> Função alterar_senha_primeiro_login chamada no Python!") # Adicionado print para depuração
+
+    try:
+        # Adicionado print antes da conexão (identado 4 espaços)
+        print("--> Tentando conectar ao banco de dados...")
+        # Conexão com o banco (identado 4 espaços)
+        connection = pymysql.connect(**DB_CONFIG)
+        print("--> Conexão com o banco bem-sucedida.") # Adicionado print após conexão (identado 4 espaços)
+        # Criação do cursor (identado 4 espaços)
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        print("--> Cursor criado.") # Adicionado print após cursor (identado 4 espaços)
+
+        # --- Opcional: Verificação da Senha Atual (se seu fluxo exigir) ---
+        # Adicionado print antes da primeira query (identado 4 espaços)
+        print(f"--> Executando query para verificar senha atual para user_id: {user_id}")
+        # Query de seleção (identado 4 espaços)
+        sql_check_password = "SELECT senha FROM tb_usuarios WHERE id = %s"
+        cursor.execute(sql_check_password, (user_id,))
+        print("--> Query de verificação de senha executada.") # Adicionado print após query (identado 4 espaços)
+        # Fetch one row (identado 4 espaços)
+        user_data = cursor.fetchone()
+        print(f"--> Dados do usuário obtidos: {user_data}") # Adicionado print com dados (identado 4 espaços)
+
+        # ATENÇÃO: Comparação de senha em texto puro é INSEGURA! Use HASHES!
+        # Início do bloco if (alinhado com try, identado 4 espaços)
+        if user_data and user_data.get('senha') == senha_atual: # Verificação INSEGURA em texto puro
+            # Código dentro do if (identado 8 espaços)
+            print("--> Senha atual corresponde.") # Adicionado print
+            logging.info(f"Senha atual verificada para o usuário ID: {user_id}")
+
+            # --- Atualizar a Senha ---
+            # ATENÇÃO: Armazenamento de senha em texto puro é INSEGURO! Use HASHES!
+            # Código dentro do if (indentado 8 espaços)
+            print(f"--> Executando query para atualizar senha para user_id: {user_id}")
+            sql_update_password = "UPDATE tb_usuarios SET senha = %s WHERE id = %s"
+            cursor.execute(sql_update_password, (nova_senha, user_id))
+            print("--> Query de atualização de senha executada.") # Adicionado print
+
+
+            # --- ADICIONAR: Atualizar ultimo_login APÓS alteração de senha ---
+            print(f"--> Atualizando ultimo_login para o usuário ID: {user_id}")
+            sql_update_last_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
+            cursor.execute(sql_update_last_login, (user_id,))
+            print("--> Query de atualização de ultimo_login executada.")
+            # --- FIM DA ADIÇÃO ---
+
+
+            connection.commit()
+            print("--> Commit realizado.") # Adicionado print
+            logging.info(f"Senha e ultimo_login atualizados com sucesso para o usuário ID: {user_id}")
+
+            # Opcional: Limpar um flag de "primeiro login" se você tiver um campo dedicado para isso
+
+            print("--> Retornando status 'success'") # Adicionado print antes do return (identado 8 espaços)
+            return {"status": "success"} # Indica sucesso
+
+        # Início do bloco else (alinhado com o if, indentado 4 espaços)
+        else:
+            # Código dentro do else (indentado 8 espaços)
+            print("--> Senha atual não corresponde ou usuário não encontrado.") # Adicionado print
+            logging.warning(f"Falha ao alterar senha para o usuário ID: {user_id}. Senha atual incorreta.")
+            print("--> Retornando status 'incorrect_current_password'") # Adicionado print antes do return (identado 8 espaços)
+            return {"status": "incorrect_current_password"} # Indica que a senha atual não coincide
+
+    # Início do bloco except pymysql.Error (alinhado com o try, indentado 4 espaços)
+    except pymysql.Error as e:
+        # Código dentro do except (indentado 8 espaços)
+        print(f"--> Capturado Erro PyMySQL: {e}") # Adicionado print no except
+        logging.error(f"Erro do banco de dados durante alteração de senha: {e}")
+        logging.exception("Detalhes do erro do banco de dados durante alteração de senha:")
+        # Início do bloco if dentro do except (identado 12 espaços)
+        if connection:
+            # Código dentro do if (indentado 16 espaços)
+            connection.rollback()
+            print("--> Rollback realizado.") # Adicionado print
+        # Código dentro do except (indentado 8 espaços)
+        print("--> Retornando status 'db_error'") # Adicionado print antes do return
+        return {"status": "db_error"} # Indica erro no banco
+
+    # Início do bloco except Exception (alinhado com o try, indentado 4 espaços)
+    except Exception as e:
+        # Código dentro do except (indentado 8 espaços)
+        print(f"--> Capturado Erro Geral: {e}") # Adicionado print no except
+        logging.error(f"Ocorreu um erro INESPERADO (alterar_senha_primeiro_login): Tipo={type(e)}, Mensagem='{e}'")
+        logging.exception("Detalhes do erro INESPERADO durante alteração de senha:")
+        # Início do bloco if dentro do except (indentado 12 espaços)
+        if connection:
+            # Código dentro do if (indentado 16 espaços)
+            connection.rollback()
+            print("--> Rollback realizado.") # Adicionado print
+        # Código dentro do except (indentado 8 espaços)
+        print("--> Retornando status 'internal_error'") # Adicionado print antes do return
+        return {"status": "internal_error"} # Indica erro interno inesperado
+
+    # Início do bloco finally (alinhado com o try, indentado 4 espaços)
+    finally:
+        # Código dentro do finally (indentado 8 espaços)
+        print("--> Bloco finally sendo executado.") # Adicionado print no finally
+        # Início do bloco if dentro do finally (identado 12 espaços)
+        if cursor:
+            # Código dentro do if (indentado 16 espaços)
+            print("--> Fechando cursor.") # Adicionado print
+            cursor.close()
+        # Início do bloco if dentro do finally (indentado 12 espaços)
+        if connection:
+            # Código dentro do if (indentado 16 espaços)
+            print("--> Fechando conexão.") # Adicionado print
+            connection.close()
+            logging.info("Conexão com o banco de dados fechada (alterar_senha_primeiro_login).")
+
+    # Esta é a linha cuja identação estava incorreta na versão anterior.
+    # Ela deve estar alinhada com try, except, finally (identado 4 espaços, igual ao início do bloco try)
+    print("--> Fim da função alterar_senha_primeiro_login.")
+
+
 @eel.expose
 def verificar_credenciais(email, senha_texto_claro):
 
     connection = None
     cursor = None
-    usuario_identificador = None
-
 
     logging.info(f"Tentativa de login para o email: {email}")
 
     try:
-
         connection = pymysql.connect(**DB_CONFIG)
 
-
-        if connection: # <-- Verifica apenas se connection não é None após a tentativa de conexão
+        if connection:
             logging.info("Conexão com o banco de dados para login bem-sucedida!")
 
-            cursor = connection.cursor(pymysql.cursors.DictCursor) 
+            cursor = connection.cursor(pymysql.cursors.DictCursor)
 
-
-            sql = "SELECT id, nome, email, senha FROM tb_usuarios WHERE email = %s"
+            # Seleciona id, nome, email, senha, e ultimo_login
+            sql = "SELECT id, nome, email, senha, ultimo_login FROM tb_usuarios WHERE email = %s"
             cursor.execute(sql, (email,))
 
-            usuario = cursor.fetchone() # Pega a primeira linha (ou None)
+            usuario = cursor.fetchone()
 
             if usuario:
-
                 stored_senha_no_banco = usuario.get('senha')
 
+                # --- Lógica de Verificação de Senha EM TEXTO PURO (INSEGURO) ---
                 if senha_texto_claro == stored_senha_no_banco:
                     logging.info(f"Login bem-sucedido (texto claro) para: {email}")
-                    # Use o ID do usuário como identificador para passar para a macro ou frontend
-                    usuario_identificador = usuario.get('nome') # Use 'id' como identificador
-                    logging.info(f"Identificador do usuário para a macro: {usuario_identificador}")
 
-                    # --- ADICIONADO: ATUALIZAÇÃO DO CAMPO ultimo_login ---
-                    # Use o ID retornado da consulta (usuario.get('nome'))
-                    sql_update_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
-                    cursor.execute(sql_update_login, (usuario.get('id'),))
-                    connection.commit()
-                    logging.info(f"Campo ultimo_login atualizado para o usuário ID: {usuario.get('id')}")
-                    # ----------------------------------------------------
+                    # Verifica o valor de ultimo_login ANTES de atualizar
+                    ultimo_login_anterior = usuario.get('ultimo_login')
+                    logging.info(f"Valor de ultimo_login anterior para {email}: {ultimo_login_anterior}")
+
+
+                    # Retorna um valor diferente com base na verificação ANTERIOR do ultimo_login
+                    # Se ultimo_login_anterior for None, é o primeiro login
+                    if ultimo_login_anterior is None:
+                        logging.info(f"Primeiro login detectado para: {email}")
+                        # *** NÃO ATUALIZA ultimo_login AQUI PARA O PRIMEIRO LOGIN ***
+                        # Retorna status 'first_login' e o ID do usuário
+                        return {"status": "first_login", "identifier": usuario.get('id')}
+                    else:
+                        # Se ultimo_login_anterior NÃO for None, é um login subsequente
+                        logging.info(f"Login subsequente detectado para: {email}")
+
+                        # --- ATUALIZAÇÃO DO CAMPO ultimo_login SOMENTE PARA LOGIN SUBSEQUENTE ---
+                        sql_update_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
+                        cursor.execute(sql_update_login, (usuario.get('id'),))
+                        connection.commit()
+                        logging.info(f"Campo ultimo_login atualizado para o usuário ID: {usuario.get('id')}")
+                        # ----------------------------------------------------
+
+                        # Retorna status 'success' e o nome do usuário
+                        return {"status": "success", "identifier": usuario.get('nome')}
 
                 else:
                     logging.warning(f"Falha de login: Senha incorreta (texto claro) para: {email}")
-                    usuario_identificador = None # Senha incorreta
-                # --- Fim Lógica de Verificação de Senha EM TEXTO PURO ---
+                    return {"status": "incorrect_password"}
 
             else:
                 logging.warning(f"Falha de login: Usuário com email '{email}' não encontrado.")
-                usuario_identificador = None # Usuário não encontrado
-
-            return usuario_identificador
-
-
-
+                return {"status": "user_not_found"}
 
     except pymysql.Error as e:
-        # Captura erros específicos do PyMySQL (conexão, query, etc.)
         logging.error(f"Erro do banco de dados (PyMySQL) durante o login: {e}")
-        # Use logging.exception() para obter o traceback completo SOMENTE para erros do DB
         logging.exception("Detalhes do erro do banco de dados (PyMySQL) durante o login:")
-        # Verifica se connection existe antes de tentar rollback
         if connection:
             connection.rollback()
-        return None # Retorna None para o frontend em caso de erro DB
+        return {"status": "db_error"}
 
     except Exception as e:
-        # Captura QUALQUER outro erro inesperado
-        # --- ESTE É O BLOCO COM O LOGGING DETALHADO ---
         logging.error(f"Ocorreu um erro INESPERADO (verificar_credenciais): Tipo={type(e)}, Mensagem='{e}'")
-        # Use logging.exception() para obter o traceback completo para QUALQUER Exception
         logging.exception("Detalhes do erro INESPERADO (verificar_credenciais):")
-        # --- Fim do Logging Detalhado ---
-        # Verifica se connection existe antes de tentar rollback
         if connection:
-            connection.rollback() # Garantir rollback se a conexão estava ativa
-        return None # Retorna None para o frontend em caso de erro inesperado
+            connection.rollback()
+        return {"status": "internal_error"}
 
     finally:
-        # Fecha o cursor e a conexão SEMPRE, mesmo que ocorra um erro
         if cursor:
             cursor.close()
-        # --- CORREÇÃO: Removida a verificação .is_connected() no finally ---
-        # Verifica se connection existe antes de tentar fechar
         if connection:
             connection.close()
             logging.info("Conexão com o banco de dados para login fechada.")
-
 
 
 @eel.expose

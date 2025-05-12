@@ -1,0 +1,452 @@
+@charset "UTF-8";
+
+/* ANIMAÇÃO CONFETES  */
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* Evita a rolagem quando os confetes caem */
+    height: 100%;
+}
+
+#confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Evita que os confetes atrapalhem a interação com outros elementos */
+    z-index: 9999;
+    /* Garante que os confetes fiquem sobre todo o conteúdo */
+}
+
+
+/* ANIMAÇÃO BALAO */
+
+.layers {
+    height: 100%;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    /* Camada mais distante */
+}
+
+.layers div {
+    display: block;
+    position: absolute;
+    width: 80px;
+    /* Ajuste o tamanho base dos balões conforme suas imagens */
+    height: auto;
+    /* Mantém a proporção da imagem */
+}
+
+/* As animações e posições abaixo estão configuradas para "cair".
+           Para balões, o normal seria "subir". Se quiser mudar, precisaremos
+           ajustar o @keyframes "falling" e as propriedades "top" e "left".
+           Mas, por enquanto, vamos manter a animação original, só trocando as imagens. */
+
+.layers div:nth-child(1) {
+    animation: falling 15s linear infinite;
+    animation-delay: -7s;
+    left: 20%;
+}
+
+.layers div:nth-child(2) {
+    animation: falling 20s linear infinite;
+    animation-delay: -5s;
+    left: 50%;
+}
+
+.layers div:nth-child(3) {
+    animation: falling 20s linear infinite;
+    animation-delay: 0;
+    left: 70%;
+}
+
+.layers div:nth-child(4) {
+    animation: falling 15s linear infinite;
+    animation-delay: -5s;
+    left: 0%;
+}
+
+.layers div:nth-child(5) {
+    animation: falling 18s linear infinite;
+    animation-delay: -10s;
+    left: 85%;
+}
+
+.layers div:nth-child(6) {
+    animation: falling 12s linear infinite;
+    left: 0%;
+}
+
+.layers div:nth-child(7) {
+    animation: falling 14s linear infinite;
+    left: 15%;
+}
+
+.layers div:nth-child(8) {
+    animation: falling 15s linear infinite;
+    left: 60%;
+}
+
+@keyframes falling {
+    0% {
+        opacity: 0;
+        top: -10%;
+        /* Começa acima do topo */
+        transform: translateX(20px) rotate(0deg);
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+        /* Mantém a opacidade total até quase o fim */
+    }
+
+    100% {
+        top: 110%;
+        /* Termina abaixo da parte inferior */
+        transform: translateX(-20px) rotate(225deg);
+        opacity: 0;
+        /* Fica transparente ao sair da tela */
+    }
+}
+
+.layers img {
+    display: block;
+    /* Garante que a imagem seja um bloco */
+    width: 100%;
+    /* Faz a imagem preencher a div container */
+    height: auto;
+    /* Mantém a proporção */
+}
+
+
+.layer2 {
+    transform: scale(1.5) rotateY(180deg);
+    /* Ajustei a escala e mantive a rotação */
+    filter: blur(1px);
+    /* Ajustei o blur */
+    z-index: 2;
+    /* Camada intermediária */
+}
+
+.layer3 {
+    transform: scale(0.5) rotateY(180deg);
+    /* Ajustei a escala e mantive a rotação */
+    filter: blur(3px);
+    /* Ajustei o blur */
+    z-index: 3;
+    /* Camada mais próxima e mais borrada/menor */
+}
+
+/* Primeiro login */
+
+#carregandocerto {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* Posição inicial: centralizado horizontalmente, um pouco abaixo verticalmente */
+    transform: translate(-50%, calc(-50% + 50px));
+    /* Começa 50px abaixo da posição central final */
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 450px;
+    width: 90%;
+    padding: 2.5rem;
+    /* Padding interno padrão para telas maiores */
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+
+    /* Estado inicial: invisível */
+    opacity: 0;
+    visibility: hidden;
+
+    /* Transição para o estado final visível e subindo */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out, visibility 0.8s;
+}
+
+/* Estado final: visível */
+#carregandocerto.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%);
+    /* Posição final: centralizado */
+    display: flex;
+}
+
+
+#formulario-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    /* Espaçamento vertical padrão */
+}
+
+#formulario-container h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.8em;
+    color: #2b8adf;
+}
+
+#formulario-container p {
+    margin: 0 0 1rem 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+#mensagem-erro-troca-senha {
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.password-input-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+#formulario-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.95em;
+}
+
+#formulario-container input[type="password"],
+#formulario-container input[type="text"] {
+    padding: 0.8rem 3rem 0.8rem 1rem;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
+}
+
+#formulario-container input[type="password"]:focus,
+#formulario-container input[type="text"]:focus {
+    border-color: #2b8adf;
+    box-shadow: 0 0 5px rgba(43, 138, 223, 0.3);
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #555;
+    transition: color 0.3s ease;
+    z-index: 2;
+}
+
+.password-toggle-icon:hover {
+    color: #333;
+}
+
+
+#formulario-container button {
+    padding: 0.8rem 2rem;
+    font-size: 1.1em;
+    background-color: #2b8adf;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-top: 0.5rem;
+    width: auto;
+    min-width: 150px;
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#formulario-container button:hover {
+    background-color: #1a7ad1;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#formulario-container button:active {
+    transform: scale(0.98);
+    background-color: #176bbd;
+}
+
+
+/* =================================== */
+/* Responsividade para Telas Menores   */
+/* =================================== */
+
+/* Para telas menores que 768px (típico tablet vertical e celulares) */
+@media (max-width: 768px) {
+    #carregandocerto {
+        padding: 1.5rem;
+        /* Reduz o padding interno no contêiner principal */
+        /* Ajusta a posição inicial para telas menores, se necessário */
+        transform: translate(-50%, calc(-50% + 30px));
+        /* Começa 30px abaixo */
+    }
+
+    #carregandocerto.is-visible {
+        transform: translate(-50%, -50%);
+        /* Posição final central */
+    }
+
+    #formulario-container {
+        gap: 1rem;
+        /* Reduz o espaçamento entre os elementos do formulário */
+    }
+
+    #formulario-container h3 {
+        font-size: 1.5em;
+        /* Reduz o tamanho do título */
+        margin-bottom: 0.8rem;
+    }
+
+    #formulario-container p {
+        font-size: 0.95em;
+        /* Reduz o tamanho do texto dos parágrafos */
+        margin-bottom: 0.8rem;
+    }
+
+    #formulario-container label {
+        font-size: 0.9em;
+        /* Reduz o tamanho dos labels */
+        margin-bottom: 0.3rem;
+    }
+
+    #formulario-container input[type="password"],
+    #formulario-container input[type="text"] {
+        padding: 0.7rem 2.8rem 0.7rem 0.8rem;
+        /* Reduz padding input e ajusta espaço para ícone */
+        font-size: 0.95em;
+        /* Reduz tamanho da fonte do input */
+    }
+
+    .password-toggle-icon {
+        right: 0.8rem;
+        /* Ajusta a posição do ícone */
+        font-size: 0.95em;
+        /* Ajusta o tamanho do ícone */
+    }
+
+    #formulario-container button {
+        padding: 0.7rem 1.5rem;
+        /* Reduz padding do botão */
+        font-size: 1em;
+        /* Reduz tamanho da fonte do botão */
+        min-width: 120px;
+        /* Mantém uma largura mínima razoável */
+        margin-top: 0.8rem;
+    }
+
+    #mensagem-erro-troca-senha {
+        font-size: 0.85em;
+        /* Reduz o tamanho da mensagem de erro */
+        margin-bottom: 0.8rem;
+    }
+}
+
+/* Para telas menores que 576px (celulares na vertical) */
+@media (max-width: 576px) {
+    #carregandocerto {
+        padding: 1rem;
+        /* Reduz ainda mais o padding */
+        transform: translate(-50%, calc(-50% + 20px));
+        /* Reduz a subida inicial */
+    }
+
+    #carregandocerto.is-visible {
+        transform: translate(-50%, -50%);
+    }
+
+    #formulario-container {
+        gap: 0.8rem;
+        /* Reduz ainda mais o espaçamento */
+    }
+
+    #formulario-container h3 {
+        font-size: 1.3em;
+        /* Reduz o tamanho do título */
+        margin-bottom: 0.6rem;
+    }
+
+    #formulario-container p {
+        font-size: 0.9em;
+        /* Reduz o tamanho do texto */
+        margin-bottom: 0.6rem;
+    }
+
+    #formulario-container label {
+        font-size: 0.85em;
+        /* Reduz o tamanho do label */
+        margin-bottom: 0.2rem;
+    }
+
+    #formulario-container input[type="password"],
+    #formulario-container input[type="text"] {
+        padding: 0.6rem 2.5rem 0.6rem 0.6rem;
+        /* Reduz padding input e ajusta espaço ícone */
+        font-size: 0.9em;
+        /* Reduz tamanho da fonte do input */
+    }
+
+    .password-toggle-icon {
+        right: 0.6rem;
+        /* Ajusta a posição do ícone */
+        font-size: 0.9em;
+        /* Ajusta o tamanho do ícone */
+    }
+
+    #formulario-container button {
+        padding: 0.6rem 1rem;
+        /* Reduz padding do botão */
+        font-size: 0.9em;
+        /* Reduz tamanho da fonte do botão */
+        min-width: 100px;
+        /* Mantém uma largura mínima */
+        margin-top: 0.6rem;
+    }
+
+    #mensagem-erro-troca-senha {
+        font-size: 0.8em;
+        /* Reduz o tamanho da mensagem de erro */
+        margin-bottom: 0.6rem;
+    }
+}
+
+/* Remove estilos que não pertencem a esta página se ainda estiverem aqui */
+/*
+.content-transition { ... }
+.content-transition.expanded { ... }
+.inputsn { ... }
+.label1 { ... }
+#input11 { ... }
+li { ... }
+*/

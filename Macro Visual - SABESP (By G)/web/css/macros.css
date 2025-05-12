@@ -1,0 +1,619 @@
+/* Estilos Gerais e Reset Básico */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6;
+    color: #333;
+    /* Adicione estas linhas para o fade-in */
+    opacity: 0; /* Começa completamente transparente */
+    display: none; /* Começa oculto (não renderizado), essencial para o JS mudar para block */
+    transition: opacity 1s ease-in-out; /* A animação de transição */
+}
+
+/* Esta regra também é necessária para a transição */
+body.is-visible {
+    opacity: 1; /* Torna-se completamente visível */
+}
+
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+/* Estilo do Cabeçalho */
+.header {
+    background-color: #2983cc;
+    color: white;
+    padding: 25px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 0.9em;
+}
+
+.header .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 15px;
+    border-radius: 4px;
+}
+
+.logo-block img {
+    display: block;
+    width: 55px;
+    height: auto;
+    position: absolute;
+    margin-left: -320px;
+}
+
+.logo-block .logo-text {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: white;
+    position: absolute;
+    margin-left: -250px;
+}
+
+.main-nav {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.main-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.main-nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: bolder;
+    transition: opacity 0.3s ease;
+}
+
+.main-nav ul li a:hover {
+    opacity: 0.8;
+}
+
+.user-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    font-size: 0.9em;
+    gap: 20px;
+}
+
+.user-status-block,
+.user-time-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-status-text,
+.time-info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-info .fas {
+    font-size: 1.5em;
+    color: white;
+}
+
+.user-info span {
+    color: white;
+    white-space: nowrap;
+}
+
+.user-status-text span,
+.time-info-text span {
+    margin-right: 0;
+    margin-top: -5%;
+}
+
+.logout-button-styled {
+    background-color: white;
+    color: #17a2b8;
+    border: 1px solid #17a2b8;
+    padding: 5px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-button-styled:hover {
+    background-color: #17a2b8;
+    color: white;
+}
+
+@media (max-width: 992px) {
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo-block,
+    .main-nav,
+    .user-actions-group {
+        flex-grow: 0;
+        width: 100%;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .main-nav ul {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .user-actions-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .user-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-status-block,
+    .user-time-block {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-status-text,
+    .time-info-text {
+        flex-direction: column;
+        align-items: center;
+    }
+    .user-status-block .fas,
+    .user-time-block .fas {
+        margin-bottom: 0;
+        margin-right: 5px;
+    }
+}
+
+.user-info span {
+    color: white;
+    white-space: nowrap;
+}
+
+.user-status-text span,
+.time-info-text span {
+    margin-right: 0;
+}
+
+.logout-button-styled {
+    background-color: white;
+    color: #17a2b8;
+    border: 1px solid #17a2b8;
+    padding: 5px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-button-styled:hover {
+    background-color: #17a2b8;
+    color: white;
+}
+
+@media (max-width: 992px) {
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo-block,
+    .main-nav,
+    .user-actions-group {
+        flex-grow: 0;
+        width: 100%;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .main-nav ul {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .user-actions-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .user-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-status-block,
+    .user-time-block {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-status-text,
+    .time-info-text {
+        flex-direction: column;
+        align-items: center;
+    }
+    .user-status-block .fas,
+    .user-time-block .fas {
+        margin-bottom: 0;
+        margin-right: 5px;
+    }
+}
+
+/* Estilo do Título da Página */
+.page-title {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    color: #2b8adf;
+}
+
+/* Estilo do Grid de Cards de Macro */
+.macro-grid-section {
+    margin-bottom: 40px;
+}
+
+.macro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* Estilo dos Cards de Macro */
+.macro-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease-in-out;
+}
+
+.macro-card:hover {
+    transition: 0.3s;
+    transform: translateY(10px);
+}
+
+.card-icon {
+    font-size: 2em;
+    color: #2b8adf;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    font-size: 1.2em;
+    margin: 10px 0 5px 0;
+    flex-grow: 1;
+}
+
+.card-description {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.card-button {
+    display: inline-block;
+    background-color: transparent; /* Fundo transparente */
+    color: #2b8adf; /* Cor do texto primária */
+    border: 1px solid #2b8adf; /* Contorno com a cor primária */
+    text-decoration: none;
+    padding: 8px 12px; /* Reduzir padding */
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card-button:hover {
+    background-color: #2b8adf; /* Fundo preenchido no hover */
+    color: white; /* Texto branco no hover */
+}
+
+/* Estilos para o Carrossel */
+.carousel-section {
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+.carousel-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2b8adf;
+}
+
+.carousel-container {
+    position: relative;
+    overflow: hidden;
+    padding: 0 40px;
+}
+
+.carousel-items {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.5s ease; /* Transição adicionada/confirmada */
+}
+
+.carousel-items .macro-card {
+     flex: 0 0 auto;
+     width: 300px;
+}
+
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(150, 150, 150, 0.3); /* Cinza suave semi-transparente */
+    color: #555; /* Cor da seta cinza escuro */
+    border: none; /* Remover borda */
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%; /* Circular */
+    width: 40px; /* Tamanho fixo */
+    height: 40px;
+    font-size: 1em; /* Tamanho do ícone */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Adicionar transição */
+}
+
+.carousel-nav:hover {
+     background-color: rgba(150, 150, 150, 0.6); /* Cinza mais escuro no hover */
+     color: #333;
+}
+
+.carousel-nav.prev {
+    left: 5px;
+}
+
+.carousel-nav.next {
+    right: 5px;
+}
+
+.carousel-nav:disabled {
+     opacity: 0.5;
+     cursor: not-allowed;
+}
+
+.carousel-pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.carousel-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.carousel-dot.active {
+    background-color: #2b8adf;
+}
+
+/* Estilo da Área Inferior Interativa */
+.interactive-area {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.interactive-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    min-width: 300px;
+}
+
+.interactive-section h2 {
+    text-align: center;
+    margin-top: 0;
+    color: #2b8adf;
+    margin-bottom: 20px;
+}
+
+.controls-container,
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.control-group select,
+.control-group input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.action-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.action-button.primary {
+     background-color: #5cb85c;
+}
+
+.action-button:hover {
+    background-color: #0056b3;
+}
+ .action-button.primary:hover {
+    background-color: #4cae4c;
+}
+
+
+.fixed-help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform ease 0.3s;
+    z-index: 100;
+    border: none;
+
+}
+
+.fixed-help-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translatey(-5px);
+}
+
+/* Responsividade Básica */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+    }
+
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    nav ul {
+         flex-direction: column;
+         margin-top: 10px;
+    }
+
+    nav li {
+         margin-right: 0;
+         margin-bottom: 5px;
+    }
+
+    .user-info {
+         margin-left: 0;
+         margin-right: 0;
+         margin-top: 10px;
+         flex-direction: column;
+         align-items: flex-start;
+    }
+
+    .user-info span {
+         margin-left: 0;
+         margin-bottom: 5px;
+    }
+
+    .logout-button {
+         margin-top: 10px;
+         width: 100%;
+    }
+
+    .interactive-area {
+        flex-direction: column;
+    }
+
+    .interactive-section {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .carousel-container {
+        padding: 0 10px;
+    }
+
+     .carousel-nav {
+         font-size: 1em;
+         padding: 8px;
+     }
+
+     .carousel-nav.prev {
+        left: 0;
+     }
+     .carousel-nav.next {
+        right: 0;
+     }
+
+     .carousel-items .macro-card {
+         width: 250px;
+     }
+}

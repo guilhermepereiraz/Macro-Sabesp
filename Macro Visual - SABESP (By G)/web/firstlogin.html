@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/firstlogin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+    <script type="text/javascript" src="eel.js"></script>
+    <title>Macro JGL - Primeiro Login</title>
+</head>
+
+<body>
+    <div id="confetti-container"></div>
+    <section>
+        <h1></h1>
+        <div class="layers">
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+        </div>
+        <div class="layers layer2">
+            <div><img src="imagens/bexiga.png" alt="balao">
+            </div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+        </div>
+        <div class="layers layer3">
+            <div><img src="imagens/bexiga.png" alt="balao">
+            </div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+            <div><img src="imagens/bexiga.png" alt="balao"></div>
+        </div>
+    </section>
+    <div id="carregandocerto">
+        <div id="formulario-container">
+            <h3>Boas-vindas!</h3>
+            <p>Olá! Identificamos que este é o seu primeiro acesso ao sistema. Para sua segurança, é necessário criar
+                uma nova senha agora.</p>
+            <p>Por favor, utilize o formulário abaixo para definir sua nova senha e continuar.</p>
+            <p id="mensagem-erro-troca-senha" style="color: red;"></p>
+
+            <div>
+                <label for="password-atual">Senha Atual:</label>
+                <div class="password-input-container">
+                    <input type="password" id="password-atual" name="passwordAtual" class="inputsn"
+                        placeholder="Senha Atual" required>
+                    <i class="fas fa-eye password-toggle-icon"></i>
+                </div>
+            </div>
+
+            <div>
+                <label for="password-atual-repeat">Repita a Senha Atual:</label>
+                <div class="password-input-container">
+                    <input type="password" id="password-atual-repeat" name="passwordAtualRepeat" class="inputsn"
+                        placeholder="Repita a Senha Atual" required>
+                    <i class="fas fa-eye password-toggle-icon"></i>
+                </div>
+            </div>
+
+            <div>
+                <label for="password-nova">Nova Senha:</label>
+                <div class="password-input-container">
+                    <input type="password" id="password-nova" name="passwordNova" class="inputsn"
+                        placeholder="Nova Senha" required>
+                    <i class="fas fa-eye password-toggle-icon"></i>
+                </div>
+            </div>
+
+            <div>
+                <label for="password-nova-repeat">Repita a Nova Senha:</label>
+                <div class="password-input-container">
+                    <input type="password" id="password-nova-repeat" name="passwordNovaRepeat" class="inputsn"
+                        placeholder="Repita a Nova Senha" required>
+                    <i class="fas fa-eye password-toggle-icon"></i>
+                </div>
+            </div>
+
+            <div>
+                <button type="button" onclick="salvarNovaSenha()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firstlogin.js"></script>
+</body>
+
+</html>

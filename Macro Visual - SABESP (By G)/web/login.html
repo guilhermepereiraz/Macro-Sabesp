@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/login-cadastro.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="eel.js"></script>
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
     </head>
 
@@ -37,7 +37,7 @@
                 </div>
                 <button type="button" onclick="verificarLogin()">Entrar</button>
             </form>
-            <p class="cadstro">Não tem uma conta?<a href="#" onclick="mostrarCadastro()"> Solicite aqui.</a></p>
+            <p class="cadstro">Não tem uma conta?<a href="#" onclick="mostrarCadastro()"> Solicite aqui</a></p>
         </div>
     </div>
 
@@ -69,7 +69,8 @@
         <img src="imagens/sabesp_login.png" alt="Imagem de Login" id="imgcad">
         <div id="formulario-container-cadastro">
             <h3 class="login2" style="margin-bottom: 10%; margin-top: 5%; font-weight: 700;">Solicitação de Cadastro</h3>
-            <p id="mensagem-2" style="color: red; margin-bottom: -5%;"></p>
+            <p id="mensagem-4" style="color: red;"></p>
+            <p id="mensagem-5" style="color: green;"></p>
             <form id="login-form2">
                 <div>
                     <input type="text" id="cargo" name="cargo" placeholder="Cargo" list="listadecargo">
@@ -98,11 +99,27 @@
                 </div>
                 <button type="button" onclick="verificarLogindasd()">Solicitar</button>
             </form>
-            <p class="cadstro">Possui uma conta?<a href="#" onclick="mostrarLogin()"> Faça seu login agora.</a></p>
+            <p class="cadstro">Possui uma conta?<a href="#" onclick="mostrarLogin()"> Faça seu login agora</a></p>
         </div>
     </div>
 
-    <script type="text/javascript" src="login.js"></script>
+    <div id="carregandoprocessando" style="display: none;">
+        <div id="formulario-container-crep">
+            <h3 class="verificandocredp" id="tituloprinc" style="font-weight: bolder;">Validando Dados e Criando Solicitação...</h3>
+            <div class="spinner-border text-primary" role="status"
+                style="width: 7em; height: 7em; text-align: center; margin-top: 8%;" id="spinerproc">
+                <span class="visually-hidden"></span>
+                
+            </div>
+           <img src="imagens/icone-de-tique-ronde-verte.png" alt="Ícone de verificação verde" id="verificado2"
+                style="display: none; width: 20%; margin-top: 5%; margin-bottom: 5%;">
+                <img src="imagens/icone-de-incorreto.png" alt="Ícone de verificação errado" id="nao-verificado2"
+                style="display: none; width: 25%; margin-top: 5%; margin-bottom: 5%;">
+                <p id="mensagem-3" style="color: red; margin-bottom: -5%;"></p>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="js/login.js"></script>
 
 </body>
 

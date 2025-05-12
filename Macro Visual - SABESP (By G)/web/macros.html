@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro JGL - Macros</title>
+    <link rel="stylesheet" href="css/macros.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-block">
+                    <img src="imagens/logo-sabesp-1024.png" alt="Logo Macro JGL">
+                    <div class="logo-text">Macro JGL</div>
+                </div>
+                <span style="margin-left: 24%;"></span>
+
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="#" style="text-decoration: underline; color: rgb(12, 38, 53);">Macros</a></li>
+                        <li><a href="#">Consultas</a></li>
+                        <li><a href="#">Configurações</a></li>
+                        <li><a href="#">Ajuda</a></li>
+                        <li><a href="#">Sugestão</a></li>
+                        <li><a href="#">Sobre</a></li>
+                    </ul>
+                </nav>
+                <span style="margin-left: 10%;"></span>
+                <div class="user-actions-group">
+                    <div class="user-info">
+                        <div class="user-status-block">
+                            <i class="fas fa-user icon-user"></i>
+                            <div class="user-status-text">
+                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
+                                    Usuário</span>
+                                <span>Usuário ativo</span>
+                            </div>
+                        </div>
+                        <div class="user-time-block">
+                            <i class="fas fa-clock icon-clock"></i>
+                            <div class="time-info-text">
+                                <span id="current-time" style="font-size: 1.2em; font-weight: 600;">Horario Atual</span>
+                                <span id="logged-in-time">Horario Logado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;"
+                        onclick="deslogar()" id="deslog">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title" style="color: black; margin-top: 7%;">Todas as Minhas Macros</h1>
+
+        <section class="macro-grid-section">
+            <div class="macro-grid" id="macroGrid">
+            </div>
+        </section>
+
+        <section class="carousel-section">
+            <h2 style="color: black;">Macros Populares/Recentes</h2>
+            <div class="carousel-container">
+                <div class="carousel-items" id="macroCarouselItems">
+                    <div class="macro-card">
+                        <div class="card-icon"><i class="fas fa-star"></i></div>
+                        <h3 class="card-title">Macro SITE</h3>
+                        <p class="card-description">Retorna o resultado do SITE - WFM</p>
+                        <a href="#" class="card-button">Acessar</a>
+                    </div>
+                    <div class="macro-card">
+                        <div class="card-icon"><i class="fas fa-bolt"></i></div>
+                        <h3 class="card-title">Macro Destacada 2</h3>
+                        <p class="card-description">Outra macro em destaque no carrossel.</p>
+                        <a href="#" class="card-button">Acessar</a>
+                    </div>
+                    <div class="macro-card">
+                        <div class="card-icon"><i class="fas fa-heart"></i></div>
+                        <h3 class="card-title">Macro Destacada 3</h3>
+                        <p class="card-description">Descrição curta da terceira macro.</p>
+                        <a href="#" class="card-button">Acessar</a>
+                    </div>
+                    <div class="macro-card">
+                        <div class="card-icon"><i class="fas fa-code"></i></div>
+                        <h3 class="card-title">Macro Destacada 4</h3>
+                        <p class="card-description">Uma macro de código ou automação.</p>
+                        <a href="#" class="card-button">Acessar</a>
+                    </div>
+                    <div class="macro-card">
+                        <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+                        <h3 class="card-title">Macro Destacada 5</h3>
+                        <p class="card-description">Macro para relatórios ou dados.</p>
+                        <a href="#" class="card-button">Acessar</a>
+                    </div>
+                    <div class="macro-card">
+                        <div class="card-icon"><i class="fas fa-users"></i></div>
+                        <h3 class="card-title">Macro Destacada 6</h3>
+                        <p class="card-description">Macro relacionada a usuários ou equipes.</p>
+                        <a href="#" class="card-button">Acessar</a>
+                    </div>
+                </div>
+                <button class="carousel-nav prev" id="carouselPrev"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-nav next" id="carouselNext"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-pagination" id="carouselPagination">
+                </div>
+            </div>
+        </section>
+        <section class="interactive-area">
+            <div class="interactive-section">
+                <h2 style="color: black;">Filtros</h2>
+                <div class="controls-container">
+                    <div class="control-group">
+                        <label for="filterCategory">Categoria:</label>
+                        <select id="filterCategory">
+                            <option value="">Todas as Categorias</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="filterStatus">Status:</label>
+                        <select id="filterStatus">
+                            <option value="">Todos os Status</option>
+                            <option value="active">Ativa</option>
+                            <option value="inactive">Inativa</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="sortOrder">Ordenar por:</label>
+                        <select id="sortOrder">
+                            <option value="name-asc">Nome (A-Z)</option>
+                            <option value="name-desc">Nome (Z-A)</option>
+                            <option value="date-desc">Mais Recente</option>
+                            <option value="date-asc">Mais Antiga</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-section">
+                <h2 style="color: black;">Ações Rápidas</h2>
+                <div class="actions-container">
+                    <button class="action-button primary" id="btnCriarNovaMacro">Criar Nova Macro</button>
+                    <button class="action-button" id="btnSugerirMelhoria">Sugerir Melhoria/Nova Macro</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <button class="fixed-help-button">
+        <i class="fas fa-headset"></i> </button>
+    <script src="js/macros.js"></script>
+
+</body>
+
+</html>

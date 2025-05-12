@@ -1,0 +1,28 @@
+Apresentação
+
+Extenção
+
+Python
+Mysql
+
+Bibliotecas que terei que baixar
+
+pip install pymysql
+pip install eel
+pip install selenium
+pip install python-dateutil
+pip install pandas
+
+INSERT into tb_usuarios (nome, email, senha, cargo) values ("Guilherme", "gui", "gui", "adm")
+
+Script Apresentação
+
+- Começar falando que a macro e um projeto real ja implantado, e atualmente usado apenas por gerentes
+
+- Mostrar o Login
+
+- Mostrar como faz uma solicitação de Conta
+
+- Mostrar o Primeiro Login 
+
+

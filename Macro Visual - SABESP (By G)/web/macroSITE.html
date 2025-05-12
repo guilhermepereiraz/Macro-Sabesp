@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro JGL - Macro Site</title>
+    <link rel="stylesheet" href="css/macrosite.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+
+    <script type="text/javascript" src="eel.js"></script>
+    <script type="text/javascript" src="js/macrosite.js"></script>
+
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-block">
+                    <img src="imagens/logo-sabesp-1024.png" alt="Logo Macro JGL">
+                    <div class="logo-text">Macro JGL</div>
+                </div>
+                <span style="margin-left: 24%;"></span>
+
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="macros.html" style="text-decoration: underline; color: rgb(12, 38, 53);">Macros</a></li>
+                        <li><a href="#">Consultas</a></li>
+                        <li><a href="#">Configurações</a></li>
+                        <li><a href="#">Ajuda</a></li>
+                        <li><a href="#">Sugestão</a></li>
+                        <li><a href="#">Sobre</a></li>
+                    </ul>
+                </nav>
+                <span style="margin-left: 10%;"></span>
+                <div class="user-actions-group">
+                    <div class="user-info">
+                        <div class="user-status-block">
+                            <i class="fas fa-user icon-user"></i>
+                            <div class="user-status-text">
+                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do Usuário</span>
+                                <span style="margin-top: 1px;">Usuário ativo</span>
+                            </div>
+                        </div>
+                        <div class="user-time-block">
+                            <i class="fas fa-clock icon-clock"></i>
+                            <div class="time-info-text">
+                                <span id="current-time" style="font-size: 1.2em; font-weight: 600;">Horario Atual</span>
+                                <span id="logged-in-time" style="margin-top: 1px;">Horario Logado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;" onclick="deslogar()" id="deslog">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="macrosite-section">
+            <h2>Macro SITE -WFM</h2>
+            <p>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
+            <p>Para a execução desta macro, siga os passos abaixo:</p>
+            <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV (.csv).</p>
+            <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho "OS" ou "Número OS". Esta coluna deve listar todos os números de Ordens de Serviço para os quais você deseja buscar informações no site WFM.</p>
+            <p>Ao final do processamento, uma pasta chamada <strong>[Macro JGL - Macro SITE]</strong> será criada na sua Área de Trabalho, contendo o arquivo com os resultados.</p>
+
+            <div id="site-preview">
+                <p>Representação visual do site da Macro aqui.</p>
+            </div>
+            <div id="mensagem-de-erro" style="color: red; display: none; font-weight: bolder; margin-left: 0.5%; margin-bottom: 1%;"></div>
+
+            <div class="form-container">
+                <div class="input-group">
+                    <label for="site-login">Login (WFM):</label>
+                    <input type="text" id="site-login" placeholder="Digite o login do site">
+                </div>
+                <div class="input-group">
+                    <label for="site-password">Senha (WFM):</label>
+                    <input type="password" id="site-password" placeholder="Digite a senha do site">
+                </div>
+                <div class="input-group">
+                    <label>Tipo de Arquivo:</label>
+                    <div class="radio-group">
+                        <label for="csvOption">CSV</label>
+                        <input type="radio" id="csvOption" checked name="arquivoTipo" value="csv" style="margin-left: -0.5%; margin-top: -0.3%;">
+
+                        <label for="excelOption">Excel</label>
+                        <input type="radio" name="arquivoTipo" id="excelOption" value="excel" style="margin-left: -0.5%; margin-top: -0.3%;">
+
+                        </div>
+                </div>
+                <div class="input-group file-input-group">
+                    <label for="arquivo-csv">Selecionar Arquivo:</label> <input type="file" id="arquivo-csv">
+                    <span class="file-name" id="selected-file-name"></span> </div>
+
+                <button id="processar">Iniciar</button>
+
+                <p id="macrosite-error-message" class="error-message" style="display: none; color: red;"></p>
+
+            </div>
+
+            <div id="macrosite-processing-status" style="display: none;">
+                <h3>Status do Processamento</h3>
+                <div class="status-info">
+                    <p>OS Processando: <span id="os-processando">-</span></p>
+                    <p>Quantidade Processada: <span id="quantidade">0</span> de <span id="total-count">?</span></p>
+                    <p>Tempo Estimado Restante: <span id="tempoestimado">-</span></p>
+                    <p>Porcentagem Concluída: <span id="porcentagem-concluida">0%</span></p>
+                </div>
+                <button id="pausar" class="styled-button">Pausar</button>
+                <button id="encerrar" class="styled-button">Encerrar</button>
+            </div>
+
+            <div id="macrosite-completion-summary" style="display: none;">
+                <h3>Processamento Concluído</h3>
+                <p id="completion-message"></p>
+                <ul id="completion-details-list"></ul>
+                <button>Novo Processamento</button>
+            </div>
+
+        </section>
+    </main>
+</body>
+</html>

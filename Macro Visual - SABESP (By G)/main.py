@@ -1,5 +1,5 @@
 import eel
-from MacroSITE_V4 import iniciar_macro_multi_thread, parar_macro_event
+from MacroSITE import iniciar_macro_single_thread
 from Consulta_geral import iniciar_consulta_geral_backend 
 import sys
 import pymysql # USANDO PyMySQL
@@ -35,10 +35,10 @@ logging.info("--- main.py Iniciado ---")
 
 
 DB_CONFIG = {
-    'host': '127.0.0.1',
+    'host': '10.51.109.123',
     'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
-    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
-    'database': 'pendilist'
+    'password': 'SB28@sabesp', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendlist'
 }
 
 EMAIL_CONFIG = {
@@ -436,12 +436,17 @@ def verificar_credenciais(email, senha_texto_claro):
 
 
 @eel.expose
-def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario): # 0 espaços
-    logging.info(f"Chamada para iniciar macro para usuário da aplicação '{identificador_usuario}'") # 4 espaços
-    logging.info(f"Credenciais passadas para a macro (login site): {login_usuario}, {'*' * len(senha_usuario)}") # 4 espaços
-    logging.info(f"Nome do arquivo: {nome_arquivo}, Tipo: {tipo_arquivo}") # 4 espaços
+def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario):
+    """
+    Função exposta ao Eel para iniciar a macro principal (Macro SITE).
+    Agora chama a versão single-threaded da macro.
+    """
+    logging.info(f"Chamada para iniciar macro para usuário da aplicação '{identificador_usuario}'")
+    logging.info(f"Credenciais passadas para a macro (login site): {login_usuario}, {'*' * len(senha_usuario)}")
+    logging.info(f"Nome do arquivo: {nome_arquivo}, Tipo: {tipo_arquivo}")
 
-    return iniciar_macro_multi_thread(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario) # 4 espaços
+    # CHAMA A NOVA FUNÇÃO SINGLE-THREADED
+    return iniciar_macro_single_thread(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario)
 
 @eel.expose
 def iniciar_consulta_geral_frontend(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario):
@@ -458,22 +463,18 @@ def iniciar_consulta_geral_frontend(conteudo_arquivo, login_usuario, senha_usuar
     return iniciar_consulta_geral_backend(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario)
 
 def close_callback(page, sockets):
-
     logging.info(f"Conexão websocket fechada para a página: {page}. Sockets restantes: {len(sockets)}")
 
-
-    if not sockets:
-        logging.info("Última conexão websocket fechada. Sinalizando para parar a macro e encerrando processo Python.")
-        # Sinaliza para as threads da macro pararem de forma segura
+    # Verifica se a página relevante para a macro ainda está aberta
+    if page == "macroSITE.html" and not sockets:
+        logging.info("Última conexão websocket fechada para macroSITE.html. Sinalizando para parar a macro e encerrando processo Python.")
         try:
-            # Importa o evento de MacroSITE_V4 - Verifique o nome correto se for diferente
-            from MacroSITE_V4 import parar_macro_event
-            parar_macro_event.set() # Sinaliza o evento de parada global
-        except ImportError:
-            logging.error("Erro ao importar parar_macro_event de MacroSITE_V4.py. Verifique o nome do arquivo/evento.")
-        # Encerra o processo Python
+            from MacroSITE import parar_macro_event
+            parar_macro_event.set()  # Sinaliza o evento de parada global
+        except Exception as e:
+            logging.error(f"Erro ao sinalizar parada da macro: {e}")
     else:
-        logging.info(f"Ainda há {len(sockets)} conexões ativas.")
+        logging.info("Conexões WebSocket ainda ativas ou página irrelevante para a macro.")
 
 
 try: # 0 espaços

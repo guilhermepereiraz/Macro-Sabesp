@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             mainContent.classList.remove('page-intro');
             console.log("[macros.js] Transição de intro da página removida.");
-        }, 100);
+        }, 30);
     } else {
         console.warn("[macros.js] Elemento main.container não encontrado para transição de intro.");
     }

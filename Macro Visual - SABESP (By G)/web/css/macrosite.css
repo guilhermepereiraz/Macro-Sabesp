@@ -1,15 +1,176 @@
 /* Estilo do Cabeçalho */
 
 /* Resetando margens e padding do body e html */
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
 }
 
 body {
- font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif;
+    opacity: 0;
+    display: none;
+    transition: opacity 0.5s ease-in-out;
 }
+
+body.is-visible {
+    opacity: 1;
+    /* Torna-se completamente visível */
+}
+
+/* CSS DE CARREGAMENTO */
+.sk-chase {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  animation: sk-chase 2.5s infinite linear both;
+  margin-left: 20%;
+  margin-top: -2.7%;
+  position: absolute;
+}
+
+.sk-chase-dot {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0; 
+  animation: sk-chase-dot 2.0s infinite ease-in-out both; 
+}
+
+.sk-chase-dot:before {
+  content: '';
+  display: block;
+  width: 25%;
+  height: 25%;
+  background-color: #067aff;
+  border-radius: 100%;
+  animation: sk-chase-dot-before 2.0s infinite ease-in-out both; 
+}
+
+.sk-chase-dot:nth-child(1) { animation-delay: -1.1s; }
+.sk-chase-dot:nth-child(2) { animation-delay: -1.0s; }
+.sk-chase-dot:nth-child(3) { animation-delay: -0.9s; }
+.sk-chase-dot:nth-child(4) { animation-delay: -0.8s; }
+.sk-chase-dot:nth-child(5) { animation-delay: -0.7s; }
+.sk-chase-dot:nth-child(6) { animation-delay: -0.6s; }
+.sk-chase-dot:nth-child(1):before { animation-delay: -1.1s; }
+.sk-chase-dot:nth-child(2):before { animation-delay: -1.0s; }
+.sk-chase-dot:nth-child(3):before { animation-delay: -0.9s; }
+.sk-chase-dot:nth-child(4):before { animation-delay: -0.8s; }
+.sk-chase-dot:nth-child(5):before { animation-delay: -0.7s; }
+.sk-chase-dot:nth-child(6):before { animation-delay: -0.6s; }
+
+@keyframes sk-chase {
+  100% { transform: rotate(360deg); } 
+}
+
+@keyframes sk-chase-dot {
+  80%, 100% { transform: rotate(360deg); } 
+}
+
+@keyframes sk-chase-dot-before {
+  50% {
+    transform: scale(0.4); 
+  } 100%, 0% {
+    transform: scale(1.0); 
+  } 
+}
+
+
+/* SEGUNDA CARREGAMENTO */  
+
+.sk-folding-cube {
+  margin-left: 91%;
+  width: 80px;
+  height: 80px;
+  margin-top: -6%;
+  position: absolute;
+  -webkit-transform: rotateZ(45deg);
+          transform: rotateZ(45deg);
+}
+
+.sk-folding-cube .sk-cube {
+  float: left;
+  width: 50%;
+  height: 50%;
+  position: relative;
+  -webkit-transform: scale(1.1);
+      -ms-transform: scale(1.1);
+          transform: scale(1.1); 
+}
+.sk-folding-cube .sk-cube:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #067aff;
+  -webkit-animation: sk-foldCubeAngle 2.4s infinite linear both;
+          animation: sk-foldCubeAngle 2.4s infinite linear both;
+  -webkit-transform-origin: 100% 100%;
+      -ms-transform-origin: 100% 100%;
+          transform-origin: 100% 100%;
+}
+.sk-folding-cube .sk-cube2 {
+  -webkit-transform: scale(1.1) rotateZ(90deg);
+          transform: scale(1.1) rotateZ(90deg);
+}
+.sk-folding-cube .sk-cube3 {
+  -webkit-transform: scale(1.1) rotateZ(180deg);
+          transform: scale(1.1) rotateZ(180deg);
+}
+.sk-folding-cube .sk-cube4 {
+  -webkit-transform: scale(1.1) rotateZ(270deg);
+          transform: scale(1.1) rotateZ(270deg);
+}
+.sk-folding-cube .sk-cube2:before {
+  -webkit-animation-delay: 0.3s;
+          animation-delay: 0.3s;
+}
+.sk-folding-cube .sk-cube3:before {
+  -webkit-animation-delay: 0.6s;
+          animation-delay: 0.6s; 
+}
+.sk-folding-cube .sk-cube4:before {
+  -webkit-animation-delay: 0.9s;
+          animation-delay: 0.9s;
+}
+@-webkit-keyframes sk-foldCubeAngle {
+  0%, 10% {
+    -webkit-transform: perspective(140px) rotateX(-180deg);
+            transform: perspective(140px) rotateX(-180deg);
+    opacity: 0; 
+  } 25%, 75% {
+    -webkit-transform: perspective(140px) rotateX(0deg);
+            transform: perspective(140px) rotateX(0deg);
+    opacity: 1; 
+  } 90%, 100% {
+    -webkit-transform: perspective(140px) rotateY(180deg);
+            transform: perspective(140px) rotateY(180deg);
+    opacity: 0; 
+  } 
+}
+
+@keyframes sk-foldCubeAngle {
+  0%, 10% {
+    -webkit-transform: perspective(140px) rotateX(-180deg);
+            transform: perspective(140px) rotateX(-180deg);
+    opacity: 0; 
+  } 25%, 75% {
+    -webkit-transform: perspective(140px) rotateX(0deg);
+            transform: perspective(140px) rotateX(0deg);
+    opacity: 1; 
+  } 90%, 100% {
+    -webkit-transform: perspective(140px) rotateY(180deg);
+            transform: perspective(140px) rotateY(180deg);
+    opacity: 0; 
+  }
+}
+
 
 .header {
     background-color: #2983cc;
@@ -139,7 +300,8 @@ body {
     cursor: pointer;
     font-size: 0.9em;
     transition: background-color 0.3s ease, color 0.3s ease;
-    margin-left: 20px; /* Adicionando espaçamento à esquerda do botão */
+    margin-left: 20px;
+    /* Adicionando espaçamento à esquerda do botão */
 }
 
 .logout-button-styled:hover {
@@ -192,6 +354,7 @@ body {
         flex-direction: column;
         align-items: center;
     }
+
     .user-status-block .fas,
     .user-time-block .fas {
         margin-bottom: 0;
@@ -218,7 +381,8 @@ body {
     cursor: pointer;
     font-size: 0.9em;
     transition: background-color 0.3s ease, color 0.3s ease;
-    margin-left: 20px; /* Adicionando espaçamento à esquerda do botão */
+    margin-left: 20px;
+    /* Adicionando espaçamento à esquerda do botão */
 }
 
 .logout-button-styled:hover {
@@ -271,6 +435,7 @@ body {
         flex-direction: column;
         align-items: center;
     }
+
     .user-status-block .fas,
     .user-time-block .fas {
         margin-bottom: 0;
@@ -280,49 +445,71 @@ body {
 
 /* Estilos para a área de visualização do site */
 #site-preview {
-    width: 100%; /* Ocupa a largura total da seção */
-    height: 180px; /* Ajuste esta altura para o que você precisa */
-    background-color: #e0e0e0; /* Cor de fundo placeholder - pode ser uma imagem de fundo CSS */
-    border: 1px solid #ccc; /* Borda */
-    border-radius: 5px; /* Bordas arredondadas */
-    display: flex; /* Para centralizar o conteúdo dentro */
+    width: 100%;
+    /* Ocupa a largura total da seção */
+    height: 180px;
+    /* Ajuste esta altura para o que você precisa */
+    background-color: #e0e0e0;
+    /* Cor de fundo placeholder - pode ser uma imagem de fundo CSS */
+    border: 1px solid #ccc;
+    /* Borda */
+    border-radius: 5px;
+    /* Bordas arredondadas */
+    display: flex;
+    /* Para centralizar o conteúdo dentro */
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px; /* Espaço entre a prévia e o formulário */
+    margin-bottom: 20px;
+    /* Espaço entre a prévia e o formulário */
     color: #555;
     font-style: italic;
-    overflow: hidden; /* Garante que o conteúdo não transborde */
+    overflow: hidden;
+    /* Garante que o conteúdo não transborde */
     /* Se for usar uma imagem de fundo: */
     /* background-image: url('caminho/para/sua_imagem_de_fundo.png'); */
-    /* background-size: cover; */ /* ou contain */
+    /* background-size: cover; */
+    /* ou contain */
     /* background-position: center; */
 }
 
 /* Estilos para a imagem dentro da prévia, se usar uma */
 #site-preview img {
     display: block;
-    max-width: 100%; /* Garante que a imagem caiba na largura */
-    max-height: 100%; /* Garante que a imagem caiba na altura */
-    object-fit: contain; /* ou cover, dependendo de como quer que a imagem preencha a área */
+    max-width: 100%;
+    /* Garante que a imagem caiba na largura */
+    max-height: 100%;
+    /* Garante que a imagem caiba na altura */
+    object-fit: contain;
+    /* ou cover, dependendo de como quer que a imagem preencha a área */
 }
 
 #macrosite-section {
-    padding: 20px; /* Espaçamento interno */
-    background-color: #f9f9f9; /* Cor de fundo suave */
-    border-radius: 8px; /* Bordas arredondadas */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Sombra suave */
-    margin-top: 20px; /* Espaçamento do topo */
+    padding: 20px;
+    /* Espaçamento interno */
+    background-color: #f9f9f9;
+    /* Cor de fundo suave */
+    border-radius: 8px;
+    /* Bordas arredondadas */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* Sombra suave */
+    margin-top: 20px;
+    /* Espaçamento do topo */
 }
 
 #macrosite-section h2 {
-    color: #333; /* Cor do título da seção */
-    border-bottom: 2px solid #0056b3; /* Linha sob o título */
-    padding-bottom: 10px; /* Espaço sob a linha */
-    margin-bottom: 20px; /* Espaço sob o título */
+    color: #333;
+    /* Cor do título da seção */
+    padding-bottom: 10px;
+    /* Espaço sob a linha */
+    margin-bottom: 20px;
+    /* Espaço sob o título */
 }
 
-.form-container, .status-info, #macrosite-completion-summary {
-    margin-bottom: 20px; /* Espaço entre as seções */
+.form-container,
+.status-info,
+#macrosite-completion-summary {
+    margin-bottom: 20px;
+    /* Espaço entre as seções */
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -330,12 +517,15 @@ body {
 }
 
 .input-group {
-    margin-bottom: 15px; /* Espaço entre grupos de input */
+    margin-bottom: 15px;
+    /* Espaço entre grupos de input */
 }
 
 .input-group label {
-    display: block; /* Label em uma linha separada */
-    margin-bottom: 5px; /* Espaço entre label e input */
+    display: block;
+    /* Label em uma linha separada */
+    margin-bottom: 5px;
+    /* Espaço entre label e input */
     font-weight: bold;
     color: #555;
 }
@@ -343,7 +533,8 @@ body {
 .input-group input[type="text"],
 .input-group input[type="password"],
 .input-group input[type="file"] {
-    width: calc(100% - 22px); /* Largura do input, ajustando para padding/border */
+    width: calc(100% - 22px);
+    /* Largura do input, ajustando para padding/border */
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -351,24 +542,30 @@ body {
 }
 
 .radio-group {
-    display: flex; /* Para alinhar os radio buttons e labels na mesma linha */
-    gap: 15px; /* Espaço entre as opções de rádio */
+    display: flex;
+    /* Para alinhar os radio buttons e labels na mesma linha */
+    gap: 15px;
+    /* Espaço entre as opções de rádio */
     align-items: center;
 }
 
 .radio-group input[type="radio"] {
-    margin-right: 5px; /* Espaço entre o radio e o label */
+    margin-right: 5px;
+    /* Espaço entre o radio e o label */
 }
 
 /* Estilo específico para o input de arquivo, se necessário */
 .file-input-group input[type="file"] {
     /* Estilos adicionais para o input de arquivo se o padrão não for ideal */
-    display: inline-block; /* Ou block, dependendo do layout */
-    width: auto; /* O input file padrão tem largura variável */
+    display: inline-block;
+    /* Ou block, dependendo do layout */
+    width: auto;
+    /* O input file padrão tem largura variável */
 }
 
 .file-input-group .file-name {
-    display: inline-block; /* Para aparecer ao lado do input file */
+    display: inline-block;
+    /* Para aparecer ao lado do input file */
     margin-left: 10px;
     font-style: italic;
     color: #666;
@@ -376,72 +573,90 @@ body {
 
 button#processar,
 #macrosite-completion-summary button {
-    display: block; /* Botões em linhas separadas */
-    width: auto; /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    display: block;
+    /* Botões em linhas separadas */
+    width: auto;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
     padding: 10px 20px;
-    background-color: #007bff; /* Cor do botão primário (exemplo Bootstrap) */
+    background-color: #007bff;
+    /* Cor do botão primário (exemplo Bootstrap) */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.3s ease;
-    margin-top: 10px; /* Espaço acima do botão */
+    margin-top: 10px;
+    /* Espaço acima do botão */
 }
 
 button#processar:hover,
 #macrosite-completion-summary button:hover {
-    background-color: #0056b3; /* Cor mais escura ao passar o mouse */
+    background-color: #0056b3;
+    /* Cor mais escura ao passar o mouse */
 }
 
 button#pausar,
 #macrosite-completion-summary button {
-    display: block; /* Botões em linhas separadas */
-    width: auto; /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    display: block;
+    /* Botões em linhas separadas */
+    width: auto;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
     padding: 10px 20px;
-    background-color: #007bff; /* Cor do botão primário (exemplo Bootstrap) */
+    background-color: #007bff;
+    /* Cor do botão primário (exemplo Bootstrap) */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.3s ease;
-    margin-top: 10px; /* Espaço acima do botão */
+    margin-top: 10px;
+    /* Espaço acima do botão */
 }
 
 button#pausar:hover,
 #macrosite-completion-summary button:hover {
-    background-color: #0056b3; /* Cor mais escura ao passar o mouse */
+    background-color: #0056b3;
+    /* Cor mais escura ao passar o mouse */
 }
 
 button#encerrar,
 #macrosite-completion-summary button {
-    display: block; /* Botões em linhas separadas */
-    width: auto; /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    display: block;
+    /* Botões em linhas separadas */
+    width: auto;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
     padding: 10px 20px;
-    background-color: #007bff; /* Cor do botão primário (exemplo Bootstrap) */
+    background-color: #007bff;
+    /* Cor do botão primário (exemplo Bootstrap) */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-left: 7%;
     font-size: 1em;
     transition: background-color 0.3s ease;
-    margin-top: 10px; /* Espaço acima do botão */
+    margin-top: -40px;
+    /* Espaço acima do botão */
 }
 
 button#encerrar:hover,
 #macrosite-completion-summary button:hover {
-    background-color: #0056b3; /* Cor mais escura ao passar o mouse */
+    background-color: #0056b3;
+    /* Cor mais escura ao passar o mouse */
 }
 
 .status-info p {
-    margin-bottom: 8px; /* Espaço entre as linhas de status */
+    margin-bottom: 8px;
+    /* Espaço entre as linhas de status */
     font-size: 1em;
     color: #333;
 }
 
 .status-info span {
-    font-weight: bold; /* Destaca os valores do status */
+    font-weight: bold;
+    /* Destaca os valores do status */
     color: #000;
 }
 
@@ -453,7 +668,8 @@ button#encerrar:hover,
 
 /* Estilos para a área de conclusão */
 #macrosite-completion-summary h3 {
-    color: #28a745; /* Cor verde para sucesso (exemplo Bootstrap) */
+    color: #28a745;
+    /* Cor verde para sucesso (exemplo Bootstrap) */
     border-bottom-color: #28a745;
 }
 
@@ -465,4 +681,31 @@ button#encerrar:hover,
     list-style: disc;
     margin-left: 20px;
     margin-bottom: 10px;
+}
+
+.fixed-help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform ease 0.3s;
+    z-index: 100;
+    border: none;
+
+}
+
+.fixed-help-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translatey(-5px);
 }

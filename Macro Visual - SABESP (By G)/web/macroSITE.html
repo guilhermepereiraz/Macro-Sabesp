@@ -59,20 +59,23 @@
     </header>
 
     <main class="container">
-        <section id="macrosite-section">
-            <h2>Macro SITE -WFM</h2>
-            <p>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
+        <section id="macrosite-section" display none>
+            <h2 style="font-size: 2em;">Macro SITE - WFM</h2>
+            <i class="fas fa-info-circle icon" id="iconeduvida" style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; border-top: 2px solid #0056b3; width: 100%; padding-top: 1%;" title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
+            <div id="duvida-site" style="display: none;">
+            <p><strong>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
             <p>Para a execução desta macro, siga os passos abaixo:</p>
             <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV (.csv).</p>
-            <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho "OS" ou "Número OS". Esta coluna deve listar todos os números de Ordens de Serviço para os quais você deseja buscar informações no site WFM.</p>
+            <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho <strong>OS</strong> ou <strong>Número OS</strong>. Esta coluna deve listar todos os números de Ordens de Serviço para os quais você deseja buscar informações no site WFM.</p>
             <p>Ao final do processamento, uma pasta chamada <strong>[Macro JGL - Macro SITE]</strong> será criada na sua Área de Trabalho, contendo o arquivo com os resultados.</p>
-
+            </strong>
+            </div>
             <div id="site-preview">
-                <p>Representação visual do site da Macro aqui.</p>
+                <p style="text-align: center; top: 50%;">Representação visual do site da Macro aqui.</p>
             </div>
             <div id="mensagem-de-erro" style="color: red; display: none; font-weight: bolder; margin-left: 0.5%; margin-bottom: 1%;"></div>
 
-            <div class="form-container">
+            <div class="form-container" id="macrosite-form" style="display: none;">
                 <div class="input-group">
                     <label for="site-login">Login (WFM):</label>
                     <input type="text" id="site-login" placeholder="Digite o login do site">
@@ -102,13 +105,13 @@
 
             </div>
 
-            <div id="macrosite-processing-status" style="display: none;">
-                <h3>Status do Processamento</h3>
+            <div id="macrosite-processing-status" style="display: block;">
+                <h3>Status do Processamento: Executando</h3>
                 <div class="status-info">
-                    <p>OS Processando: <span id="os-processando">-</span></p>
-                    <p>Quantidade Processada: <span id="quantidade">0</span> de <span id="total-count">?</span></p>
-                    <p>Tempo Estimado Restante: <span id="tempoestimado">-</span></p>
-                    <p>Porcentagem Concluída: <span id="porcentagem-concluida">0%</span></p>
+                    <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
+                    <p>Quantidade Processada: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
+                    <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
+                    <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
                 </div>
                 <button id="pausar" class="styled-button">Pausar</button>
                 <button id="encerrar" class="styled-button">Encerrar</button>
@@ -121,7 +124,12 @@
                 <button>Novo Processamento</button>
             </div>
 
+        <button class="fixed-help-button">
+        <i class="fas fa-headset"></i> </button>
+
         </section>
+        
     </main>
+
 </body>
 </html>

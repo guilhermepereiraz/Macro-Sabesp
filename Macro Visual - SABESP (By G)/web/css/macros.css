@@ -8,7 +8,7 @@ body {
     /* Adicione estas linhas para o fade-in */
     opacity: 0; /* Começa completamente transparente */
     display: none; /* Começa oculto (não renderizado), essencial para o JS mudar para block */
-    transition: opacity 1s ease-in-out; /* A animação de transição */
+    transition: opacity 0.5s ease-in-out; /* A animação de transição */
 }
 
 /* Esta regra também é necessária para a transição */

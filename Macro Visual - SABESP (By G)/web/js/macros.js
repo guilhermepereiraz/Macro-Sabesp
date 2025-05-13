@@ -106,7 +106,7 @@ function iniciarTransicaoPagina() {
              // Inicializa o carrossel aqui, após o display ser ajustado e um pequeno atraso
              calculateCarouselMetrics();
              updateCarouselDisplay();
-         }, 50); // Atraso após display:block antes de adicionar a classe e inicializar carrossel
+         }, 5); // Atraso após display:block antes de adicionar a classe e inicializar carrossel
      } else {
          console.error("[macros.js] Elemento body não encontrado.");
      }

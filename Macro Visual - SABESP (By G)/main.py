@@ -1,6 +1,5 @@
 import eel
-from MacroSITE import iniciar_macro_single_thread
-from Consulta_geral import iniciar_consulta_geral_backend 
+from MacroSITE import iniciar_macro
 import sys
 import pymysql # USANDO PyMySQL
 import logging # Para o logging
@@ -439,14 +438,25 @@ def verificar_credenciais(email, senha_texto_claro):
 def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario):
     """
     Função exposta ao Eel para iniciar a macro principal (Macro SITE).
-    Agora chama a versão single-threaded da macro.
+    Agora chama a nova função `iniciar_macro` do MacroSITE.py.
     """
     logging.info(f"Chamada para iniciar macro para usuário da aplicação '{identificador_usuario}'")
     logging.info(f"Credenciais passadas para a macro (login site): {login_usuario}, {'*' * len(senha_usuario)}")
     logging.info(f"Nome do arquivo: {nome_arquivo}, Tipo: {tipo_arquivo}")
 
-    # CHAMA A NOVA FUNÇÃO SINGLE-THREADED
-    return iniciar_macro_single_thread(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario)
+    # Chama a nova função iniciar_macro do MacroSITE.py
+    from MacroSITE import iniciar_macro
+
+    try:
+        logging.info("Chamando a função iniciar_macro do MacroSITE.py...")
+        resultado = iniciar_macro(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo)
+        logging.info("Macro iniciada com sucesso. Resultado: %s", resultado)
+        return resultado
+    except Exception as e:
+        logging.error(f"Erro ao iniciar a macro: {e}")
+        logging.exception("Detalhes do erro ao iniciar a macro:")
+        return {"status": "erro", "message": "Erro ao iniciar a macro."}
+
 
 @eel.expose
 def iniciar_consulta_geral_frontend(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario):
@@ -460,7 +470,7 @@ def iniciar_consulta_geral_frontend(conteudo_arquivo, login_usuario, senha_usuar
 
     # Chama a função principal de backend que contém a lógica da macro
     # É importante retornar o resultado dessa chamada de volta para o frontend
-    return iniciar_consulta_geral_backend(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario)
+    return iniciar_macro(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario)
 
 def close_callback(page, sockets):
     logging.info(f"Conexão websocket fechada para a página: {page}. Sockets restantes: {len(sockets)}")

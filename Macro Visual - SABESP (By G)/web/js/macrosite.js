@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'none'; // Oculta o container de status de processamento
         if (loader) loader.style.display = 'none'; // Oculta o loader
         if (novoProcessamentoButton) novoProcessamentoButton.style.display = 'block'; // Mostra o botão para iniciar um novo processamento
-        if (statusOSAtual) statusOSAtual.textContent = "Erro na Macro!";
+        if (statusOSAtual) statusOSAtual.textContent = "- Calculando..";
         if (statusContadorOS) statusContadorOS.textContent = "0/0";
         if (statusTempoRestante) statusTempoRestante.textContent = "00:00:00";
         if (progressBar) {
@@ -117,20 +117,48 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     eel.expose(atualizar_status_os);
     function atualizar_status_os(os_number, processed_count, total_count, status_code, status_message) {
-        if (statusOSAtual) statusOSAtual.textContent = `OS Atual: ${os_number} - ${status_message}`;
-        if (statusContadorOS) statusContadorOS.textContent = `${processed_count}/${total_count}`;
-        if (progressBar) {
+        // Atualiza apenas o número da OS processando
+        if (statusOSAtual) {
+            statusOSAtual.textContent = os_number;
+        }
+
+        // Atualiza apenas a quantidade processada e o total
+        if (statusContadorOS) {
+            statusContadorOS.textContent = `${processed_count} de ${total_count}`;
+        }
+
+        // Calcula e atualiza a barra de progresso e a porcentagem
+        if (total_count > 0) { // Evita divisão por zero
             const progress = (processed_count / total_count) * 100;
-            progressBar.style.width = `${progress}%`;
-            progressBar.setAttribute('aria-valuenow', progress);
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+                progressBar.setAttribute('aria-valuenow', progress);
+            }
+            // Atualiza apenas a porcentagem concluída no elemento com ID 'porcentagem-concluida'
+            const porcentagemConcluidaElement = document.getElementById('porcentagem-concluida');
+            if (porcentagemConcluidaElement) {
+                porcentagemConcluidaElement.textContent = `${progress.toFixed(0)}%`;
+            }
+        } else {
+             // Lida com o caso de total_count ser 0 (arquivo vazio, por exemplo)
+             if (progressBar) {
+                progressBar.style.width = '0%';
+                progressBar.setAttribute('aria-valuenow', 0);
+             }
+             const porcentagemConcluidaElement = document.getElementById('porcentagem-concluida');
+             if (porcentagemConcluidaElement) {
+                 porcentagemConcluidaElement.textContent = '0%';
+             }
         }
     }
 
     eel.expose(atualizar_tempo_restante_js);
     function atualizar_tempo_restante_js(time_remaining_formatted) {
-        if (statusTempoRestante) statusTempoRestante.textContent = `Tempo Restante: ${time_remaining_formatted}`;
+        // Atualiza apenas o tempo estimado restante
+        if (statusTempoRestante) {
+            statusTempoRestante.textContent = time_remaining_formatted;
+        }
     }
-
 
     // --- Listeners de Eventos para Botões ---
 
@@ -157,82 +185,62 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // SÓ VALIDA O CAMPO IDENTIFICADOR SE O ELEMENTO EXISTIR NO HTML
             if (identificadorInput && !identificador) {
                 missingFields.push("Identificador");
+                console.warn("Identificador não fornecido. Certifique-se de que o campo está preenchido no frontend.");
             } else if (!identificadorInput) {
-                // Se o elemento input 'identificador' não existir no HTML, apenas avisa
-                // e continua sem validar este campo especificamente.
                 console.warn("Identificador input não encontrado no HTML. O valor será enviado como vazio.");
             }
 
             if (missingFields.length > 0) {
                 display_macro_error_frontend("Por favor, preencha todos os campos e selecione um arquivo.");
+                return; // Interrompe aqui se a validação falhar, sem alterar as divs.
+            }
+
+            // Se a validação passou, então alteramos a visibilidade das divs
+            if (sitePreviewDiv) sitePreviewDiv.style.display = 'none';
+            if (formContainerDiv) formContainerDiv.style.display = 'none';
+            if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'block';
+
+            // A validação do arquivo já foi feita, mas uma checagem extra não prejudica.
+            // No entanto, a lógica principal de validação está acima.
+            // Esta parte pode ser redundante se a validação de 'arquivo' em missingFields for suficiente.
+            if (!arquivo) { 
+                // Este bloco teoricamente não deveria ser alcançado se a validação acima estiver correta.
+                alert('Por favor, selecione um arquivo antes de iniciar o processamento.');
+                // Reverter a visibilidade caso algo muito inesperado aconteça e chegue aqui
+                if (sitePreviewDiv) sitePreviewDiv.style.display = 'block';
+                if (formContainerDiv) formContainerDiv.style.display = 'block';
+                if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'none';
                 return;
             }
 
-            // Ler o conteúdo do arquivo como base64
+            // Ler o arquivo como base64
             const reader = new FileReader();
-            reader.onload = async (e) => {
-                const fileContent = e.target.result; // Conteúdo do arquivo em base64
-                const fileName = arquivo.name;
-                let fileType = '';
-
-                // Determinar o tipo do arquivo com base nos rádios selecionados
-                if (csvOption && csvOption.checked) {
-                    fileType = 'csv';
-                } else if (excelOption && excelOption.checked) {
-                    fileType = 'excel';
-                } else {
-                    display_macro_error_frontend("Por favor, selecione o tipo de arquivo (CSV ou Excel).");
-                    return;
-                }
-                
-                // Ocultar o formulário e exibir o status de processamento
-                if (sitePreviewDiv) sitePreviewDiv.style.display = 'none';
-                if (formContainerDiv) formContainerDiv.style.display = 'none';
-                introParagraphs.forEach(p => p.style.display = 'none');
-
-
-                // Mostrar elementos da UI de processamento
-                if (loader) loader.style.display = 'block';
-                if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'block';
-                if (statusOSAtual) statusOSAtual.textContent = "Iniciando macro...";
-                if (statusContadorOS) statusContadorOS.textContent = "0/0";
-                if (statusTempoRestante) statusTempoRestante.textContent = "Calculando...";
-                if (progressBar) {
-                    progressBar.style.width = '0%';
-                    progressBar.setAttribute('aria-valuenow', 0);
-                }
-                if (processarBotao) processarBotao.disabled = true; // Desabilita o botão 'Processar' durante a execução
+            reader.onload = async (event) => {
+                const conteudoBase64 = event.target.result.split(',')[1]; // Remove o prefixo data:...
 
                 try {
-                    // === CHAMADA PARA A FUNÇÃO PYTHON EXPOSTA AO EEL ===
-                    // O nome da função em Python (no main.py) é 'iniciar_macro_eel'
-                    const resultadoPython = await eel.iniciar_macro_eel(
-                        fileContent,
+                    // Chamar a função do backend via Eel
+                    const resultado = await eel.iniciar_macro_eel(
+                        conteudoBase64,
                         login,
                         senha,
-                        fileName,
-                        fileType,
+                        arquivo.name,
+                        document.querySelector('input[name="arquivoTipo"]:checked').value,
                         identificador
-                    )(); // O '()' final executa a promessa retornada pelo Eel
+                    )();
 
-                    // Se o Python já retornar um erro na fase inicial (ex: arquivo vazio, login falho), exibe.
-                    // Erros durante o processamento individual das OSs serão tratados pelas funções display_macro_error_frontend
-                    // chamadas do Python.
-                    if (resultadoPython && resultadoPython.status === "erro") {
-                        display_macro_error_frontend(resultadoPython.message || "Erro desconhecido ao iniciar a macro.");
+                    if (resultado.status === 'sucesso') {
+                        alert('Macro iniciada com sucesso!');
                     } else {
-                        console.log("Macro iniciada no Python (status 'concluido' ou 'iniciada'). O frontend aguardará atualizações.");
+                        alert(`Erro ao iniciar a macro: ${resultado.message}`);
                     }
-                } catch (e) {
-                    // Captura erros na comunicação com o backend ou na própria chamada da função Eel
-                    console.error("Erro ao chamar função Eel:", e);
-                    display_macro_error_frontend(`Erro de comunicação com o backend: ${e.message || e}`);
-                } finally {
-                    // Reabilita o botão 'Processar' ao final da execução (sucesso ou erro)
-                    if (processarBotao) processarBotao.disabled = false;
+                } catch (error) {
+                    console.error('Erro ao chamar a macro no backend:', error);
+                    alert('Erro ao iniciar a macro. Verifique os logs para mais detalhes.');
                 }
             };
-            reader.readAsDataURL(arquivo); // Inicia a leitura do arquivo como Data URL (base64)
+
+            reader.readAsDataURL(arquivo);
         });
     } else {
         console.error("Elemento com ID 'processar' (botão Iniciar Processamento) não encontrado no DOM.");
@@ -321,22 +329,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     atualizarHorarioAtual();
     setInterval(atualizarHorarioAtual, 1000);
 
-    // Listeners para botões de Pausar e Encerrar (se você tiver esses botões no seu HTML)
-    const pausarBotao = document.getElementById('pausar');
+    // Listeners para botões de Encerrar (se você tiver esses botões no seu HTML)
     const encerrarBotao = document.getElementById('encerrar');
-
-    if (pausarBotao) {
-        pausarBotao.addEventListener('click', () => {
-            console.log('Botão Pausar clicado. Enviando solicitação para pausar a macro.');
-            if (typeof eel !== 'undefined') {
-                eel.pausar_macro_backend()();
-            } else {
-                console.warn("Eel não está disponível para pausar a macro.");
-            }
-        });
-    } else {
-        console.warn("Elemento com ID 'pausar' não encontrado para o botão Pausar.");
-    }
 
     if (encerrarBotao) {
         encerrarBotao.addEventListener('click', () => {
@@ -353,3 +347,70 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     console.log("[macrosite.js] DOMContentLoaded finalizado.");
 });
+
+// FUNCTION CHAMAR DUVIDA
+
+
+function chamarDuvida() {
+    const lampadaIcon = document.getElementById('iconeduvida');
+    const divDuvida = document.getElementById('duvida-site'); // O ID já está correto aqui
+
+    // É uma boa prática verificar se os elementos foram encontrados antes de tentar usá-los
+    if (lampadaIcon && divDuvida) {
+
+        if (divDuvida.style.display === 'none' || divDuvida.style.display === '') {
+            // O estado atual é "Azul / Apagado / Oculto". Vamos mudar para "Laranja / Aceso / Visível".
+            console.log("Estado atual: Oculto. Mudando para: Visível (ícone Laranja).");
+
+            // 1. Mostra a div de dúvida
+            divDuvida.style.display = 'block';
+            lampadaIcon.style.color = 'orange'; 
+            lampadaIcon.style.marginBottom = '0px';
+
+
+        } else {
+            console.log("Estado atual: Visível. Mudando para: Oculto (ícone Azul).");
+            divDuvida.style.display = 'none';
+            lampadaIcon.style.color = 'rgb(5, 110, 248)';
+            lampadaIcon.style.marginBottom = '1%'; 
+
+        }
+
+    } else {
+        // Loga um erro no console se algum dos elementos não for encontrado no HTML
+        if (!lampadaIcon) console.error("Elemento com ID 'iconeduvida' (ícone da lâmpada) não encontrado no DOM. Verifique seu HTML.");
+        if (!divDuvida) console.error("Elemento com ID 'duvida-site' (div de dúvida) não encontrado no DOM. Verifique seu HTML.");
+    }
+
+}
+
+// TRANSIÇÃO DE INICIAR A PAGINA 
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOMContentLoaded disparado. Chamando iniciarTransicaoPagina.');
+    // Chama a função que inicia a transição da página
+    iniciarTransicaoPagina();
+
+    // Se você tiver outras inicializações que precisam do DOM pronto
+    // mas NÃO precisam esperar pela transição ou pelo setTimeout dentro de iniciarTransicaoPagina,
+    // você pode colocá-las aqui fora do setTimeout da transição.
+
+    console.log('DOMContentLoaded finalizado.');
+});
+
+function iniciarTransicaoPagina() {
+    console.log("[macros.js] Chamada a iniciarTransicaoPagina.");
+    const bodyElement = document.body;
+    if (bodyElement) {
+        bodyElement.style.display = 'block';
+        setTimeout(() => {
+            bodyElement.classList.add('is-visible');
+            console.log("[macros.js] Transição de entrada iniciada para o body.");
+            // Inicializa o carrossel aqui, após o display ser ajustado e um pequeno atraso
+            calculateCarouselMetrics(); // <-- Nota: Esta função precisa estar definida e acessível
+            updateCarouselDisplay(); // <-- Nota: Esta função precisa estar definida e acessível
+        }, 5); // Atraso após display:block antes de adicionar a classe e inicializar carrossel
+    } else {
+        console.error("[macros.js] Elemento body não encontrado.");
+    }
+}

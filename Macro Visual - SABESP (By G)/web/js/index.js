@@ -377,7 +377,7 @@ function iniciarTransicaoPagina() {
          setTimeout(() => {
              bodyElement.classList.add('is-visible');
              console.log("[index.js] Transição de entrada iniciada para o body.");
-         }, 30); // Pequeno atraso após display:block
+         }, 5); // Pequeno atraso após display:block
      } else {
          console.error("[index.js] Elemento body não encontrado.");
      }

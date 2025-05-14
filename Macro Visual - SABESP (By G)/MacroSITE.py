@@ -25,6 +25,7 @@ import base64
 import io
 import eel
 import logging
+import csv
 
 # Configura o logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -150,7 +151,7 @@ def carregar_arquivo(conteudo_base64, tipo_arquivo, colunas_esperadas):
                 logging.warning("Coluna '%s' não encontrada no arquivo.", coluna)
                 dados_extraidos[coluna] = []  # Adiciona uma lista vazia para colunas ausentes
 
-        logging.info("Dados extraídos: %s", dados_extraidos)
+        logging.info("Dados extraídos: Extraido Corretamente")
         return dados_extraidos
     except Exception as e:
         logging.error("Erro ao processar o arquivo enviado: %s", str(e))
@@ -172,7 +173,7 @@ def armazenar_dados_proc_final_thread(fornecimento, os_numero, status):
     except Exception as e:
         logging.error(f"Erro ao criar a estrutura de pastas {output_dir}: {e}")
 
-    output_file_path = os.path.join(output_dir, f'ResultadoSITE{data_formatada}.csv')
+    output_file_path = os.path.join(output_dir, f'ResultadoSITE-{data_formatada}.csv')
 
     file_exists = os.path.exists(output_file_path)
 
@@ -185,6 +186,31 @@ def armazenar_dados_proc_final_thread(fornecimento, os_numero, status):
             logging.info(f"Novo arquivo criado: {output_file_path}")
     except Exception as e:
         logging.error(f"Erro ao salvar os dados no arquivo CSV {output_file_path}: {e}")
+
+def registrar_erro_os(os_numero):
+    """
+    Registra o número da OS, fornecimento e site como 'NÃO ENCONTRADO' em um arquivo CSV.
+    """
+    home_dir = os.path.expanduser('~')
+    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro SITE')
+    os.makedirs(output_dir, exist_ok=True)
+    now = datetime.now()
+    data_formatada = now.strftime("%d_%m_%Y")
+
+    output_file_path = os.path.join(output_dir, f'ErrosSITE-{data_formatada}.csv')
+
+    file_exists = os.path.exists(output_file_path)
+
+    try:
+        with open(output_file_path, mode='a', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file, delimiter=';')  # Usando ponto e vírgula como delimitador
+            if not file_exists:
+                # Escreve o cabeçalho se o arquivo não existir
+                writer.writerow(['OS', 'Fornecimento', 'Site'])
+            writer.writerow([os_numero, 'NÃO ENCONTRADO', 'NÃO ENCONTRADO'])
+            logging.info(f"Erro registrado no arquivo: OS {os_numero}; Fornecimento: NÃO ENCONTRADO; Site: NÃO ENCONTRADO")
+    except Exception as e:
+        logging.error(f"Erro ao registrar erro no arquivo CSV {output_file_path}: {e}")
 
 # Atualiza a função login para usar credenciais fornecidas pelo frontend
 
@@ -240,16 +266,18 @@ def macro(valor):
         logging.error("Driver não inicializado na função macro. Não é possível processar OS %s.", valor)
         return {"status": "erro", "message": f"Navegador não inicializado para a OS {valor}."}
 
+    try:
+        planejamento = WebDriverWait(driver, 1).until(
+                    EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div/div[2]/div[6]'))
+                )
+        planejamento.click()
 
-    planejamento = WebDriverWait(driver, 5).until(
-                EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div/div[2]/div[6]'))
-            )
-    planejamento.click()
-
-    busca_execucao = WebDriverWait(driver, 5).until(
-                EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
-            )
-    busca_execucao.click()
+        busca_execucao = WebDriverWait(driver, 1).until(
+                    EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
+                )
+        busca_execucao.click()
+    except:
+        print("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.") # Exemplo de log
 
     # ARRUMAR ESSA FUNCAO
 
@@ -267,7 +295,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro ao clicar em 'status_avaliacao': %s", str(e))
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao clicar em 'status_avaliacao' para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao clicar em 'status_avaliacao' para OS {valor}: "}
 
     while True:
         try:
@@ -280,7 +308,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao selecionar resultado. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao selecionar resultado para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao selecionar resultado para OS {valor}: "}
 
     while True:
         try:
@@ -292,7 +320,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao clicar em dados OS. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao clicar em dados OS para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao clicar em dados OS para OS {valor}: "}
 
     while True:
         try:
@@ -306,7 +334,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao preencher número OS. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao preencher número OS para OS {valor}: {str(e)}"}              
+            return {"status": "erro", "message": f"Erro ao preencher número OS para OS {valor}: "}              
 
     while True:
         try:
@@ -317,7 +345,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao clicar em contrato X. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao clicar em contrato X para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao clicar em contrato X para OS {valor}: "}
 
     while True:
         try:
@@ -330,7 +358,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException, ElementClickInterceptedException) as e:
             logging.warning("Erro encontrado ao clicar em botão buscar. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao clicar em botão buscar para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao clicar em botão buscar para OS {valor}:"}
 
     while True:
         try:
@@ -342,7 +370,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao clicar em linhas laranja. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao clicar em linhas laranja para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao clicar em linhas laranja para OS {valor}: "}
 
     while True: 
         try:
@@ -355,7 +383,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao clicar em resultado intervenção. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao clicar em resultado intervenção para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao clicar em resultado intervenção para OS {valor}: "}
 
     str_status_site = None
     while True:
@@ -370,7 +398,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao obter status site. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao obter status site para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao obter status site para OS {valor}: "}
         
     while True:
         try:
@@ -383,7 +411,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao obter status site. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao obter status site para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao obter status site para OS {valor}: "}
 
     fornecimento_wfm = None
     while True:
@@ -398,7 +426,7 @@ def macro(valor):
         except (TimeoutException, StaleElementReferenceException) as e:
             logging.warning("Erro encontrado ao obter fornecimento WFM. Tentando novamente...")
             reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
-            return {"status": "erro", "message": f"Erro ao obter fornecimento WFM para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro ao obter fornecimento WFM para OS {valor}: "}
 
     while True:
         try:
@@ -423,7 +451,7 @@ def macro(valor):
             continue  # Tenta novamente sem retornar erro
         except Exception as e:
             logging.error("Erro inesperado ao clicar em busca execução: %s", str(e))
-            return {"status": "erro", "message": f"Erro inesperado ao clicar em busca execução para OS {valor}: {str(e)}"}
+            return {"status": "erro", "message": f"Erro inesperado ao clicar em busca execução para OS {valor}: "}
 
 
     armazenar_dados_proc_final_thread(fornecimento_wfm, valor, str_status_site)
@@ -561,6 +589,7 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
 
             if resultado_macro_os.get("status") == "erro":
                  logging.error(f"A função macro reportou um erro para a OS {str_id_os}: {resultado_macro_os.get('message')}")
+                 registrar_erro_os(str_id_os)
                  if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
                      try:
                          eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "Erro", f"Erro na OS {str_id_os}: {resultado_macro_os.get('message', 'Desconhecido')}")
@@ -577,6 +606,7 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
 
         except Exception as e:
             logging.error(f"Erro CRÍTICO INESPERADO ao processar a OS {str_id_os}: {e}", exc_info=True)
+            registrar_erro_os(str_id_os)
             if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
                 try:
                     eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "CRÍTICO", f"Erro CRÍTICO na OS {str_id_os}: {e}")

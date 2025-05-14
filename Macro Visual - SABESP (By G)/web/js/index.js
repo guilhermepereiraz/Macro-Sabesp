@@ -212,19 +212,12 @@ document.addEventListener('DOMContentLoaded', function () {
 // >>> Lógica para obter e exibir o nome do usuário ao carregar a página <<<
 // Esta lógica deve ser executada quando a janela inteira estiver carregada
 window.onload = async function () {
-    console.log("[index.js] window.onload iniciado.");
+    console.log("[index.js] window.onload UNIFICADO iniciado.");
 
-    // Obtém o elemento onde o nome do usuário será exibido
     const nomeUsuarioElement = document.getElementById('nome-usuario');
-    let identificadorUsuario = null; // Inicializa como null
+    let identificadorUsuario = null;
 
-    // Função auxiliar para obter parâmetros da URL (definida abaixo)
-    // Já existe uma definição para obterParametroDaURL neste arquivo.
-
-    // 1. Tenta obter o identificador do parâmetro 'identificador' da URL (para logins normais)
     const identificadorUsuarioDaURL = obterParametroDaURL('identificador');
-
-    // 2. Tenta obter o user_id e o flag first_login_complete da URL (para redirecionamento do primeiro login)
     const userIdFromUrl = obterParametroDaURL('user_id');
     const firstLoginComplete = obterParametroDaURL('first_login_complete');
 
@@ -233,90 +226,133 @@ window.onload = async function () {
     console.log("[index.js] Valor de firstLoginComplete:", firstLoginComplete);
     console.log("[index.js] Elemento nomeUsuarioElement:", nomeUsuarioElement);
 
-
     if (identificadorUsuarioDaURL) {
-        // Se o parâmetro 'identificador' está na URL (login normal), usa ele
         identificadorUsuario = identificadorUsuarioDaURL;
-         // Armazena no storage para manter a sessão
         sessionStorage.setItem('nomeUsuario', identificadorUsuario);
         console.log("[index.js] Nome do usuário obtido da URL (identificador) e armazenado em sessionStorage.");
-
     } else if (userIdFromUrl && firstLoginComplete === 'true') {
-         // Se o parâmetro 'user_id' e 'first_login_complete=true' estão na URL (redirecionamento do primeiro login)
          console.log("[index.js] Redirecionado do primeiro login. Obtendo nome do usuário por ID...");
          try {
-             // Chama a nova função Python para obter o nome pelo ID
-             // Certifique-se de que a função Eel `get_username_by_id` está exposta no Python.
              const resultadoNome = await eel.get_username_by_id(userIdFromUrl)();
              console.log("[index.js] Resultado get_username_by_id:", resultadoNome);
 
              if (resultadoNome && resultadoNome.status === 'success') {
-                 identificadorUsuario = resultadoNome.username; // Obtém o nome do resultado (coluna 'nome')
-                 // Armazena no storage APÓS OBTER PELO ID
+                 identificadorUsuario = resultadoNome.username;
                  sessionStorage.setItem('nomeUsuario', identificadorUsuario);
                  console.log("[index.js] Nome do usuário obtido por ID e armazenado em sessionStorage.");
              } else {
                  console.error("[index.js] Falha ao obter nome do usuário por ID:", resultadoNome);
-                 // Opcional: Tratar erro, talvez exibir um nome padrão ou redirecionar para login
-                 // identificadorUsuario = "Erro ao carregar nome";
              }
          } catch (error) {
              console.error("[index.js] Erro na chamada Eel para get_username_by_id:", error);
-             // Opcional: Tratar erro de comunicação
-             // identificadorUsuario = "Erro de comunicação";
          }
-
     } else {
-        // Se nenhum dos parâmetros de URL relevantes está presente, tenta obter do sessionStorage (para recarregamentos ou navegação interna)
         identificadorUsuario = sessionStorage.getItem('nomeUsuario');
         if (identificadorUsuario) {
              console.log("[index.js] Nome do usuário obtido do sessionStorage (fallback).");
         } else {
              console.log("[index.js] Nome do usuário não encontrado em URL ou sessionStorage. Usuário pode não estar logado.");
-             // Opcional: Redirecionar para a página de login se não houver identificador
-             // window.location.href = 'login.html';
         }
     }
 
-    // Finalmente, atualiza o elemento HTML se um identificador foi obtido
     if (identificadorUsuario && nomeUsuarioElement) {
         nomeUsuarioElement.textContent = identificadorUsuario;
         console.log("[index.js] Nome do usuário exibido:", identificadorUsuario);
     } else if (nomeUsuarioElement) {
-         // Se não conseguiu obter o nome, limpa ou define um texto padrão
-         nomeUsuarioElement.textContent = "Usuário Padrão"; // Texto padrão se não logado ou erro
+         nomeUsuarioElement.textContent = "Usuário Padrão";
          console.log("[index.js] Nome do usuário não atualizado. Identificador nulo ou elemento não encontrado. Exibindo padrão.");
     }
 
-    // >>> Mover a definição de iniciarTransicaoPagina e atualizarHorarioAtual para antes de window.onload <<<
-    // Essas funções precisam estar definidas no escopo antes de serem chamadas aqui dentro.
-    // Se elas estiverem definidas DENTRO de window.onload ou DOMContentLoaded, não serão acessíveis aqui.
-
-    // Chamadas para funções que agora devem estar definidas ANTES de window.onload
     if (typeof iniciarTransicaoPagina === 'function') {
-        iniciarTransicaoPagina(); // Inicia a animação de transição da página
+        iniciarTransicaoPagina();
         console.log("[index.js] iniciarTransicaoPagina chamada.");
     } else {
         console.error("[index.js] Função iniciarTransicaoPagina não definida.");
     }
 
     if (typeof atualizarHorarioAtual === 'function') {
-        atualizarHorarioAtual(); // Exibe o horário inicial
+        atualizarHorarioAtual();
         console.log("[index.js] atualizarHorarioAtual chamada.");
     } else {
         console.error("[index.js] Função atualizarHorarioAtual não definida.");
     }
 
+    if (typeof atualizarHorarioAtual === 'function') {
+        setInterval(atualizarHorarioAtual, 1000);
+        console.log("[index.js] setInterval para atualizarHorarioAtual configurado.");
+    }
 
-    // Certifique-se de que o setInterval para atualizar o horário também esteja configurado corretamente.
-    // Ele pode ser configurado aqui ou em um DOMContentLoaded separado, desde que atualizarHorarioAtual esteja acessível.
-     if (typeof atualizarHorarioAtual === 'function') {
-         setInterval(atualizarHorarioAtual, 1000); // Atualiza o horário a cada segundo
-         console.log("[index.js] setInterval para atualizarHorarioAtual configurado.");
-     }
+    // --- Lógica do timer logado ---
+    let sessionStartTime = sessionStorage.getItem('sessionStartTime');
+    console.log(`Timer: Tentando obter sessionStartTime do sessionStorage. Valor: ${sessionStartTime}`);
 
+    if (sessionStartTime) {
+        sessionStartTime = parseInt(sessionStartTime, 10);
+        if (!isNaN(sessionStartTime)) {
+            console.log("Timer: sessionStartTime válido obtido do sessionStorage.");
+             if (typeof updateLoggedInTime === 'function') {
+                updateLoggedInTime(sessionStartTime);
+                setInterval(() => {
+                    updateLoggedInTime(sessionStartTime);
+                }, 1000);
+                 console.log("Timer: Timer iniciado usando sessionStorage.");
+             } else {
+                 console.error("Timer: Função updateLoggedInTime não definida neste escopo.");
+                  const loggedInTimeSpan = document.getElementById('logged-in-time');
+                  if (loggedInTimeSpan) {
+                     loggedInTimeSpan.innerText = "Erro JS (timer)";
+                  }
+             }
+        } else {
+            console.error("Timer: Valor inválido para sessionStartTime no sessionStorage. Limpando...");
+             const loggedInTimeSpan = document.getElementById('logged-in-time');
+             if (loggedInTimeSpan) {
+                loggedInTimeSpan.innerText = "Erro no timer (storage)";
+             }
+             sessionStorage.removeItem('sessionStartTime');
+        }
+    } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        const loginTimeParam = urlParams.get('login_time');
+        console.log(`Timer: sessionStartTime não encontrado no sessionStorage. Tentando obter da URL. Valor: ${loginTimeParam}`);
 
-    console.log("[index.js] window.onload finalizado.");
+        if (loginTimeParam) {
+            sessionStartTime = parseInt(loginTimeParam, 10);
+            if (!isNaN(sessionStartTime)) {
+                 console.log("Timer: sessionStartTime válido obtido da URL.");
+                sessionStorage.setItem('sessionStartTime', sessionStartTime);
+                 console.log("Timer: sessionStartTime salvo em sessionStorage a partir da URL.");
+                 if (typeof updateLoggedInTime === 'function') {
+                    updateLoggedInTime(sessionStartTime);
+                    setInterval(() => {
+                        updateLoggedInTime(sessionStartTime);
+                    }, 1000);
+                     console.log("Timer: Timer iniciado usando URL.");
+                 } else {
+                     console.error("Timer: Função updateLoggedInTime não definida neste escopo (após obter da URL).");
+                      const loggedInTimeSpan = document.getElementById('logged-in-time');
+                      if (loggedInTimeSpan) {
+                         loggedInTimeSpan.innerText = "Erro JS (timer URL)";
+                      }
+                 }
+            } else {
+                console.error("Timer: Parâmetro 'login_time' inválido na URL.");
+                const loggedInTimeSpan = document.getElementById('logged-in-time');
+                 if (loggedInTimeSpan) {
+                    loggedInTimeSpan.innerText = "Erro no timer (URL)";
+                 }
+            }
+        } else {
+            console.warn("Timer: Parâmetro 'login_time' não encontrado em URL nem sessionStorage. O timer não iniciará.");
+            const loggedInTimeSpan = document.getElementById('logged-in-time');
+            if (loggedInTimeSpan) {
+                loggedInTimeSpan.innerText = "Não iniciado";
+            }
+        }
+    }
+    // --- Fim da lógica do timer logado ---
+
+    console.log("[index.js] window.onload UNIFICADO finalizado.");
 };
 
 // >>> Definição da função obterParametroDaURL (mover para antes de window.onload) <<<
@@ -535,22 +571,36 @@ function exibir_conclusao_site(resultado) { // Exemplo: assume que recebe o resu
     // Implemente a lógica de exibição dos resultados finais aqui
 }
 
-// >>> Funções de controle do Popup/Finalização da Macro SITE (se forem usadas) <<<
-// fecharPopupSITE, voltarParaProcessarSITE, SITEfinalizarProcesso, SITEconfirmarFecharAplicacao
-// Se estas funções forem chamadas pelo HTML (onclick), elas precisam estar no escopo global.
-// Mantenha suas definições aqui fora do DOMContentLoaded/window.onload.
+// ATUALIZAÇÃO DE HORARIO LOGADO
 
+function formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
 
-// >>> Funções relacionadas à Consulta Geral (Movê-las para macros.js ou um arquivo compartilhado) <<<
-// lerArquivoSelecionadoconsultageral, fecharconsultageral, CSfinalizarProcesso, CSconfirmarFecharAplicacao, fecharPopupCS, voltarParaProcessarCS
-// Se a Macro Consulta Geral for acessada de outras páginas além do login.html (como macros.html),
-// estas funções e suas respectivas exposições Eel (@eel.expose no backend) precisam estar acessíveis
-// nessas páginas. A forma ideal é ter um arquivo JS compartilhado ou definir no script específico de cada página.
-// No seu código recente, elas parecem estar apenas no login.js, o que não é correto se macros.html também as usa.
+    // Usa padStart para adicionar um zero à esquerda se o número for menor que 10
+    const paddedHours = String(hours).padStart(2, '0');
+    const paddedMinutes = String(minutes).padStart(2, '0');
+    const paddedSeconds = String(seconds).padStart(2, '0');
 
+    return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+}
 
-// >>> Outras funções do seu código (verificar onde devem estar definidas) <<<
-// Funções como mostrarLogin, mostrarCadastro, verificarLogindasd, etc. (da página de login)
-// Pertencem EXCLUSIVAMENTE ao login.js. Não devem estar em index.js ou macros.js.
-// Funções específicas de Macro SITE ou Macro Consulta Geral devem estar nos arquivos JS
-// correspondentes (index.js, macros.js ou um arquivo compartilhado se usadas em mais de uma página).
+// Função para atualizar o span com o tempo logado
+function updateLoggedInTime(sessionStartTime) {
+    const loggedInTimeSpan = document.getElementById('logged-in-time');
+    if (!loggedInTimeSpan) {
+        console.error("Elemento com ID 'logged-in-time' não encontrado.");
+        return; // Sai da função se o elemento não existir
+    }
+
+    // Calcula o tempo decorrido em milissegundos
+    const now = Date.now();
+    const elapsedMilliseconds = now - sessionStartTime;
+
+    // Calcula o tempo decorrido em segundos (arredondado para baixo)
+    const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+
+    // Formata o tempo e atualiza o span
+    loggedInTimeSpan.innerText = formatTime(elapsedSeconds);
+}

@@ -119,8 +119,10 @@ async function verificarLogin() {
 
         await mostrarVerificadoEsumirSpinner(); // Original: Aguarda a animação de sucesso
         console.log("Animação de sucesso completa. Redirecionando para Index...");
+        const loginStartTime = Date.now();
+        sessionStorage.setItem('sessionStartTime', loginStartTime);
         // Original: Redireciona para index.html usando o identificador
-        window.location.href = `index.html?identificador=${encodeURIComponent(identificador)}`;
+        window.location.href = `index.html?identificador=${encodeURIComponent(identificador)}&login_time=${loginStartTime}`;
 
     }
     // Verifica se o resultado existe e se o status é 'first_login' (Primeiro Login Bem-Sucedido)
@@ -131,8 +133,9 @@ async function verificarLogin() {
 
          await mostrarVerificadoEsumirSpinner(); // Original: Usa a mesma animação de sucesso
          console.log("Animação de sucesso completa. Redirecionando para First Login Page...");
+         const loginStartTime = Date.now();
          // Redireciona para firstlogin.html, passando o ID do usuário (ou outro dado necessário)
-         window.location.href = `firstlogin.html?user_id=${encodeURIComponent(userId)}`; // Exemplo: passando user_id
+         window.location.href = `firstlogin.html?identificador=${encodeURIComponent(userId)}&login_time=${loginStartTime}`;
 
     }
     // Se o status não for 'success' nem 'first_login', trata como falha
@@ -682,3 +685,4 @@ async function verificarLogindasd() {
     // O setTimeout agora está dentro dos blocos if/else/catch.
 
 } // Fim da função verificarLogindasd
+

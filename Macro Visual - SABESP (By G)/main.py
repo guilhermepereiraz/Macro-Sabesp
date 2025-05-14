@@ -9,7 +9,13 @@ import pymysql.cursors
 import random
 import smtplib
 from email.mime.text import MIMEText
+import tkinter as tk
 
+# Detecta o tamanho da tela
+root = tk.Tk()
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+root.destroy()
 
 # --- Configuração de Logging ---
 log_format = '%(asctime)s - %(levelname)s - %(threadName)s - %(message)s'
@@ -199,8 +205,8 @@ def get_username_by_id(user_id):
     cursor = None
     logging.info(f"Tentativa de obter nome do usuário para o ID: {user_id}")
     try:
-        connection = pymysql.connect(**DB_CONFIG)
-        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        cursor = connection.cursor()
         # Seleciona a coluna 'nome'
         sql = "SELECT nome FROM tb_usuarios WHERE id = %s"
         cursor.execute(sql, (user_id,))
@@ -240,10 +246,10 @@ def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha): # Recebe os 
         # Adicionado print antes da conexão (identado 4 espaços)
         print("--> Tentando conectar ao banco de dados...")
         # Conexão com o banco (identado 4 espaços)
-        connection = pymysql.connect(**DB_CONFIG)
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         print("--> Conexão com o banco bem-sucedida.") # Adicionado print após conexão (identado 4 espaços)
         # Criação do cursor (identado 4 espaços)
-        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor = connection.cursor()
         print("--> Cursor criado.") # Adicionado print após cursor (identado 4 espaços)
 
         # --- Opcional: Verificação da Senha Atual (se seu fluxo exigir) ---
@@ -358,12 +364,12 @@ def verificar_credenciais(email, senha_texto_claro):
     logging.info(f"Tentativa de login para o email: {email}")
 
     try:
-        connection = pymysql.connect(**DB_CONFIG)
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
 
         if connection:
             logging.info("Conexão com o banco de dados para login bem-sucedida!")
 
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
+            cursor = connection.cursor()
 
             # Seleciona id, nome, email, senha, e ultimo_login
             sql = "SELECT id, nome, email, senha, ultimo_login FROM tb_usuarios WHERE email = %s"
@@ -472,6 +478,54 @@ def iniciar_consulta_geral_frontend(conteudo_arquivo, login_usuario, senha_usuar
     # É importante retornar o resultado dessa chamada de volta para o frontend
     return iniciar_macro(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario)
 
+
+@eel.expose
+def salvar_nova_senha(senha_atual, nova_senha):
+    """
+    Atualiza a senha do usuário no banco de dados.
+    """
+    try:
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            # Verifica se a senha atual está correta
+            sql_check_password = "SELECT id FROM tb_usuarios WHERE senha = %s"
+            cursor.execute(sql_check_password, (senha_atual,))
+            usuario = cursor.fetchone()
+
+            if not usuario:
+                return {"status": "erro", "message": "Senha atual incorreta."}
+
+            # Atualiza a senha no banco de dados
+            sql_update_password = "UPDATE tb_usuarios SET senha = %s WHERE id = %s"
+            cursor.execute(sql_update_password, (nova_senha, usuario['id']))
+            connection.commit()
+
+            return {"status": "sucesso", "message": "Senha alterada com sucesso."}
+    except Exception as e:
+        logging.error(f"Erro ao atualizar a senha: {e}")
+        return {"status": "erro", "message": "Erro ao atualizar a senha."}
+
+
+@eel.expose
+def atualizar_ultimo_login():
+    """
+    Atualiza o campo ultimo_login para o usuário atual no banco de dados.
+    """
+    try:
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            # Atualiza o campo ultimo_login para o usuário atual
+            sql_update_last_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
+            user_id = eel.session.get('user_id')  # Obtém o ID do usuário da sessão
+            cursor.execute(sql_update_last_login, (user_id,))
+            connection.commit()
+            logging.info(f"Campo ultimo_login atualizado para o usuário ID: {user_id}")
+            return {"status": "sucesso"}
+    except Exception as e:
+        logging.error(f"Erro ao atualizar o campo ultimo_login: {e}")
+        return {"status": "erro", "message": "Erro ao atualizar o campo ultimo_login."}
+
+
 def close_callback(page, sockets):
     logging.info(f"Conexão websocket fechada para a página: {page}. Sockets restantes: {len(sockets)}")
 
@@ -489,7 +543,8 @@ def close_callback(page, sockets):
 
 try: # 0 espaços
     logging.info("--- Iniciando Aplicação Eel ---") # 4 espaços
-    eel.start('login.html', size=(1280, 720), close_callback=close_callback) # 4 espaços
+    # Altere o modo para 'chrome' para abrir no navegador padrão em uma nova aba
+    eel.start('login.html', mode='chrome', size=(screen_width, screen_height), close_callback=close_callback) # 4 espaços
 
     # Esta linha só será atingida se eel.start não for 'blocking=True' (comportamento padrão)
     logging.info("Chamada eel.start retornou.") # 4 espaços

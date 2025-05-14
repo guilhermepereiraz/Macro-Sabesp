@@ -414,3 +414,158 @@ function iniciarTransicaoPagina() {
         console.error("[macros.js] Elemento body não encontrado.");
     }
 }
+
+window.onload = async function () {
+    console.log("[macrosite.js] window.onload iniciado (apenas timer).");
+
+    // --- Lógica do timer logado (lendo do sessionStorage) ---
+    let sessionStartTime = sessionStorage.getItem('sessionStartTime');
+    console.log(`Timer: Tentando obter sessionStartTime do sessionStorage. Valor: ${sessionStartTime}`);
+
+    if (sessionStartTime) {
+        sessionStartTime = parseInt(sessionStartTime, 10);
+        if (!isNaN(sessionStartTime)) {
+            console.log("Timer: sessionStartTime válido obtido do sessionStorage.");
+             if (typeof updateLoggedInTime === 'function') {
+                updateLoggedInTime(sessionStartTime);
+                setInterval(() => {
+                    updateLoggedInTime(sessionStartTime);
+                }, 1000);
+                 console.log("Timer: Timer iniciado usando sessionStorage.");
+             } else {
+                 console.error("Timer: Função updateLoggedInTime não definida neste escopo.");
+                  const loggedInTimeSpan = document.getElementById('logged-in-time');
+                  if (loggedInTimeSpan) {
+                     loggedInTimeSpan.innerText = "Erro JS (timer)";
+                 }
+            }
+        } else {
+            console.error("Timer: Valor inválido para sessionStartTime no sessionStorage. Limpando...");
+             const loggedInTimeSpan = document.getElementById('logged-in-time');
+             if (loggedInTimeSpan) {
+                loggedInTimeSpan.innerText = "Erro no timer (storage)";
+             }
+             sessionStorage.removeItem('sessionStartTime');
+        }
+    } else {
+        // Como esta é macroSITE, a URL geralmente não virá direto do login com login_time.
+        // Mas para robustez, podemos dar uma olhada rápida na URL como fallback.
+        // No entanto, o foco é o sessionStorage.
+        const urlParams = new URLSearchParams(window.location.search);
+        const loginTimeParam = urlParams.get('login_time');
+         console.log(`Timer: sessionStartTime não encontrado no sessionStorage. Checando URL (improvável). Valor: ${loginTimeParam}`);
+
+        if (loginTimeParam) {
+             sessionStartTime = parseInt(loginTimeParam, 10);
+             if (!isNaN(sessionStartTime)) {
+                  console.log("Timer: sessionStartTime válido obtido da URL (fallback).");
+                 sessionStorage.setItem('sessionStartTime', sessionStartTime); // Salva para futuras navegações
+                 console.log("Timer: sessionStartTime salvo em sessionStorage a partir da URL.");
+                  if (typeof updateLoggedInTime === 'function') {
+                     updateLoggedInTime(sessionStartTime);
+                     setInterval(() => {
+                         updateLoggedInTime(sessionStartTime);
+                     }, 1000);
+                      console.log("Timer: Timer iniciado usando URL (fallback).");
+                  } else {
+                      console.error("Timer: Função updateLoggedInTime não definida neste escopo (URL fallback).");
+                       const loggedInTimeSpan = document.getElementById('logged-in-time');
+                       if (loggedInTimeSpan) {
+                          loggedInTimeSpan.innerText = "Erro JS (timer URL)";
+                       }
+                  }
+             } else {
+                 console.error("Timer: Parâmetro 'login_time' inválido na URL (fallback).");
+                 const loggedInTimeSpan = document.getElementById('logged-in-time');
+                  if (loggedInTimeSpan) {
+                     loggedInTimeSpan.innerText = "Erro no timer (URL fallback)";
+                  }
+             }
+        } else {
+            console.warn("Timer: Parâmetro 'login_time' não encontrado em URL nem sessionStorage. O timer não iniciará.");
+            const loggedInTimeSpan = document.getElementById('logged-in-time');
+            if (loggedInTimeSpan) {
+                loggedInTimeSpan.innerText = "Não iniciado";
+            }
+            // Opcional: Redirecionar para login se o timer é crucial e não foi encontrado
+            // window.location.href = 'login.html';
+        }
+    }
+    // --- Fim da lógica do timer logado ---
+
+    console.log("[macrosite.js] window.onload finalizado (apenas timer).");
+};
+
+
+// ATUALIZAÇÃO DE HORARIO LOGADO
+
+function formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    // Usa padStart para adicionar um zero à esquerda se o número for menor que 10
+    const paddedHours = String(hours).padStart(2, '0');
+    const paddedMinutes = String(minutes).padStart(2, '0');
+    const paddedSeconds = String(seconds).padStart(2, '0');
+
+    return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+};
+
+
+// Função para atualizar o span com o tempo logado
+function updateLoggedInTime(sessionStartTime) {
+    const loggedInTimeSpan = document.getElementById('logged-in-time');
+    if (!loggedInTimeSpan) {
+        console.error("Elemento com ID 'logged-in-time' não encontrado.");
+        return; // Sai da função se o elemento não existir
+    }
+
+    // Calcula o tempo decorrido em milissegundos
+    const now = Date.now();
+    const elapsedMilliseconds = now - sessionStartTime;
+
+    // Calcula o tempo decorrido em segundos (arredondado para baixo)
+    const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+
+    // Formata o tempo e atualiza o span
+    loggedInTimeSpan.innerText = formatTime(elapsedSeconds);
+};
+
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log("[macrosite.js] DOMContentLoaded iniciado.");
+
+    // ... (seu código existente dentro do DOMContentLoaded) ...
+
+    // Código da animação anime.js movido para dentro do DOMContentLoaded
+    var textWrapper = document.querySelector('.ml7 .letters');
+    
+
+    // Verifica se o elemento foi encontrado antes de tentar manipular
+    if (textWrapper) {
+        textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+
+        anime.timeline({loop: true})
+          .add({
+            targets: '.ml7 .letter',
+            translateY: ["1.1em", 0],
+            translateX: ["0.55em", 0],
+            translateZ: 0,
+            rotateZ: [180, 0],
+            duration: 750,
+            easing: "easeOutExpo",
+            delay: (el, i) => 50 * i
+          }).add({
+            targets: '.ml7',
+            opacity: 0,
+            duration: 4000,
+            easing: "easeOutExpo",
+            delay: 1000
+          });
+    } else {
+        console.error("Element with class '.ml7 .letters' not found.");
+    }
+
+    console.log("[macrosite.js] DOMContentLoaded finalizado.");
+});

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +11,9 @@
 
     <script type="text/javascript" src="eel.js"></script>
     <script type="text/javascript" src="js/macrosite.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
 </head>
+
 <body>
 
     <header class="header">
@@ -26,7 +28,8 @@
                 <nav class="main-nav">
                     <ul>
                         <li><a href="index.html">Inicio</a></li>
-                        <li><a href="macros.html" style="text-decoration: underline; color: rgb(12, 38, 53);">Macros</a></li>
+                        <li><a href="macros.html" style="text-decoration: underline; color: rgb(12, 38, 53);">Macros</a>
+                        </li>
                         <li><a href="#">Consultas</a></li>
                         <li><a href="#">Configurações</a></li>
                         <li><a href="#">Ajuda</a></li>
@@ -40,7 +43,8 @@
                         <div class="user-status-block">
                             <i class="fas fa-user icon-user"></i>
                             <div class="user-status-text">
-                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do Usuário</span>
+                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
+                                    Usuário</span>
                                 <span style="margin-top: 1px;">Usuário ativo</span>
                             </div>
                         </div>
@@ -52,28 +56,39 @@
                             </div>
                         </div>
                     </div>
-                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;" onclick="deslogar()" id="deslog">Logout</button>
+                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;"
+                        onclick="deslogar()" id="deslog">Logout</button>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="container">
-        <section id="macrosite-section" display none>
+        <section id="macrosite-section">
             <h2 style="font-size: 2em;">Macro SITE - WFM</h2>
-            <i class="fas fa-info-circle icon" id="iconeduvida" style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; border-top: 2px solid #0056b3; width: 100%; padding-top: 1%;" title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
+            <i class="fas fa-info-circle icon" id="iconeduvida"
+                style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; border-top: 2px solid #0056b3; width: 100%; padding-top: 1%;"
+                title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
             <div id="duvida-site" style="display: none;">
-            <p><strong>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
-            <p>Para a execução desta macro, siga os passos abaixo:</p>
-            <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV (.csv).</p>
-            <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho <strong>OS</strong> ou <strong>Número OS</strong>. Esta coluna deve listar todos os números de Ordens de Serviço para os quais você deseja buscar informações no site WFM.</p>
-            <p>Ao final do processamento, uma pasta chamada <strong>[Macro JGL - Macro SITE]</strong> será criada na sua Área de Trabalho, contendo o arquivo com os resultados.</p>
-            </strong>
+                <p>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção
+                        de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
+                <p>Para a execução desta macro, siga os passos abaixo:</p>
+                <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV
+                    (.csv).</p>
+                <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho
+                    <strong>OS</strong> ou <strong>Número OS</strong>. Esta coluna deve listar todos os números de
+                    Ordens de Serviço para os quais você deseja buscar informações no site WFM.
+                </p>
+                <p>Ao final do processamento, os resultado obtidos serão o Fornecimento e SITE, uma pasta chamada
+                    <strong>[Macro JGL - Macro SITE]</strong> será criada na sua Área de Trabalho, contendo o arquivo
+                    com os resultados.
+                </p>
             </div>
-            <div id="site-preview">
+            <div id="site-preview"> 
                 <p style="text-align: center; top: 50%;">Representação visual do site da Macro aqui.</p>
             </div>
-            <div id="mensagem-de-erro" style="color: red; display: none; font-weight: bolder; margin-left: 0.5%; margin-bottom: 1%;"></div>
+            <div id="mensagem-de-erro"
+                style="color: red; display: none; font-weight: bolder; margin-left: 0.5%; margin-bottom: 1%;"></div>
 
             <div class="form-container" id="macrosite-form" style="display: none;">
                 <div class="input-group">
@@ -88,16 +103,19 @@
                     <label>Tipo de Arquivo:</label>
                     <div class="radio-group">
                         <label for="csvOption">CSV</label>
-                        <input type="radio" id="csvOption" checked name="arquivoTipo" value="csv" style="margin-left: -0.5%; margin-top: -0.3%;">
+                        <input type="radio" id="csvOption" checked name="arquivoTipo" value="csv"
+                            style="margin-left: -0.5%; margin-top: -0.3%;">
 
                         <label for="excelOption">Excel</label>
-                        <input type="radio" name="arquivoTipo" id="excelOption" value="excel" style="margin-left: -0.5%; margin-top: -0.3%;">
+                        <input type="radio" name="arquivoTipo" id="excelOption" value="excel"
+                            style="margin-left: -0.5%; margin-top: -0.3%;">
 
-                        </div>
+                    </div>
                 </div>
                 <div class="input-group file-input-group">
                     <label for="arquivo-csv">Selecionar Arquivo:</label> <input type="file" id="arquivo-csv">
-                    <span class="file-name" id="selected-file-name"></span> </div>
+                    <span class="file-name" id="selected-file-name"></span>
+                </div>
 
                 <button id="processar">Iniciar</button>
 
@@ -106,10 +124,22 @@
             </div>
 
             <div id="macrosite-processing-status" style="display: block;">
-                <h3>Status do Processamento: Executando</h3>
-                <div class="status-info">
+                <h3 style="font-weight: bolder; font-size: 1.8em;">Status do Processamento:</h3>
+                <h1 class="ml7">
+                    <span class="text-wrapper">
+                        <span class="letters">Executando</span>
+                    </span>
+                </h1>
+                        <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
+                <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
                     <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
-                    <p>Quantidade Processada: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
+                    <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
                     <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
                     <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
                 </div>
@@ -124,12 +154,11 @@
                 <button>Novo Processamento</button>
             </div>
 
-        <button class="fixed-help-button">
-        <i class="fas fa-headset"></i> </button>
+            <button class="fixed-help-button">
+                <i class="fas fa-headset"></i> </button>
 
         </section>
-        
     </main>
-
 </body>
+
 </html>

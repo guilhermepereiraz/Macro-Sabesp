@@ -30,4 +30,11 @@ Login SITE
 119576
 PosHack2024
 
+DB_CONFIG = {
+    'host': '172.20.10.3',ou -- 172.20.10.1
+    'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
+    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendilist'
+}
+
 

@@ -1,29 +1,39 @@
 @charset "UTF-8";
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     background-color: rgb(250, 250, 250);
     color: #333;
     line-height: 1.6;
-    opacity: 0; /* Começa completamente transparente */
-    display: none; /* Começa oculto (não renderizado) */
-    transition: opacity 1s ease-in-out; 
+    opacity: 0;
+    /* Começa completamente transparente */
+    display: none;
+    /* Começa oculto (não renderizado) */
+    transition: opacity 1s ease-in-out;
 }
 
 body.is-visible {
-    opacity: 1; /* Torna-se completamente visível */
+    opacity: 1;
+    /* Torna-se completamente visível */
 }
 
-main.container { /* <-- Certifique-se que este seletor corresponde ao elemento principal em macros.html */
-    opacity: 1; /* Estado final (normal): totalmente visível */
-    transform: translateX(0); /* Estado final (normal): na posição original */
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* <-- A transição */
+main.container {
+    /* <-- Certifique-se que este seletor corresponde ao elemento principal em macros.html */
+    opacity: 1;
+    /* Estado final (normal): totalmente visível */
+    transform: translateX(0);
+    /* Estado final (normal): na posição original */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    /* <-- A transição */
 }
 
 /* Classe para o estado inicial da transição de ENTRADA */
 .page-intro {
-    opacity: 0; /* Estado inicial: totalmente invisível */
-    transform: translateX(20px); /* Estado inicial: ligeiramente deslocado para a direita */
+    opacity: 0;
+    /* Estado inicial: totalmente invisível */
+    transform: translateX(20px);
+    /* Estado inicial: ligeiramente deslocado para a direita */
 }
 
 
@@ -119,7 +129,8 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px; /* Este é o espaço que você quer aumentar */
+    gap: 10px;
+    /* Este é o espaço que você quer aumentar */
 }
 
 .user-status-text,
@@ -203,14 +214,15 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
 
     .user-status-text,
     .time-info-text {
-         flex-direction: column;
-         align-items: center;
+        flex-direction: column;
+        align-items: center;
     }
-     .user-status-block .fas,
-     .user-time-block .fas {
-         margin-bottom: 0;
-         margin-right: 5px;
-     }
+
+    .user-status-block .fas,
+    .user-time-block .fas {
+        margin-bottom: 0;
+        margin-right: 5px;
+    }
 }
 
 .user-info span {
@@ -274,21 +286,25 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
 
     .user-status-block,
     .user-time-block {
-        flex-direction: row; /* Volta a ser linha no mobile */
+        flex-direction: row;
+        /* Volta a ser linha no mobile */
         align-items: center;
         justify-content: center;
     }
 
     .user-status-text,
     .time-info-text {
-         flex-direction: column; /* Mantém o texto empilhado no mobile */
-         align-items: center; /* Centraliza o texto empilhado no mobile */
+        flex-direction: column;
+        /* Mantém o texto empilhado no mobile */
+        align-items: center;
+        /* Centraliza o texto empilhado no mobile */
     }
-     .user-status-block .fas,
-     .user-time-block .fas {
-         margin-bottom: 0;
-         margin-right: 5px;
-     }
+
+    .user-status-block .fas,
+    .user-time-block .fas {
+        margin-bottom: 0;
+        margin-right: 5px;
+    }
 }
 
 
@@ -319,7 +335,8 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
 .cards-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 350px));
-    gap: 70px; /* Reduza este valor para aproximar mais os cards */
+    gap: 70px;
+    /* Reduza este valor para aproximar mais os cards */
     margin-left: 19%;
     margin-bottom: 40px;
 
@@ -330,12 +347,14 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 100%; /* Mantemos a largura que você definiu */
+    width: 100%;
+    /* Mantemos a largura que você definiu */
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     font-size: 1em;
-    justify-self: center; /* Centraliza o item (o card) dentro da sua célula no grid */
+    justify-self: center;
+    /* Centraliza o item (o card) dentro da sua célula no grid */
 
 }
 
@@ -410,7 +429,7 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
     color: #555;
     display: block;
     margin-bottom: 5px;
-    
+
 }
 
 .news-section li strong:hover {
@@ -419,17 +438,17 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
     margin-bottom: 5px;
     text-decoration: underline;
     cursor: pointer;
-    
+
 }
 
 .news-section li span {
-     color: #007bff;
-     text-decoration: none;
-     cursor: pointer;
+    color: #007bff;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .quick-tips-section {
-     margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .quick-tips-section h3 {
@@ -442,8 +461,10 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
     display: grid;
     /* *** AJUSTADO: Tamanho máximo da coluna definido como 250px para cards menores *** */
     grid-template-columns: repeat(auto-fit, minmax(220px, 320px));
-    gap: 20px; /* Define o gap explicitamente como 0 */
-    justify-content: center; /* Centraliza os cards se a soma das larguras for menor que o container */
+    gap: 20px;
+    /* Define o gap explicitamente como 0 */
+    justify-content: center;
+    /* Centraliza os cards se a soma das larguras for menor que o container */
 }
 
 .quick-tip-card {
@@ -466,9 +487,9 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
 }
 
 .quick-tip-card .icon {
-     font-size: 2em;
-     color: #007bff;
-     margin-bottom: 10px;
+    font-size: 2em;
+    color: #007bff;
+    margin-bottom: 10px;
 }
 
 .quick-tip-card p {
@@ -503,50 +524,158 @@ main.container { /* <-- Certifique-se que este seletor corresponde ao elemento p
 }
 
 @media (max-width: 992px) {
-     .header-content {
-         flex-direction: column;
-         text-align: center;
-     }
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
 
-     .logo-block,
-     .header nav,
-     .user-info-icons,
-     .logout-button-styled {
-         margin: 10px auto;
-     }
+    .logo-block,
+    .header nav,
+    .user-info-icons,
+    .logout-button-styled {
+        margin: 10px auto;
+    }
 
-     .header nav ul {
-         justify-content: center;
-         gap: 15px;
-         flex-wrap: wrap;
-         margin-bottom: 10px;
-     }
+    .header nav ul {
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
 
-     .user-info-icons {
-         flex-direction: column;
-         gap: 10px;
-         margin-bottom: 10px;
-     }
+    .user-info-icons {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
 
     .cards-section {
         grid-template-columns: 1fr;
     }
 
     .quick-tips-cards {
-         grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
     }
 
-     .fab-button {
-         bottom: 15px;
-         right: 15px;
-         width: 45px;
-         height: 45px;
-         font-size: 1.3em;
-     }
+    .fab-button {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
 }
 
 @media (max-width: 480px) {
-     .header .container {
-         padding: 0 10px;
-     }
+    .header .container {
+        padding: 0 10px;
+    }
+}
+
+/* APOS CLICLAR NO BOTAO FIXADO DE CHAT */
+#overlayText {
+    background-color: rgb(255, 255, 255);
+    color: black;
+    padding: 10px;
+    width: 22em;
+    height: 22em;
+    border-radius: 5px;
+    position: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    transition: bottom 0.5s ease-out, opacity 0.5s ease-out, visibility 0.5s ease-out;
+    border: 2px solid rgba(8, 8, 8, 0.671);
+    box-shadow: 2px 2px 10px rgba(59, 59, 59, 0.897);
+    display: none;
+    z-index: 55;
+
+}
+
+.fixed-button-container {
+    position: fixed;
+    bottom: 20px;
+    margin-bottom: 3.8%;
+    right: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+    /* Inverte a ordem para o texto ficar acima */
+    align-items: flex-end;
+    /* Alinha os itens à direita */
+    z-index: 55;
+}
+
+fixed-button-container>h1 {
+    font-size: 0.5em;
+}
+
+#transp {
+    background-color: rgba(104, 103, 103, 0.719);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+    z-index: 2;
+    display: none;
+}
+
+
+.btfixoligue>a {
+    text-decoration: none;
+    color: #2b8adf;
+
+}
+
+.btfixoligue {
+    padding: 15px;
+    transition: background-color 0.5s;
+}
+
+.btfixowpp {
+    padding: 15px;
+    transition: background-color 0.5s;
+}
+
+
+.btfixoligue:hover {
+    background-color: rgb(216, 211, 211);
+    transition: 0.5s;
+
+}
+
+.btfixowpp:hover {
+    background-color: rgb(216, 211, 211);
+    transition: 0.5s;
+
+}
+
+.fixoligue {
+    font-size: 1em;
+    margin-left: 6em;
+}
+
+.fixoligue2 {
+    font-size: 0.8em;
+    color: rgb(102, 100, 100);
+    margin-left: 7.5em;
+}
+
+.btfixowpp>a {
+    text-decoration: none;
+    color: #2b8adf;
+    ;
+
+
+}
+
+.fixowpp1 {
+    font-size: 1em;
+    margin-left: 6em;
+}
+
+.fixowpp2 {
+    font-size: 0.8em;
+    color: rgb(102, 100, 100);
+    margin-left: 7.5em;
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script type="text/javascript" src="js/index.js"></script>
-    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon"> </head>
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+</head>
+
 <body>
 
     <header class="header">
@@ -17,8 +20,8 @@
                     <img src="imagens/logo-sabesp-1024.png" alt="Logo Macro JGL">
                     <div class="logo-text">Macro JGL</div>
                 </div>
-                 <span style="margin-left: 24%;"></span>
-    
+                <span style="margin-left: 24%;"></span>
+
                 <nav class="main-nav">
                     <ul>
                         <li><a href="#" style="text-decoration: underline; color: rgb(12, 38, 53);">Inicio</a></li>
@@ -36,7 +39,8 @@
                         <div class="user-status-block">
                             <i class="fas fa-user icon-user"></i>
                             <div class="user-status-text">
-                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do Usuário</span>
+                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
+                                    Usuário</span>
                                 <span>Usuário ativo</span>
                             </div>
                         </div>
@@ -48,7 +52,8 @@
                             </div>
                         </div>
                     </div>
-                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;" onclick="deslogar()" id="deslog">Logout</button>
+                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;"
+                        onclick="deslogar()" id="deslog">Logout</button>
                 </div>
             </div>
         </div>
@@ -60,27 +65,32 @@
             <div class="welcome-section">
 
                 <h2>Bem-vindo(a) à Plataforma Macro JGL</h2>
-                <p>Neste menu inicial, limpo e organizado, você tem acesso rápido a todas as principais atividades do sistema. Utilize o menu de navegação acima para explorar o sistema.</p>
+                <p>Neste menu inicial, limpo e organizado, você tem acesso rápido a todas as principais atividades do
+                    sistema. Utilize o menu de navegação acima para explorar o sistema.</p>
             </div>
 
             <h3 style="text-align: center;">Macros Populares</h3>
             <div class="cards-section">
                 <a href="macroSITE.html" style="text-decoration: none;">
-                <div class="card" onclick="mostrarmacro()"> <i class="fas fa-file-alt icon"></i> <h3>Macro SITE</h3>
-                    <p>Acesse a macro SITE para gerenciar suas operações.</p>
-                </div>
-                </a>  
+                    <div class="card" onclick="mostrarmacro()"> <i class="fas fa-file-alt icon"></i>
+                        <h3>Macro SITE</h3>
+                        <p>Acesse a macro SITE para gerenciar suas operações.</p>
+                    </div>
+                </a>
 
-                <div class="card" onclick="mostrarconsultageral()"> <i class="fas fa-file-alt icon"></i> <h3>Macro Consulta Geral</h3>
+                <div class="card" onclick="mostrarconsultageral()"> <i class="fas fa-bolt"
+                        style="font-size: 2em; color: #2b8adf; margin-top: 4%; margin-bottom: 4%;"></i>
+                    <h3>Macro Consulta Geral</h3>
                     <p>Acesse a macro CONSULTA GERAL para gerenciar suas operações.</p>
                 </div>
 
                 <div class="card">
-                    <i class="fas fa-file-alt icon"></i> <h3>Macro SITIA</h3>
+                    <i class="fas fa-file-alt icon"></i>
+                    <h3>Macro SITIA</h3>
                     <p>Acesse a macro SITIA para gerenciar suas operações.</p>
                 </div>
 
-                </div>
+            </div>
 
             <div class="news-section">
                 <h3>Últimas Notícias</h3>
@@ -97,27 +107,62 @@
                         <strong>Sugestões de usuários inovadores</strong>
                         01/05/2025 - Novas funcionalidades listadas com feedback.
                     </li>
-                    </ul>
+                </ul>
+                <div id="transp"></div>
             </div>
 
             <div class="quick-tips-section">
                 <h3>Dicas Rápidas</h3>
                 <div class="quick-tips-cards">
                     <div class="quick-tip-card">
-                        <i class="fas fa-lightbulb icon"></i> <p>Utilize o menu "Macro" para acessar rapidamente suas macros favoritas.</p>
+                        <i class="fas fa-lightbulb icon"></i>
+                        <p>Utilize o menu "Macro" para acessar rapidamente suas macros favoritas.</p>
                     </div>
-                     <div class="quick-tip-card">
-                        <i class="fas fa-clock icon"></i> <p>Verifique seu horário logado no canto superior direito para segurança.</p>
+                    <div class="quick-tip-card">
+                        <i class="fas fa-clock icon"></i>
+                        <p>Verifique seu horário logado no canto superior direito para segurança.</p>
                     </div>
-                     <div class="quick-tip-card">
-                        <i class="fas fa-headset icon"></i> <p>Precisa de ajuda? Utilize o menu "Ajuda" para suporte e sugestões.</p>
+                    <div class="quick-tip-card">
+                        <i class="fas fa-headset icon"></i>
+                        <p>Precisa de ajuda? Utilize o menu "Ajuda" para suporte e sugestões.</p>
                     </div>
-                    </div>
+                </div>
             </div>
 
-            </div> </div> <div class="fab-button">
-        <i class="fas fa-headset icon"></i> </div>
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        </div>
+    </div>
+
+    <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
+        <i class="fas fa-headset icon"></i>
+    </div>
+
+    <div class="fixed-button-container">
+        <div id="overlayText">
+            <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
+                ajudar?</h1>
+            <hr>
+            <div class="btfixoligue">
+                <a href="#">
+                    <h1 class="fixoligue"><img src="i" alt="" class="imgligue">Assistente Virtual
+                    </h1>
+                    <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
+                </a>
+            </div>
+
+            <div class="btfixowpp">
+                <a href="#">
+                    <h1 class="fixowpp1"> <img src="#" alt="" class="imgwpp">Fale com Nossa Equipe</h1>
+                    <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"
@@ -126,5 +171,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
-    </body>
+</body>
+
 </html>

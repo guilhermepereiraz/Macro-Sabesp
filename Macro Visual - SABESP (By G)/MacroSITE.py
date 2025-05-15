@@ -279,6 +279,15 @@ def macro(valor):
     except:
         print("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.") # Exemplo de log
 
+    try:
+
+        busca_execucao = WebDriverWait(driver, 1).until(
+                    EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
+                )
+        busca_execucao.click()
+    except:
+        print("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.2") # Exemplo de log
+
     # ARRUMAR ESSA FUNCAO
 
     while True:

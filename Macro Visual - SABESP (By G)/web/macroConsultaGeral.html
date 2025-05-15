@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro JGL - Macro Site</title>
-    <link rel="stylesheet" href="css/macrosite.css">
+    <title>Macro JGL - Macro Consulta Geral</title>
+    <link rel="stylesheet" href="css/macroconsultagelra.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
 
     <script type="text/javascript" src="eel.js"></script>
-    <script type="text/javascript" src="js/macrosite.js"></script>
+    <script type="text/javascript" src="js/macroconsultageral.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
 </head>
 
@@ -65,32 +65,32 @@
 
     <main class="container">
         <section id="macrosite-section">
-            <h2 style="font-size: 2em;">Macro SITE - WFM</h2>
+            <h2 style="font-size: 2em;">Macro Consulta Geral - NETA</h2>
             <i class="fas fa-info-circle icon" id="iconeduvida"
                 style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; border-top: 2px solid #0056b3; width: 100%; padding-top: 1%;"
                 title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
             <div id="duvida-site" style="display: none;">
-                <p>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção
-                        de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
+                <p>Bem-vindo(a) à Macro de Consulta Geral - NETA. Esta ferramenta foi desenvolvida para otimizar a obtenção
+                        de informações diretamente do site NETA, automatizando o processo de busca e coleta de dados.</p>
                 <p>Para a execução desta macro, siga os passos abaixo:</p>
                 <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV
                     (.csv).</p>
                 <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho
-                    <strong>OS</strong> ou <strong>Número OS</strong>. Esta coluna deve listar todos os números de
-                    Ordens de Serviço para os quais você deseja buscar informações no site WFM.
+                    <strong>PDE</strong> ou <strong>HIDROMETRO</strong>. Esta coluna deve listar todos os números de
+                   PDE ou HIDRO para os quais você deseja buscar informações no site NETA.
                 </p>
                 <p>Ao final do processamento, uma pasta chamada
                     <strong>[Macro JGL - Macro SITE]</strong> será criada na sua Área de Trabalho, contendo o arquivo
                     com os resultados.
                 </p>
-                <p>Resultados Obtidos: OS, Fornecimento, Resultado SITE</p>
+                <p>Resultados Obtidos: Fornecimento, PDE|HIDRO, Tipo Mercado, Status Fornecimento, Titular, Tipo Sujeito, Celular, Endereço Fornecimento, Tipo Fornecimento, Oferta/Produto, Entrega Fatura, Condição de Pagamento, Modo de Envio, Grupo Faturamento, Data Proxima Leitura, Numero de Residencias, Status Atual, ATC, Tipo de Cavalete, Data de Ligação Agua, Diâmetro, SITIA, Status SITIA, Data de Ligação Esgoto, SITIE, Status SITIE.</p>
             </div>
-             <div id="site-preview"> 
+            <div id="site-preview"> 
                 <h1>DEMOSTRATIVO</h1>
                 <p>Ao iniciar a macro, os resultado visual serão parecidos com esses.</p>
-                <p>Processando OS: 256489465</p>
-                <p>OS Processadas: 900 de 2000</p>
-                <p>OS Não Processadas: 5</p>
+                <p>Processando PDE|HIDRO: 256489465</p>
+                <p>PDE|HIDRO Processadas: 900 de 2000</p>
+                <p>PDE|HIDRO Não Processadas: 5</p>
                 <p>Tempo Estimado: 01:50:30</p>
                 <p>Porcentagem Concluída: 49%</p>
             </div>
@@ -116,7 +116,18 @@
                         <label for="excelOption">Excel</label>
                         <input type="radio" name="arquivoTipo" id="excelOption" value="excel"
                             style="margin-left: -0.5%; margin-top: -0.3%;">
+                    </div>
 
+                    <div class="input-pesquisa" style="margin-top: 0.5%; margin-bottom: 0.5%;">
+                    <label>Tipo de Pesquisa:</label>
+                    <div class="radio-group">
+                        <label for="pdeOption">PDE</label>
+                        <input type="radio" id="pdeOption" checked name="pesquisaTipo" value="pde"
+                            style="margin-left: -0.5%; margin-top: -0.3%;">
+
+                        <label for="hidroOption">HIDRO</label>
+                        <input type="radio" name="pesquisaTipo" id="hidroOption" value="hidro"
+                            style="margin-left: -0.5%; margin-top: -0.3%;">
                     </div>
                 </div>
                 <div class="input-group file-input-group">

@@ -334,12 +334,17 @@ main.container {
 
 .cards-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 350px));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 350px));
     gap: 70px;
     /* Reduza este valor para aproximar mais os cards */
     margin-left: 19%;
     margin-bottom: 40px;
+}
 
+.cards-section a {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .card {

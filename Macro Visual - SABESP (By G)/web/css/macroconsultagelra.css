@@ -418,6 +418,147 @@ body.is-visible {
     /* ou cover, dependendo de como quer que a imagem preencha a área */
 }
 
+#processing-log {
+    margin-top: 25px; /* Espaço acima do log */
+    margin-bottom: 20px; /* Espaço abaixo do log */
+    padding: 15px;
+    border: 1px solid #ccc; /* Borda simples */
+    border-radius: 5px;
+    background-color: #f9f9f9; /* Fundo levemente acinzentado */
+}
+
+#processing-log h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    border-bottom: 1px solid #eee; /* Linha separadora */
+    padding-bottom: 5px;
+}
+
+.log-messages {
+    max-height: 120px; /* Altura máxima para o log antes de adicionar scroll */
+    overflow-y: auto; /* Adiciona barra de rolagem vertical quando o conteúdo excede a altura */
+    font-size: 0.9em;
+    color: #555;
+    padding-right: 10px; /* Espaço para não colar o texto na barra de scroll */
+}
+
+.log-messages p {
+    margin-bottom: 5px;
+    padding: 2px 0;
+    word-wrap: break-word; /* Quebra palavras longas */
+    white-space: pre-wrap; /* Preserva quebras de linha e espaços */
+}
+
+/* Estilos para diferentes tipos de mensagens no log (opcional, para colorir) */
+.log-messages .log-success {
+    color: #28a745; /* Verde para sucesso */
+}
+
+.log-messages .log-error {
+    color: #dc3545; /* Vermelho para erro */
+    font-weight: bold;
+}
+
+/* Estilos para a Visualização de Erros Recentes */
+#recent-errors {
+    margin-top: 20px; /* Espaço acima da lista de erros */
+    margin-bottom: 25px; /* Espaço abaixo da lista de erros (antes dos botões) */
+    padding: 15px;
+    border: 1px solid #e0b4b4; /* Borda clara indicando área de erro */
+    border-radius: 5px;
+    background-color: #f8dcdc; /* Fundo claro indicando área de erro */
+}
+
+#recent-errors h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #c0392b; /* Vermelho um pouco mais escuro */
+    border-bottom: 1px solid #e0a0a0; /* Linha separadora avermelhada */
+    padding-bottom: 5px;
+}
+
+.error-list {
+    list-style: none; /* Remove marcadores de lista padrão */
+    padding: 0;
+    margin: 0;
+    max-height: 100px; /* Altura máxima para a lista de erros */
+    overflow-y: auto; /* Adiciona barra de rolagem vertical */
+    font-size: 0.9em;
+    padding-right: 10px; /* Espaço para não colar o texto na barra de scroll */
+}
+
+.error-list li {
+    margin-bottom: 5px;
+    padding: 8px;
+    border: 1px solid #efd0d0; /* Borda sutil para cada item da lista */
+    border-radius: 4px;
+    color: #7d2f2f; /* Cor de texto escura para erros */
+    background-color: #fceded; /* Fundo muito claro para cada item */
+    cursor: pointer; /* Indica que o item pode ser clicado (se você implementar a funcionalidade) */
+    transition: background-color 0.2s ease; /* Efeito ao passar o mouse */
+    word-wrap: break-word; /* Quebra palavras longas */
+    white-space: pre-wrap; /* Preserva quebras de linha e espaços */
+}
+
+.error-list li:hover {
+    background-color: #f7e0e0; /* Mudar cor ao passar o mouse */
+}
+
+#contextual-tips {
+    margin-top: 20px; /* Espaço acima deste painel */
+    margin-bottom: 20px; /* Espaço abaixo deste painel */
+    padding: 15px;
+    border: 1px solid #a0d0f0; /* Borda em tom azul claro */
+    border-left: 5px solid #007bff; /* Borda esquerda mais grossa e colorida */
+    border-radius: 5px;
+    background-color: #e9f5ff; /* Fundo azul bem claro */
+    color: #004085; /* Cor do texto em tom azul escuro */
+    font-size: 0.95em; /* Tamanho da fonte ligeiramente menor */
+}
+
+#contextual-tips h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #0056b3; /* Cor do título */
+    border-bottom: 1px solid #b3d9ff; /* Linha inferior sob o título */
+    padding-bottom: 5px;
+}
+
+#dicasaqui {
+    /* Mantenha os seus estilos de fonte, cor, etc. para #dicasaqui aqui */
+    /* Exemplo: */
+    /* color: #004085; */
+    /* font-size: 0.95em; */
+    /* line-height: 1.5; */
+
+
+    /* >>> Adicione ou verifique esta parte para o FADE <<< */
+    transition: opacity 0.5s ease-in-out; /* Define uma transição de 0.5 segundos para a opacidade */
+    opacity: 1; /* Garante que a mensagem esteja visível por padrão */
+    /* >>> FIM da parte do FADE <<< */
+}
+
+/* Esta classe é adicionada/removida pelo Javascript para fazer o fade */
+#dicasaqui.fade-out {
+    opacity: 0; /* Torna o elemento invisível */
+}
+
+
+.tip-text {
+    /* Estilos adicionais para o conteúdo da dica, se necessário */
+    line-height: 1.5; /* Espaçamento entre linhas para melhor leitura */
+}
+
+.error-list li.no-errors {
+
+    color: #555;
+    background-color: transparent;
+    border: none;
+    cursor: default;
+    padding: 10px;
+}
+
 #macrosite-section {
     padding: 20px;
     /* Espaçamento interno */

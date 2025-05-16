@@ -118,7 +118,7 @@ function startConfetti() {
             return clearInterval(interval);
         }
 
-        const particleCount = 100 * (timeLeft / duration); // Reduzido o número de partículas
+        const particleCount = 20 * (timeLeft / duration); // Reduzido o número de partículas
 
         // Confetes caindo de posições aleatórias
         confetti({

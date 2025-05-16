@@ -10,6 +10,7 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 import tkinter as tk
+from Consulta_GeraL_Final import iniciar_macro_consulta_geral
 
 # Detecta o tamanho da tela
 root = tk.Tk()
@@ -464,19 +465,20 @@ def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, 
         return {"status": "erro", "message": "Erro ao iniciar a macro."}
 
 
-@eel.expose
-def iniciar_consulta_geral_frontend(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario):
-    """
-    Função exposta via Eel para ser chamada pelo frontend para iniciar a macro Consulta Geral.
-    Esta função apenas repassa os parâmetros para a lógica principal em Consulta_geral.py.
-    """
-    logging.info(f"Chamada do frontend para iniciar Consulta Geral para usuário '{identificador_usuario}'")
-    logging.info(f"Credenciais passadas (Consulta Geral): {login_usuario}, {'*' * len(senha_usuario)}")
-    logging.info(f"Arquivo: {nome_arquivo}, Tipo: {tipo_arquivo}, Filtro: {tipo_macro}")
 
-    # Chama a função principal de backend que contém a lógica da macro
-    # É importante retornar o resultado dessa chamada de volta para o frontend
-    return iniciar_macro(conteudo_arquivo, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_macro, identificador_usuario)
+@eel.expose
+def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa):
+    logging.info(f"Chamada para iniciar macro Consulta Geral para '{tipo_pesquisa.upper()}'")
+    if tipo_pesquisa.lower() not in ['pde', 'hidro']:
+        logging.error(f"Tipo de pesquisa inválido: {tipo_pesquisa}")
+        return {"status": "erro", "message": "Tipo de pesquisa deve ser 'pde' ou 'hidro'"}
+    try:
+        # Passa o tipo_pesquisa para a função principal
+        return iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa)
+    except Exception as e:
+        logging.error(f"Erro ao iniciar a macro Consulta Geral: {e}")
+        logging.exception("Detalhes do erro ao iniciar a macro Consulta Geral:")
+        return {"status": "erro", "message": "Erro ao iniciar a macro Consulta Geral."}
 
 
 @eel.expose

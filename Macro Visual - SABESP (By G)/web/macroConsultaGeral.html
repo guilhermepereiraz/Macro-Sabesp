@@ -70,22 +70,28 @@
                 style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; border-top: 2px solid #0056b3; width: 100%; padding-top: 1%;"
                 title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
             <div id="duvida-site" style="display: none;">
-                <p>Bem-vindo(a) à Macro de Consulta Geral - NETA. Esta ferramenta foi desenvolvida para otimizar a obtenção
-                        de informações diretamente do site NETA, automatizando o processo de busca e coleta de dados.</p>
+                <p>Bem-vindo(a) à Macro de Consulta Geral - NETA. Esta ferramenta foi desenvolvida para otimizar a
+                    obtenção
+                    de informações diretamente do site NETA, automatizando o processo de busca e coleta de dados.</p>
                 <p>Para a execução desta macro, siga os passos abaixo:</p>
                 <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV
                     (.csv).</p>
                 <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho
                     <strong>PDE</strong> ou <strong>HIDROMETRO</strong>. Esta coluna deve listar todos os números de
-                   PDE ou HIDRO para os quais você deseja buscar informações no site NETA.
+                    PDE ou HIDRO para os quais você deseja buscar informações no site NETA.
                 </p>
                 <p>Ao final do processamento, uma pasta chamada
                     <strong>[Macro JGL - Macro SITE]</strong> será criada na sua Área de Trabalho, contendo o arquivo
                     com os resultados.
                 </p>
-                <p>Resultados Obtidos: Fornecimento, PDE|HIDRO, Tipo Mercado, Status Fornecimento, Titular, Tipo Sujeito, Celular, Endereço Fornecimento, Tipo Fornecimento, Oferta/Produto, Entrega Fatura, Condição de Pagamento, Modo de Envio, Grupo Faturamento, Data Proxima Leitura, Numero de Residencias, Status Atual, ATC, Tipo de Cavalete, Data de Ligação Agua, Diâmetro, SITIA, Status SITIA, Data de Ligação Esgoto, SITIE, Status SITIE.</p>
+                <p>Resultados Obtidos: Fornecimento, PDE|HIDRO, Tipo Mercado, Status Fornecimento, Titular, Tipo
+                    Sujeito, Celular, Endereço Fornecimento, Tipo Fornecimento, Oferta/Produto, Entrega Fatura, Condição
+                    de Pagamento, Modo de Envio, Grupo Faturamento, Data Proxima Leitura, Numero de Residencias, Status
+                    Atual, ATC, Tipo de Cavalete, Data de Ligação Agua, Diâmetro, SITIA, Status SITIA, Data de Ligação
+                    Esgoto, SITIE, Status SITIE.</p>
             </div>
-            <div id="site-preview"> 
+
+            <div id="site-preview">
                 <h1>DEMOSTRATIVO</h1>
                 <p>Ao iniciar a macro, os resultado visual serão parecidos com esses.</p>
                 <p>Processando PDE|HIDRO: 256489465</p>
@@ -94,16 +100,16 @@
                 <p>Tempo Estimado: 01:50:30</p>
                 <p>Porcentagem Concluída: 49%</p>
             </div>
-            <div id="mensagem-de-erro"
-                style="color: red; display: none; font-weight: bolder; margin-left: 0.5%; margin-bottom: 1%;"></div>
 
-            <div class="form-container" id="macrosite-form" style="display: block;">
+            <p id="macrosite-error-message" class="error-message" style="display: none; color: red;"></p>
+
+            <div class="form-container" id="macrosite-form">
                 <div class="input-group">
-                    <label for="site-login">Login (WFM):</label>
+                    <label for="site-login">Login (NETA):</label>
                     <input type="text" id="site-login" placeholder="Digite o login do site">
                 </div>
                 <div class="input-group">
-                    <label for="site-password">Senha (WFM):</label>
+                    <label for="site-password">Senha (NETA):</label>
                     <input type="password" id="site-password" placeholder="Digite a senha do site">
                 </div>
                 <div class="input-group">
@@ -119,61 +125,74 @@
                     </div>
 
                     <div class="input-pesquisa" style="margin-top: 0.5%; margin-bottom: 0.5%;">
-                    <label>Tipo de Pesquisa:</label>
-                    <div class="radio-group">
-                        <label for="pdeOption">PDE</label>
-                        <input type="radio" id="pdeOption" checked name="pesquisaTipo" value="pde"
-                            style="margin-left: -0.5%; margin-top: -0.3%;">
+                        <label>Tipo de Pesquisa:</label>
+                        <div class="radio-group">
+                            <label for="pdeOption">PDE</label>
+                            <input type="radio" id="pdeOption" checked name="pesquisaTipo" value="pde"
+                                style="margin-left: -0.5%; margin-top: -0.3%;">
 
-                        <label for="hidroOption">HIDRO</label>
-                        <input type="radio" name="pesquisaTipo" id="hidroOption" value="hidro"
-                            style="margin-left: -0.5%; margin-top: -0.3%;">
+                            <label for="hidroOption">HIDRO</label>
+                            <input type="radio" name="pesquisaTipo" id="hidroOption" value="hidro"
+                                style="margin-left: -0.5%; margin-top: -0.3%;">
+                        </div>
                     </div>
-                </div>
-                <div class="input-group file-input-group">
-                    <label for="arquivo-csv">Selecionar Arquivo:</label> <input type="file" id="arquivo-csv">
-                    <span class="file-name" id="selected-file-name"></span>
-                </div>
-
-                <button id="processar">Iniciar</button>
-
-                <p id="macrosite-error-message" class="error-message" style="display: none; color: red;"></p>
-
-            </div>
-
-            <div id="macrosite-processing-status" style="display: none;">
-                <h3 style="font-weight: bolder; font-size: 1.8em;">Status do Processamento:</h3>
-                <h1 class="ml7">
-                    <span class="text-wrapper">
-                        <span class="letters">Executando</span>
-                    </span>
-                </h1>
-                        <div class="spinner">
-                        <div class="rect1"></div>
-                        <div class="rect2"></div>
-                        <div class="rect3"></div>
-                        <div class="rect4"></div>
-                        <div class="rect5"></div>
+                    <div class="input-group file-input-group">
+                        <label for="arquivo-csv">Selecionar Arquivo:</label> <input type="file" id="arquivo-csv">
+                        <span class="file-name" id="selected-file-name"></span>
                     </div>
-                <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
-                    <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
-                    <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
-                    <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
-                    <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
+
+                    <button id="processar">Iniciar</button>
+
                 </div>
-                <button id="pausar" class="styled-button">Pausar</button>
-                <button id="encerrar" class="styled-button">Encerrar</button>
             </div>
 
-            <div id="macrosite-completion-summary" style="display: none;">
-                <h3>Processamento Concluído</h3>
-                <p id="completion-message"></p>
-                <ul id="completion-details-list"></ul>
-                <button>Novo Processamento</button>
+    <div id="macrosite-processing-status" style="display: none;">
+            <h3 style="font-weight: bolder; font-size: 1.8em;">Status do Processamento:</h3>
+            <h1 class="ml7">
+                <span class="text-wrapper">
+                    <span class="letters">Executando</span>
+                </span>
+            </h1>
+            <div class="spinner">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
+            <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
+                <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
+                <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
+                <p>OS com Erros: <span id="oserros">- Calculando..</span></p>
+                <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
+                <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
+            </div>
+            <div id="processing-log">
+                <h4>Log de Atividade:</h4>
+                <div class="log-messages">
+                    <p>Processamento iniciado...</p>
+                </div>
+            </div>
+            <div id="recent-errors">
+                <h4>Erros Recentes:</h4>
+                <ul class="error-list">
+                     <li class="no-errors">Nenhum erro até o momento.</li>
+                </ul>
             </div>
 
-            <button class="fixed-help-button">
-                <i class="fas fa-headset"></i> </button>
+            
+                <div id="contextual-tips">
+                <h4>Dica Rápida:</h4>
+                <div class="tip-text">
+                    <p id="dicasaqui">Prepare seu arquivo com antecedência para agilizar o processo.</p>
+                </div>
+            </div>
+
+            <button id="pausar" class="styled-button">Pausar</button>
+            <button id="encerrar" class="styled-button">Encerrar</button>
+        </div>
+
+
 
         </section>
     </main>

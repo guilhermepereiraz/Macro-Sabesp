@@ -8,11 +8,13 @@
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script type="text/javascript" src="js/index.js"></script>
+    <script src="js/botao_fixo.js"></script>
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/botao_fixo.css">
 </head>
 
-<body>
 
+<body>
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -71,7 +73,7 @@
 
             <h3 style="text-align: center; margin-left: 2%;">Macros Populares</h3>
             <div class="cards-section">
-                
+
                 <a href="macroSITE.html" style="text-decoration: none; display: block; width: 100%; height: 100%;">
                     <div class="card" onclick="mostrarmacro()"> <i class="fas fa-file-alt icon"></i>
                         <h3>Macro SITE</h3>
@@ -79,7 +81,8 @@
                     </div>
                 </a>
 
-                <a href="macroConsultaGeral.html" style="text-decoration: none; display: block; width: 100%; height: 100%;">
+                <a href="macroConsultaGeral.html"
+                    style="text-decoration: none; display: block; width: 100%; height: 100%;">
                     <div class="card" onclick="mostrarconsultageral()"> <i class="fas fa-bolt"
                             style="font-size: 2.5em; color: #2b8adf; margin-top: 4%; margin-bottom: 4%;"></i>
                         <h3>Macro Consulta Geral</h3>
@@ -113,7 +116,7 @@
                         01/05/2025 - Novas funcionalidades listadas com feedback.
                     </li>
                 </ul>
-                <div id="transp"></div>
+
             </div>
 
             <div class="quick-tips-section">
@@ -137,10 +140,10 @@
         </div>
     </div>
 
+    <div id="transp"></div>
     <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
         <i class="fas fa-headset icon"></i>
     </div>
-
     <div class="fixed-button-container">
         <div id="overlayText">
             <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
@@ -148,21 +151,21 @@
             <hr>
             <div class="btfixoligue">
                 <a href="#">
-                    <h1 class="fixoligue"><img src="i" alt="" class="imgligue">Assistente Virtual
-                    </h1>
+                    <i class="fas fa-robot"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixoligue">Assistente Virtual</h1>
                     <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
                 </a>
             </div>
-
             <div class="btfixowpp">
-                <a href="#">
-                    <h1 class="fixowpp1"> <img src="#" alt="" class="imgwpp">Fale com Nossa Equipe</h1>
+                <a href="#" onclick="mostrarTawkTo(); return false;">
+                    <i class="fas fa-users"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixowpp1">Fale com Nossa Equipe</h1>
                     <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
                 </a>
             </div>
-
         </div>
-
     </div>
 
 

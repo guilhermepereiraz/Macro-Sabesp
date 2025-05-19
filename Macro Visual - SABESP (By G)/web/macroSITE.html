@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="css/macrosite.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
-
+    <link rel="stylesheet" href="css/botao_fixo.css">
+    <script src="js/botao_fixo.js"></script>
     <script type="text/javascript" src="eel.js"></script>
     <script type="text/javascript" src="js/macrosite.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
@@ -71,7 +72,7 @@
                 title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
             <div id="duvida-site" style="display: none;">
                 <p>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção
-                        de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
+                    de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
                 <p>Para a execução desta macro, siga os passos abaixo:</p>
                 <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV
                     (.csv).</p>
@@ -85,7 +86,7 @@
                 </p>
                 <p>Resultados Obtidos: OS, Fornecimento, Resultado SITE</p>
             </div>
-             <div id="site-preview"> 
+            <div id="site-preview">
                 <h1>DEMOSTRATIVO</h1>
                 <p>Ao iniciar a macro, os resultado visual serão parecidos com esses.</p>
                 <p>Processando OS: 256489465</p>
@@ -137,13 +138,13 @@
                         <span class="letters">Executando</span>
                     </span>
                 </h1>
-                        <div class="spinner">
-                        <div class="rect1"></div>
-                        <div class="rect2"></div>
-                        <div class="rect3"></div>
-                        <div class="rect4"></div>
-                        <div class="rect5"></div>
-                    </div>
+                <div class="spinner">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
+                </div>
                 <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
                     <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
                     <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
@@ -161,11 +162,35 @@
                 <button>Novo Processamento</button>
             </div>
 
-            <button class="fixed-help-button">
-                <i class="fas fa-headset"></i> </button>
-
         </section>
     </main>
+    <div id="transp"></div>
+    <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
+        <i class="fas fa-headset icon"></i>
+    </div>
+    <div class="fixed-button-container">
+        <div id="overlayText">
+            <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
+                ajudar?</h1>
+            <hr>
+            <div class="btfixoligue">
+                <a href="#">
+                    <i class="fas fa-robot"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixoligue">Assistente Virtual</h1>
+                    <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
+                </a>
+            </div>
+            <div class="btfixowpp">
+                <a href="#" onclick="mostrarTawkTo(); return false;">
+                    <i class="fas fa-users"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixowpp1">Fale com Nossa Equipe</h1>
+                    <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

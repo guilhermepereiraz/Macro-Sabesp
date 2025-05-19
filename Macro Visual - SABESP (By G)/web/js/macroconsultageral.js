@@ -29,23 +29,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
     var textWrapper = document.querySelector('.ml7 .letters');
     if (textWrapper) {
         textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
-        anime.timeline({loop: true})
-          .add({
-            targets: '.ml7 .letter',
-            translateY: ["1.1em", 0],
-            translateX: ["0.55em", 0],
-            translateZ: 0,
-            rotateZ: [180, 0],
-            duration: 750,
-            easing: "easeOutExpo",
-            delay: (el, i) => 50 * i
-          }).add({
-            targets: '.ml7',
-            opacity: 0,
-            duration: 4000,
-            easing: "easeOutExpo",
-            delay: 1000
-          });
+        anime.timeline({ loop: true })
+            .add({
+                targets: '.ml7 .letter',
+                translateY: ["1.1em", 0],
+                translateX: ["0.55em", 0],
+                translateZ: 0,
+                rotateZ: [180, 0],
+                duration: 750,
+                easing: "easeOutExpo",
+                delay: (el, i) => 50 * i
+            }).add({
+                targets: '.ml7',
+                opacity: 0,
+                duration: 4000,
+                easing: "easeOutExpo",
+                delay: 1000
+            });
     } else {
         console.error("Element with class '.ml7 .letters' not found.");
     }
@@ -129,9 +129,9 @@ window.onload = function () {
     }
 
     function atualizarHorarioAtual() {
-        if ( !currentTimeElement) {
+        if (!currentTimeElement) {
             console.error("Elemento para hora atual não encontrado dentro de atualizarHorarioAtual.");
-             return;
+            return;
         }
         const agora = new Date();
         const dia = agora.getDate().toString().padStart(2, '0');
@@ -142,7 +142,7 @@ window.onload = function () {
         const segundos = agora.getSeconds().toString().padStart(2, '0');
         currentTimeElement.textContent = `${dia}/${mes}/${ano} - ${horas}:${minutos}:${segundos}`;
     }
-     // FIM DAS FUNÇÕES DE ATUALIZAÇÃO DE TEMPO
+    // FIM DAS FUNÇÕES DE ATUALIZAÇÃO DE TEMPO
 
 
     // --- Lógica do timer logado (iniciada dentro de window.onload) ---
@@ -157,36 +157,36 @@ window.onload = function () {
             setInterval(() => {
                 updateLoggedInTime(sessionStartTime);
             }, 1000);
-             console.log("Timer: Timer iniciado usando sessionStorage.");
+            console.log("Timer: Timer iniciado usando sessionStorage.");
         } else {
             console.error("Timer: Valor inválido para sessionStartTime no sessionStorage. Limpando...");
-             if (loggedInTimeElement) {
+            if (loggedInTimeElement) {
                 loggedInTimeElement.innerText = "Erro no timer (storage)";
-             }
-             sessionStorage.removeItem('sessionStartTime');
+            }
+            sessionStorage.removeItem('sessionStartTime');
         }
     } else {
         const urlParams = new URLSearchParams(window.location.search);
         const loginTimeParam = urlParams.get('login_time');
-         console.log(`Timer: sessionStartTime não encontrado no sessionStorage. Checando URL (improvável). Valor: ${loginTimeParam}`);
+        console.log(`Timer: sessionStartTime não encontrado no sessionStorage. Checando URL (improvável). Valor: ${loginTimeParam}`);
 
         if (loginTimeParam) {
-             sessionStartTime = parseInt(loginTimeParam, 10);
-             if (!isNaN(sessionStartTime)) {
-                  console.log("Timer: sessionStartTime válido obtido da URL (fallback).");
-                 sessionStorage.setItem('sessionStartTime', sessionStartTime);
-                 console.log("Timer: sessionStartTime salvo em sessionStorage a partir da URL.");
-                 updateLoggedInTime(sessionStartTime);
-                 setInterval(() => {
-                     updateLoggedInTime(sessionStartTime);
-                 }, 1000);
-                  console.log("Timer: Timer iniciado usando URL (fallback).");
-             } else {
-                 console.error("Timer: Parâmetro 'login_time' inválido na URL (fallback).");
-                 if (loggedInTimeElement) {
-                     loggedInTimeElement.innerText = "Erro no timer (URL fallback)";
-                  }
-             }
+            sessionStartTime = parseInt(loginTimeParam, 10);
+            if (!isNaN(sessionStartTime)) {
+                console.log("Timer: sessionStartTime válido obtido da URL (fallback).");
+                sessionStorage.setItem('sessionStartTime', sessionStartTime);
+                console.log("Timer: sessionStartTime salvo em sessionStorage a partir da URL.");
+                updateLoggedInTime(sessionStartTime);
+                setInterval(() => {
+                    updateLoggedInTime(sessionStartTime);
+                }, 1000);
+                console.log("Timer: Timer iniciado usando URL (fallback).");
+            } else {
+                console.error("Timer: Parâmetro 'login_time' inválido na URL (fallback).");
+                if (loggedInTimeElement) {
+                    loggedInTimeElement.innerText = "Erro no timer (URL fallback)";
+                }
+            }
         } else {
             console.warn("Timer: Parâmetro 'login_time' não encontrado em URL nem sessionStorage. O timer não iniciará.");
             if (loggedInTimeElement) {
@@ -200,7 +200,7 @@ window.onload = function () {
     // --- Lógica de Atualização da Hora Atual (iniciada dentro de window.onload) ---
     atualizarHorarioAtual();
     setInterval(atualizarHorarioAtual, 1000);
-     // --- Fim da Lógica de Atualização da Hora Atual ---
+    // --- Fim da Lógica de Atualização da Hora Atual ---
 
 
     // Filtro dinâmico do input de arquivo (listener adicionado dentro de window.onload)
@@ -230,7 +230,7 @@ window.onload = function () {
             var arquivoInputFile = document.getElementById('arquivo-csv');
             var arquivo = arquivoInputFile ? arquivoInputFile.value : '';
 
-             if (!login || !senha || !arquivo) {
+            if (!login || !senha || !arquivo) {
                 if (mensagemErroDiv) {
                     mensagemErroDiv.textContent = 'Preencha todos os campos e selecione um arquivo.';
                     mensagemErroDiv.style.display = 'block';
@@ -262,10 +262,10 @@ window.onload = function () {
 
             if (duvidaIcon) duvidaIcon.style.display = 'none';
 
-             if (statusProcessamentoDiv) {
-                 statusProcessamentoDiv.style.display = 'block';
-                 statusProcessamentoDiv.removeAttribute('style');
-                 statusProcessamentoDiv.style.display = 'block';
+            if (statusProcessamentoDiv) {
+                statusProcessamentoDiv.style.display = 'block';
+                statusProcessamentoDiv.removeAttribute('style');
+                statusProcessamentoDiv.style.display = 'block';
             }
 
             // A chamada para startTipCycle foi movida para o DOMContentLoaded para iniciar ao carregar a página para teste.
@@ -278,10 +278,10 @@ window.onload = function () {
 
             if (arquivoInputFile.files && arquivoInputFile.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     var conteudoBase64 = event.target.result.split(',')[1];
                     if (typeof eel !== 'undefined') {
-                         eel.iniciar_macro_consulta_geral_frontend(
+                        eel.iniciar_macro_consulta_geral_frontend(
                             conteudoBase64,
                             login,
                             senha,
@@ -295,7 +295,7 @@ window.onload = function () {
                 };
                 reader.readAsDataURL(arquivoInputFile.files[0]);
             } else {
-                 console.error("Nenhum arquivo foi selecionado para leitura.");
+                console.error("Nenhum arquivo foi selecionado para leitura.");
             }
         });
     } else {
@@ -337,7 +337,7 @@ function displayNextTipWithFade() {
         tipTextElement.textContent = predefinedTips[currentTipIndex];
         tipTextElement.classList.remove('fade-out'); // Remove a classe para o fade-in
     }, 500); // Tempo deve corresponder à transição CSS (0.5s)
-}
+};
 
 function startTipCycle() {
     // Limpa qualquer intervalo anterior
@@ -349,7 +349,7 @@ function startTipCycle() {
     // Configura o intervalo para as próximas dicas
     tipIntervalId = setInterval(displayNextTipWithFade, 5000); // Intervalo de 10 segundos
     console.log("Ciclo de dicas iniciado.");
-}
+};
 
 function stopTipCycle() {
     // Para o intervalo de dicas
@@ -358,66 +358,77 @@ function stopTipCycle() {
         tipIntervalId = null;
         console.log("Ciclo de dicas parado.");
     }
-}
+};
 
-// >>> FIM CÓDIGO PARA DICAS COM FADE (FUNÇÕES E VARIÁVEIS NO FINAL) <<<
+function encerrarMacro() {
+    const botaoencerrar = document.getElementById('encerrar');
+    const divencerrado = document.getElementById('Divencerrar');
+    const divtrasparente = document.getElementById('transps');
 
+    if (botaoencerrar && divencerrado && divtrasparente) {
+        divencerrado.style.display = "block"; // Garante que fique visível para animar
+        divtrasparente.style.display = "block"; // <-- ADICIONE ESTA LINHA
+        // Força reflow para garantir a transição
+        void divencerrado.offsetWidth;
+        divencerrado.classList.add("active");
+        divtrasparente.classList.add("active");
+    }
+};
 
-// --- PONTOS ONDE stopTipCycle DEVE SER CHAMADO ---
-// Você precisará chamar stopTipCycle() quando o processamento terminar (sucesso ou erro)
-// ou quando o usuário clicar nos botões 'Encerrar' ou 'Pausar' (se Pausar interromper o ciclo das dicas).
+function NaoEncerrandoMacro() {
+    const botaoencerrar = document.getElementById('encerrar');
+    const divencerrado = document.getElementById('Divencerrar');
+    const divtrasparente = document.getElementById('transps');
 
-// Exemplo: Se você tiver uma função que o backend Eel chama ao finalizar o processamento:
-/*
-eel.expose(function onProcessingComplete(status, message) {
-    // Lógica para exibir a mensagem de conclusão na UI
-    // ...
+    if (botaoencerrar && divencerrado && divtrasparente) {
+        // Inicia a animação de saída
+        divencerrado.classList.remove("active");
+        divtrasparente.classList.remove("active");
 
-    stopTipCycle(); // <--- CHAMADA PARA PARAR O CICLO DE DICAS AQUI
+        // Após a transição, esconde os elementos
+        setTimeout(() => {
+            divencerrado.style.display = "none";
+            divtrasparente.style.display = "none";
+        }, 400); // 400ms deve ser igual ao tempo do transition no CSS
+    }
+};
 
-    // Lógica para mostrar o resumo na div de conclusão
-    // ...
-});
-*/
+function mostrarEncerramentoFinal() {
+    const divencerrado = document.getElementById('Divencerrar');
+    const divfinal = document.getElementById('DivencerrarFinal');
+    const divtrasparente = document.getElementById('transps');
 
-// Exemplo: Se você tiver um listener de evento para o botão 'Encerrar':
-/*
-// Obtenha a referência do botão encerrar no window.onload
-const encerrarBotao = document.getElementById('encerrar');
-if (encerrarBotao) {
-    encerrarBotao.addEventListener('click', function() {
-        console.log("Botão Encerrar clicado.");
-        // Lógica para enviar sinal de encerramento ao backend via Eel
-        // if (typeof eel !== 'undefined') {
-        //     eel.cancel_processing();
-        // }
+    if (divencerrado && divfinal && divtrasparente) {
+        // Oculta a div de confirmação com animação
+        divencerrado.classList.remove("active");
+        setTimeout(() => {
+            divencerrado.style.display = "none";
+        }, 400); // Espera a animação terminar
 
-        stopTipCycle(); // <--- CHAMADA PARA PARAR O CICLO DE DICAS AQUI
+        // Mostra a div final com animação
+        divfinal.style.display = "block";
+        void divfinal.offsetWidth; // Força reflow para garantir a transição
+        divfinal.classList.add("active");
 
-        // Lógica para atualizar a UI para o estado de encerramento
-        // ... (ocultar status, mostrar resumo de encerramento, etc.) ...
-    });
-}
-*/
+        // Mantém o fundo escuro visível e animado
+        divtrasparente.style.display = "block";
+        divtrasparente.classList.add("active");
+    }
+};
 
-// Exemplo: Se você tiver um listener de evento para o botão 'Pausar':
-/*
-// Obtenha a referência do botão pausar no window.onload
-const pausarBotao = document.getElementById('pausar');
-if (pausarBotao) {
-    pausarBotao.addEventListener('click', function() {
-        console.log("Botão Pausar clicado.");
-        // Lógica para enviar sinal de pausa ao backend via Eel
-        // if (typeof eel !== 'undefined') {
-        //    eel.pause_processing();
-        // }
+function fecharEncerramentoFinal() {
+    const divfinal = document.getElementById('DivencerrarFinal');
+    const divtrasparente = document.getElementById('transps');
 
-        // Decida se as dicas continuam rodando ao pausar.
-        // Se não continuarem, chame stopTipCycle() aqui.
-        // stopTipCycle(); // <--- CHAMADA PARA PARAR O CICLO DE DICAS AQUI (SE QUISER PARAR NA PAUSA)
+    if (divfinal && divtrasparente) {
+        // Inicia a animação de saída
+        divfinal.classList.remove("active");
+        divtrasparente.classList.remove("active");
 
-        // Lógica para atualizar a UI para o estado de pausa (mudar texto, aparência do botão, etc.)
-        // ...
-    });
-}
-*/
+        // Após a transição, esconde os elementos
+        setTimeout(() => {
+            divfinal.style.display = "none";
+            divtrasparente.style.display = "none";
+        }, 400); // 400ms igual ao transition do CSS
+    }
+};

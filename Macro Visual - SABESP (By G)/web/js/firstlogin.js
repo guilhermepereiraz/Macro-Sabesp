@@ -74,8 +74,9 @@ async function salvarNovaSenha() {
 
     try {
         // Chama o backend para salvar a nova senha
-        const response = await eel.salvar_nova_senha(senhaAtual, novaSenha)();
-        if (response.status === 'sucesso') {
+        const userId = obterParametroDaURL('identificador');
+        const response = await eel.alterar_senha_primeiro_login(userId, senhaAtual, novaSenha)();
+        if (response.status === 'success') {
             mensagemErro.textContent = 'Senha alterada com sucesso, redirecionando...';
             mensagemErro.style.color = 'green';
 

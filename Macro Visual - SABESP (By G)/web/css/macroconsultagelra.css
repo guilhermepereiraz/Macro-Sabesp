@@ -20,94 +20,107 @@ body.is-visible {
     /* Torna-se completamente visível */
 }
 
-#duvida-site{
+#duvida-site {
     display: none;
     font-weight: bolder;
 }
 
 /* CSS DE CARREGAMENTO */
 .spinner {
-  margin: 100px auto;
-  width: 50px;
-  height: 40px;
-  text-align: center;
-  font-size: 10px;
-  position: absolute;
-  margin-top: -1.3%;
+    margin: 100px auto;
+    width: 50px;
+    height: 40px;
+    text-align: center;
+    font-size: 10px;
+    position: absolute;
+    margin-top: -1.3%;
 
-  
+
 }
 
-.spinner > div {
-  background-color: #2983cc;
-  height: 100%;
-  width: 6px;
-  display: inline-block;
-  
-  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
-  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+.spinner>div {
+    background-color: #2983cc;
+    height: 100%;
+    width: 6px;
+    display: inline-block;
+
+    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    animation: sk-stretchdelay 1.2s infinite ease-in-out;
 }
 
 .spinner .rect2 {
-  -webkit-animation-delay: -1.1s;
-  animation-delay: -1.1s;
+    -webkit-animation-delay: -1.1s;
+    animation-delay: -1.1s;
 }
 
 .spinner .rect3 {
-  -webkit-animation-delay: -1.0s;
-  animation-delay: -1.0s;
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s;
 }
 
 .spinner .rect4 {
-  -webkit-animation-delay: -0.9s;
-  animation-delay: -0.9s;
+    -webkit-animation-delay: -0.9s;
+    animation-delay: -0.9s;
 }
 
 .spinner .rect5 {
-  -webkit-animation-delay: -0.8s;
-  animation-delay: -0.8s;
+    -webkit-animation-delay: -0.8s;
+    animation-delay: -0.8s;
 }
 
 @-webkit-keyframes sk-stretchdelay {
-  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
-  20% { -webkit-transform: scaleY(1.0) }
+
+    0%,
+    40%,
+    100% {
+        -webkit-transform: scaleY(0.4)
+    }
+
+    20% {
+        -webkit-transform: scaleY(1.0)
+    }
 }
 
 @keyframes sk-stretchdelay {
-  0%, 40%, 100% { 
-    transform: scaleY(0.4);
-    -webkit-transform: scaleY(0.4);
-  }  20% { 
-    transform: scaleY(1.0);
-    -webkit-transform: scaleY(1.0);
-  }
+
+    0%,
+    40%,
+    100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+    }
+
+    20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+    }
 }
 
 /* TERCEIRO CARREGAMENTO */
-        .ml7 {
-            position: relative;
-            font-weight: 900;
-            font-size: 1.8em;
-            color: #2983cc;
-            position: absolute;
-            margin-left: 19.5%;
-            margin-top: -3.8%;
-        }
+.ml7 {
+    position: relative;
+    font-weight: 900;
+    font-size: 1.8em;
+    color: #2983cc;
+    position: absolute;
+    margin-left: 19.5%;
+    margin-top: -3.8%;
+}
 
-        .ml7 .text-wrapper {
-            position: relative;
-            display: inline-block;
-            padding-top: 0.2em;
-            padding-right: 0.05em;
-            padding-bottom: 0.1em;
-            overflow: hidden;
-        }
+.ml7 .text-wrapper {
+    position: relative;
+    display: inline-block;
+    padding-top: 0.2em;
+    padding-right: 0.05em;
+    padding-bottom: 0.1em;
+    overflow: hidden;
+}
 
-        .ml7 .letter {
-            transform-origin: 0 100%;
-            display: inline-block;
-            line-height: 1em;
-        }
+.ml7 .letter {
+    transform-origin: 0 100%;
+    display: inline-block;
+    line-height: 1em;
+}
 
 .header {
     background-color: #2983cc;
@@ -419,109 +432,148 @@ body.is-visible {
 }
 
 #processing-log {
-    margin-top: 25px; /* Espaço acima do log */
-    margin-bottom: 20px; /* Espaço abaixo do log */
+    margin-top: 25px;
+    /* Espaço acima do log */
+    margin-bottom: 20px;
+    /* Espaço abaixo do log */
     padding: 15px;
-    border: 1px solid #ccc; /* Borda simples */
+    border: 1px solid #ccc;
+    /* Borda simples */
     border-radius: 5px;
-    background-color: #f9f9f9; /* Fundo levemente acinzentado */
+    background-color: #f9f9f9;
+    /* Fundo levemente acinzentado */
 }
 
 #processing-log h4 {
     margin-top: 0;
     margin-bottom: 10px;
     color: #333;
-    border-bottom: 1px solid #eee; /* Linha separadora */
+    border-bottom: 1px solid #eee;
+    /* Linha separadora */
     padding-bottom: 5px;
 }
 
 .log-messages {
-    max-height: 120px; /* Altura máxima para o log antes de adicionar scroll */
-    overflow-y: auto; /* Adiciona barra de rolagem vertical quando o conteúdo excede a altura */
+    max-height: 120px;
+    /* Altura máxima para o log antes de adicionar scroll */
+    overflow-y: auto;
+    /* Adiciona barra de rolagem vertical quando o conteúdo excede a altura */
     font-size: 0.9em;
     color: #555;
-    padding-right: 10px; /* Espaço para não colar o texto na barra de scroll */
+    padding-right: 10px;
+    /* Espaço para não colar o texto na barra de scroll */
 }
 
 .log-messages p {
     margin-bottom: 5px;
     padding: 2px 0;
-    word-wrap: break-word; /* Quebra palavras longas */
-    white-space: pre-wrap; /* Preserva quebras de linha e espaços */
+    word-wrap: break-word;
+    /* Quebra palavras longas */
+    white-space: pre-wrap;
+    /* Preserva quebras de linha e espaços */
 }
 
 /* Estilos para diferentes tipos de mensagens no log (opcional, para colorir) */
 .log-messages .log-success {
-    color: #28a745; /* Verde para sucesso */
+    color: #28a745;
+    /* Verde para sucesso */
 }
 
 .log-messages .log-error {
-    color: #dc3545; /* Vermelho para erro */
+    color: #dc3545;
+    /* Vermelho para erro */
     font-weight: bold;
 }
 
 /* Estilos para a Visualização de Erros Recentes */
 #recent-errors {
-    margin-top: 20px; /* Espaço acima da lista de erros */
-    margin-bottom: 25px; /* Espaço abaixo da lista de erros (antes dos botões) */
+    margin-top: 20px;
+    /* Espaço acima da lista de erros */
+    margin-bottom: 25px;
+    /* Espaço abaixo da lista de erros (antes dos botões) */
     padding: 15px;
-    border: 1px solid #e0b4b4; /* Borda clara indicando área de erro */
+    border: 1px solid #e0b4b4;
+    /* Borda clara indicando área de erro */
     border-radius: 5px;
-    background-color: #f8dcdc; /* Fundo claro indicando área de erro */
+    background-color: #f8dcdc;
+    /* Fundo claro indicando área de erro */
 }
 
 #recent-errors h4 {
     margin-top: 0;
     margin-bottom: 10px;
-    color: #c0392b; /* Vermelho um pouco mais escuro */
-    border-bottom: 1px solid #e0a0a0; /* Linha separadora avermelhada */
+    color: #c0392b;
+    /* Vermelho um pouco mais escuro */
+    border-bottom: 1px solid #e0a0a0;
+    /* Linha separadora avermelhada */
     padding-bottom: 5px;
 }
 
 .error-list {
-    list-style: none; /* Remove marcadores de lista padrão */
+    list-style: none;
+    /* Remove marcadores de lista padrão */
     padding: 0;
     margin: 0;
-    max-height: 100px; /* Altura máxima para a lista de erros */
-    overflow-y: auto; /* Adiciona barra de rolagem vertical */
+    max-height: 100px;
+    /* Altura máxima para a lista de erros */
+    overflow-y: auto;
+    /* Adiciona barra de rolagem vertical */
     font-size: 0.9em;
-    padding-right: 10px; /* Espaço para não colar o texto na barra de scroll */
+    padding-right: 10px;
+    /* Espaço para não colar o texto na barra de scroll */
 }
 
 .error-list li {
     margin-bottom: 5px;
     padding: 8px;
-    border: 1px solid #efd0d0; /* Borda sutil para cada item da lista */
+    border: 1px solid #efd0d0;
+    /* Borda sutil para cada item da lista */
     border-radius: 4px;
-    color: #7d2f2f; /* Cor de texto escura para erros */
-    background-color: #fceded; /* Fundo muito claro para cada item */
-    cursor: pointer; /* Indica que o item pode ser clicado (se você implementar a funcionalidade) */
-    transition: background-color 0.2s ease; /* Efeito ao passar o mouse */
-    word-wrap: break-word; /* Quebra palavras longas */
-    white-space: pre-wrap; /* Preserva quebras de linha e espaços */
+    color: #7d2f2f;
+    /* Cor de texto escura para erros */
+    background-color: #fceded;
+    /* Fundo muito claro para cada item */
+    cursor: pointer;
+    /* Indica que o item pode ser clicado (se você implementar a funcionalidade) */
+    transition: background-color 0.2s ease;
+    /* Efeito ao passar o mouse */
+    word-wrap: break-word;
+    /* Quebra palavras longas */
+    white-space: pre-wrap;
+    /* Preserva quebras de linha e espaços */
 }
 
 .error-list li:hover {
-    background-color: #f7e0e0; /* Mudar cor ao passar o mouse */
+    background-color: #f7e0e0;
+    /* Mudar cor ao passar o mouse */
 }
 
 #contextual-tips {
-    margin-top: 20px; /* Espaço acima deste painel */
-    margin-bottom: 20px; /* Espaço abaixo deste painel */
+    margin-top: 20px;
+    /* Espaço acima deste painel */
+    margin-bottom: 20px;
+    /* Espaço abaixo deste painel */
     padding: 15px;
-    border: 1px solid #a0d0f0; /* Borda em tom azul claro */
-    border-left: 5px solid #007bff; /* Borda esquerda mais grossa e colorida */
+    border: 1px solid #a0d0f0;
+    /* Borda em tom azul claro */
+    border-left: 5px solid #007bff;
+    /* Borda esquerda mais grossa e colorida */
     border-radius: 5px;
-    background-color: #e9f5ff; /* Fundo azul bem claro */
-    color: #004085; /* Cor do texto em tom azul escuro */
-    font-size: 0.95em; /* Tamanho da fonte ligeiramente menor */
+    background-color: #e9f5ff;
+    /* Fundo azul bem claro */
+    color: #004085;
+    /* Cor do texto em tom azul escuro */
+    font-size: 0.95em;
+    /* Tamanho da fonte ligeiramente menor */
 }
 
 #contextual-tips h4 {
     margin-top: 0;
     margin-bottom: 10px;
-    color: #0056b3; /* Cor do título */
-    border-bottom: 1px solid #b3d9ff; /* Linha inferior sob o título */
+    color: #0056b3;
+    /* Cor do título */
+    border-bottom: 1px solid #b3d9ff;
+    /* Linha inferior sob o título */
     padding-bottom: 5px;
 }
 
@@ -534,20 +586,24 @@ body.is-visible {
 
 
     /* >>> Adicione ou verifique esta parte para o FADE <<< */
-    transition: opacity 0.5s ease-in-out; /* Define uma transição de 0.5 segundos para a opacidade */
-    opacity: 1; /* Garante que a mensagem esteja visível por padrão */
+    transition: opacity 0.5s ease-in-out;
+    /* Define uma transição de 0.5 segundos para a opacidade */
+    opacity: 1;
+    /* Garante que a mensagem esteja visível por padrão */
     /* >>> FIM da parte do FADE <<< */
 }
 
 /* Esta classe é adicionada/removida pelo Javascript para fazer o fade */
 #dicasaqui.fade-out {
-    opacity: 0; /* Torna o elemento invisível */
+    opacity: 0;
+    /* Torna o elemento invisível */
 }
 
 
 .tip-text {
     /* Estilos adicionais para o conteúdo da dica, se necessário */
-    line-height: 1.5; /* Espaçamento entre linhas para melhor leitura */
+    line-height: 1.5;
+    /* Espaçamento entre linhas para melhor leitura */
 }
 
 .error-list li.no-errors {
@@ -784,4 +840,161 @@ button#encerrar:hover,
     background-color: #0056b3;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     transform: translatey(-5px);
+}
+
+/* Div de area de encerramento */
+#Divencerrar {
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    padding: 30px;
+    height: 45%;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.40);
+    transition: opacity 0.4s, transform 0.4s;
+    top: 40%;
+    left: 38%;
+    border-radius: 20px;
+    font-size: 1.2em;
+    border: 2px solid rgb(32, 32, 32);
+    box-shadow: 5px 5px 7px rgb(65, 64, 64);
+    z-index: 10;
+    font-weight: bolder;
+}
+
+#Divencerrar.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+}
+
+button#sim,
+#macrosite-completion-summary button {
+    display: block;
+    /* Botões em linhas separadas */
+    width: 100%;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    padding: 20px 40px;
+    background-color: #ffffff;
+    /* Cor do botão primário (exemplo Bootstrap) */
+    color: #004085;
+    border: 3px solid #004085;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.7s ease;
+    font-weight: bolder;
+    margin-top: 10%;
+    /* Espaço acima do botão */
+}
+
+button#sim:hover,
+#macrosite-completion-summary button:hover {
+    border: 3px solid #050505;
+    color: white;
+    background-color: #ac1f06;
+    /* Cor mais escura ao passar o mouse */
+}
+
+button#nao,
+#macrosite-completion-summary button {
+    display: block;
+    font-weight: bolder;
+    /* Botões em linhas separadas */
+    width: 100%;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    padding: 20px 40px;
+    background-color: #ffffff;
+    /* Cor do botão primário (exemplo Bootstrap) */
+    color: #004085;
+    border: 3px solid #004085;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.7s ease;
+    margin-top: 5%;
+    /* Espaço acima do botão */
+}
+
+button#nao:hover,
+#macrosite-completion-summary button:hover {
+    background-color: #0056b3;
+    color: white;
+    /* Cor mais escura ao passar o mouse */
+}
+
+#transps {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.4s;
+    display: block;
+    pointer-events: none;
+}
+
+#transps.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* CONFIRMAÇÃO DE FECHAR A MACRO */
+
+#DivencerrarFinal {
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    padding: 30px;
+    height: 30%;
+    width: 30%;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.40);
+    transition: opacity 1s, transform 1s;
+    top: 47%;
+    left: 36.8%;
+    border-radius: 20px;
+    font-size: 1.2em;
+    border: 2px solid rgb(32, 32, 32);
+    box-shadow: 5px 5px 7px rgb(65, 64, 64);
+    z-index: 10;
+    font-weight: bolder;
+}
+
+#DivencerrarFinal.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+
+button#ok,
+#macrosite-completion-summary button {
+    display: block;
+    font-weight: bolder;
+    /* Botões em linhas separadas */
+    width: 100%;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    padding: 20px 40px;
+    background-color: #ffffff;
+    /* Cor do botão primário (exemplo Bootstrap) */
+    color: #004085;
+    border: 3px solid #004085;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.7s ease;
+    margin-top: 5%;
+    /* Espaço acima do botão */
+}
+
+button#ok:hover,
+#macrosite-completion-summary button:hover {
+    background-color: #0056b3;
+    color: white;
+    /* Cor mais escura ao passar o mouse */
 }

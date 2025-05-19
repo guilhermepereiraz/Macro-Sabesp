@@ -6,14 +6,18 @@ body {
     background-color: #f4f7f6;
     color: #333;
     /* Adicione estas linhas para o fade-in */
-    opacity: 0; /* Começa completamente transparente */
-    display: none; /* Começa oculto (não renderizado), essencial para o JS mudar para block */
-    transition: opacity 0.5s ease-in-out; /* A animação de transição */
+    opacity: 0;
+    /* Começa completamente transparente */
+    display: none;
+    /* Começa oculto (não renderizado), essencial para o JS mudar para block */
+    transition: opacity 0.5s ease-in-out;
+    /* A animação de transição */
 }
 
 /* Esta regra também é necessária para a transição */
 body.is-visible {
-    opacity: 1; /* Torna-se completamente visível */
+    opacity: 1;
+    /* Torna-se completamente visível */
 }
 
 
@@ -23,7 +27,9 @@ body.is-visible {
     padding: 0 20px;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     color: #333;
 }
 
@@ -207,6 +213,7 @@ h1, h2, h3 {
         flex-direction: column;
         align-items: center;
     }
+
     .user-status-block .fas,
     .user-time-block .fas {
         margin-bottom: 0;
@@ -285,6 +292,7 @@ h1, h2, h3 {
         flex-direction: column;
         align-items: center;
     }
+
     .user-status-block .fas,
     .user-time-block .fas {
         margin-bottom: 0;
@@ -350,19 +358,25 @@ h1, h2, h3 {
 
 .card-button {
     display: inline-block;
-    background-color: transparent; /* Fundo transparente */
-    color: #2b8adf; /* Cor do texto primária */
-    border: 1px solid #2b8adf; /* Contorno com a cor primária */
+    background-color: transparent;
+    /* Fundo transparente */
+    color: #2b8adf;
+    /* Cor do texto primária */
+    border: 1px solid #2b8adf;
+    /* Contorno com a cor primária */
     text-decoration: none;
-    padding: 8px 12px; /* Reduzir padding */
+    padding: 8px 12px;
+    /* Reduzir padding */
     border-radius: 4px;
     font-size: 0.9em;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .card-button:hover {
-    background-color: #2b8adf; /* Fundo preenchido no hover */
-    color: white; /* Texto branco no hover */
+    background-color: #2b8adf;
+    /* Fundo preenchido no hover */
+    color: white;
+    /* Texto branco no hover */
 }
 
 /* Estilos para o Carrossel */
@@ -386,37 +400,46 @@ h1, h2, h3 {
 .carousel-items {
     display: flex;
     gap: 20px;
-    transition: transform 0.5s ease; /* Transição adicionada/confirmada */
+    transition: transform 0.5s ease;
+    /* Transição adicionada/confirmada */
 }
 
 .carousel-items .macro-card {
-     flex: 0 0 auto;
-     width: 300px;
+    flex: 0 0 auto;
+    width: 300px;
 }
 
 .carousel-nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(150, 150, 150, 0.3); /* Cinza suave semi-transparente */
-    color: #555; /* Cor da seta cinza escuro */
-    border: none; /* Remover borda */
+    background-color: rgba(150, 150, 150, 0.3);
+    /* Cinza suave semi-transparente */
+    color: #555;
+    /* Cor da seta cinza escuro */
+    border: none;
+    /* Remover borda */
     padding: 10px;
     cursor: pointer;
     z-index: 10;
-    border-radius: 50%; /* Circular */
-    width: 40px; /* Tamanho fixo */
+    border-radius: 50%;
+    /* Circular */
+    width: 40px;
+    /* Tamanho fixo */
     height: 40px;
-    font-size: 1em; /* Tamanho do ícone */
+    font-size: 1em;
+    /* Tamanho do ícone */
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Adicionar transição */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    /* Adicionar transição */
 }
 
 .carousel-nav:hover {
-     background-color: rgba(150, 150, 150, 0.6); /* Cinza mais escuro no hover */
-     color: #333;
+    background-color: rgba(150, 150, 150, 0.6);
+    /* Cinza mais escuro no hover */
+    color: #333;
 }
 
 .carousel-nav.prev {
@@ -428,8 +451,8 @@ h1, h2, h3 {
 }
 
 .carousel-nav:disabled {
-     opacity: 0.5;
-     cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .carousel-pagination {
@@ -511,13 +534,14 @@ h1, h2, h3 {
 }
 
 .action-button.primary {
-     background-color: #5cb85c;
+    background-color: #5cb85c;
 }
 
 .action-button:hover {
     background-color: #0056b3;
 }
- .action-button.primary:hover {
+
+.action-button.primary:hover {
     background-color: #4cae4c;
 }
 
@@ -561,31 +585,31 @@ h1, h2, h3 {
     }
 
     nav ul {
-         flex-direction: column;
-         margin-top: 10px;
+        flex-direction: column;
+        margin-top: 10px;
     }
 
     nav li {
-         margin-right: 0;
-         margin-bottom: 5px;
+        margin-right: 0;
+        margin-bottom: 5px;
     }
 
     .user-info {
-         margin-left: 0;
-         margin-right: 0;
-         margin-top: 10px;
-         flex-direction: column;
-         align-items: flex-start;
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 10px;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .user-info span {
-         margin-left: 0;
-         margin-bottom: 5px;
+        margin-left: 0;
+        margin-bottom: 5px;
     }
 
     .logout-button {
-         margin-top: 10px;
-         width: 100%;
+        margin-top: 10px;
+        width: 100%;
     }
 
     .interactive-area {
@@ -601,19 +625,20 @@ h1, h2, h3 {
         padding: 0 10px;
     }
 
-     .carousel-nav {
-         font-size: 1em;
-         padding: 8px;
-     }
+    .carousel-nav {
+        font-size: 1em;
+        padding: 8px;
+    }
 
-     .carousel-nav.prev {
+    .carousel-nav.prev {
         left: 0;
-     }
-     .carousel-nav.next {
-        right: 0;
-     }
+    }
 
-     .carousel-items .macro-card {
-         width: 250px;
-     }
+    .carousel-nav.next {
+        right: 0;
+    }
+
+    .carousel-items .macro-card {
+        width: 250px;
+    }
 }

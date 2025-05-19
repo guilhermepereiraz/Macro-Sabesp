@@ -1,0 +1,196 @@
+.fab-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform ease 0.3s;
+    z-index: 100;
+}
+
+.fab-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: translatey(-5px);
+}
+
+@media (max-width: 992px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .logo-block,
+    .header nav,
+    .user-info-icons,
+    .logout-button-styled {
+        margin: 10px auto;
+    }
+
+    .header nav ul {
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .user-info-icons {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .cards-section {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-tips-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .fab-button {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+    }
+}
+
+@media (max-width: 480px) {
+    .header .container {
+        padding: 0 10px;
+    }
+}
+
+/* APOS CLICLAR NO BOTAO FIXADO DE CHAT */
+#overlayText {
+    background-color: rgb(255, 255, 255);
+    color: black;
+    padding: 10px;
+    width: 22em;
+    height: 22em;
+    border-radius: 5px;
+    position: fixed;
+    right: 30px;
+    bottom: 100px;
+    font-family: Arial, Helvetica, sans-serif;
+    transition: transform 0.5s cubic-bezier(.68, -0.55, .27, 1.55), opacity 0.5s;
+    opacity: 0;
+    transform: translateY(120%);
+    z-index: 55;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+}
+
+
+#overlayText.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+
+.fixed-button-container {
+    position: fixed;
+    bottom: 20px;
+    margin-bottom: 3.8%;
+    right: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+    /* Inverte a ordem para o texto ficar acima */
+    align-items: flex-end;
+    /* Alinha os itens à direita */
+    z-index: 55;
+}
+
+fixed-button-container>h1 {
+    font-size: 0.5em;
+}
+
+#transp {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.4s;
+    display: block;
+    pointer-events: none;
+}
+
+#transp.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.btfixoligue>a {
+    text-decoration: none;
+    color: #2b8adf;
+
+}
+
+.btfixoligue {
+    padding: 15px;
+    transition: background-color 0.5s;
+}
+
+.btfixowpp {
+    padding: 15px;
+    transition: background-color 0.5s;
+}
+
+
+.btfixoligue:hover {
+    background-color: rgb(216, 211, 211);
+    transition: 0.5s;
+
+}
+
+.btfixowpp:hover {
+    background-color: rgb(216, 211, 211);
+    transition: 0.5s;
+
+}
+
+.fixoligue {
+    font-size: 1em;
+    margin-left: 6em;
+}
+
+.fixoligue2 {
+    font-size: 0.8em;
+    color: rgb(102, 100, 100);
+    margin-left: 7.5em;
+}
+
+.btfixowpp>a {
+    text-decoration: none;
+    color: #2b8adf;
+    ;
+
+
+}
+
+.fixowpp1 {
+    font-size: 1em;
+    margin-left: 6em;
+}
+
+.fixowpp2 {
+    font-size: 0.8em;
+    color: rgb(102, 100, 100);
+    margin-left: 7.5em;
+}

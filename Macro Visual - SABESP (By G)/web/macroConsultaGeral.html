@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="css/macroconsultagelra.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
-
+    <link rel="stylesheet" href="css/botao_fixo.css">
+    <script src="js/botao_fixo.js"></script>
     <script type="text/javascript" src="eel.js"></script>
     <script type="text/javascript" src="js/macroconsultageral.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
@@ -91,7 +92,7 @@
                     Esgoto, SITIE, Status SITIE.</p>
             </div>
 
-            <div id="site-preview">
+            <div id="site-preview" style="display: block;">
                 <h1>DEMOSTRATIVO</h1>
                 <p>Ao iniciar a macro, os resultado visual serão parecidos com esses.</p>
                 <p>Processando PDE|HIDRO: 256489465</p>
@@ -103,7 +104,7 @@
 
             <p id="macrosite-error-message" class="error-message" style="display: none; color: red;"></p>
 
-            <div class="form-container" id="macrosite-form">
+            <div class="form-container" id="macrosite-form" style="display: block;">
                 <div class="input-group">
                     <label for="site-login">Login (NETA):</label>
                     <input type="text" id="site-login" placeholder="Digite o login do site">
@@ -146,56 +147,102 @@
                 </div>
             </div>
 
-    <div id="macrosite-processing-status" style="display: none;">
-            <h3 style="font-weight: bolder; font-size: 1.8em;">Status do Processamento:</h3>
-            <h1 class="ml7">
-                <span class="text-wrapper">
-                    <span class="letters">Executando</span>
-                </span>
-            </h1>
-            <div class="spinner">
-                <div class="rect1"></div>
-                <div class="rect2"></div>
-                <div class="rect3"></div>
-                <div class="rect4"></div>
-                <div class="rect5"></div>
-            </div>
-            <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
-                <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
-                <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
-                <p>OS com Erros: <span id="oserros">- Calculando..</span></p>
-                <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
-                <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
-            </div>
-            <div id="processing-log">
-                <h4>Log de Atividade:</h4>
-                <div class="log-messages">
-                    <p>Processamento iniciado...</p>
+            <div id="macrosite-processing-status" style="display: none;">
+                <h3 style="font-weight: bolder; font-size: 1.8em;">Status do Processamento:</h3>
+                <h1 class="ml7">
+                    <span class="text-wrapper">
+                        <span class="letters">Executando</span>
+                    </span>
+                </h1>
+                <div class="spinner">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
                 </div>
-            </div>
-            <div id="recent-errors">
-                <h4>Erros Recentes:</h4>
-                <ul class="error-list">
-                     <li class="no-errors">Nenhum erro até o momento.</li>
-                </ul>
-            </div>
+                <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
+                    <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
+                    <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
+                    <p>OS com Erros: <span id="oserros">- Calculando..</span></p>
+                    <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
+                    <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
+                </div>
+                <div id="processing-log">
+                    <h4>Log de Atividade:</h4>
+                    <div class="log-messages">
+                        <p>Processamento iniciado...</p>
+                    </div>
+                </div>
+                <div id="recent-errors">
+                    <h4>Erros Recentes:</h4>
+                    <ul class="error-list">
+                        <li class="no-errors">Nenhum erro até o momento.</li>
+                    </ul>
+                </div>
 
-            
+
                 <div id="contextual-tips">
-                <h4>Dica Rápida:</h4>
-                <div class="tip-text">
-                    <p id="dicasaqui">Prepare seu arquivo com antecedência para agilizar o processo.</p>
+                    <h4>Dicas Rápidas:</h4>
+                    <div class="tip-text">
+                        <p id="dicasaqui">Prepare seu arquivo com antecedência para agilizar o processo.</p>
+                    </div>
                 </div>
+
+                <button id="pausar" class="styled-button">Pausar</button>
+                <button id="encerrar" class="styled-button" onclick="encerrarMacro()">Encerrar</button>
+            </div>
+            <div id="transps"></div>
+            <div id="Divencerrar" style="display: none;">
+                <h1 style="color: rgb(163, 6, 6); font-weight: bolder;">ATENÇÃO!</h1>
+                <p>Deseja realmente encerrar o processamento da
+                    macro?</p>
+                <p>Todas as operações em andamento serão
+                    interrompidas,</p>
+                <p>podendo gerar resultados incompletos.</p>
+                <button id="sim" onclick="mostrarEncerramentoFinal()">Sim</button>
+                <button id="nao" onclick="NaoEncerrandoMacro()">Não</button>
             </div>
 
-            <button id="pausar" class="styled-button">Pausar</button>
-            <button id="encerrar" class="styled-button">Encerrar</button>
-        </div>
-
-
+            <div id="DivencerrarFinal" style="display: block;">
+                <h1 style="color: #0056b3; font-weight: bolder;">CONSULTA GERAL - NETA</h1>
+                <p>Macro encerrada com sucesso</p>
+                <p>Clique em "OK" para
+                    continuar..</p>
+                <button id="ok" onclick="fecharEncerramentoFinal()">Ok</button>
+            </div>
 
         </section>
+
     </main>
+
+    <div id="transp"></div>
+    <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
+        <i class="fas fa-headset icon"></i>
+    </div>
+    <div class="fixed-button-container">
+        <div id="overlayText">
+            <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
+                ajudar?</h1>
+            <hr>
+            <div class="btfixoligue">
+                <a href="#">
+                    <i class="fas fa-robot"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixoligue">Assistente Virtual</h1>
+                    <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
+                </a>
+            </div>
+            <div class="btfixowpp">
+                <a href="#" onclick="mostrarTawkTo(); return false;">
+                    <i class="fas fa-users"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixowpp1">Fale com Nossa Equipe</h1>
+                    <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

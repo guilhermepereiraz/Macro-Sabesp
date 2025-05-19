@@ -618,30 +618,3 @@ button#encerrar:hover,
     margin-left: 20px;
     margin-bottom: 10px;
 }
-
-.fixed-help-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #007bff;
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5em;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform ease 0.3s;
-    z-index: 100;
-    border: none;
-
-}
-
-.fixed-help-button:hover {
-    background-color: #0056b3;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: translatey(-5px);
-}

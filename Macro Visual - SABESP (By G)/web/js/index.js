@@ -605,30 +605,3 @@ function updateLoggedInTime(sessionStartTime) {
     loggedInTimeSpan.innerText = formatTime(elapsedSeconds);
 }
 
-// clique no botao fixo
-
-function abrirDuvida() {
-    // Nao precisamos pegar o botao aqui dentro, pois a funcao eh chamada pelo clique do botao.
-    const divduvida = document.getElementById("overlayText"); // Pega a div do overlay
-    const transp = document.getElementById("transp"); // Pega a div transparente do fundo (importante ocultar/mostrar junto!)
-
-
-    // Verifica se a div do overlay foi encontrada antes de continuar
-    if (!divduvida || !transp) {
-        console.error("Erro: Elementos overlayText ou transp nao encontrados!");
-        return; // Sai da funcao se nao encontrar os elementos
-    }
-
-    // *** AQUI ESTA A LOGICA DE ABRIR/FECHAR CORRETA ***
-    // Verifica o estado ATUAL do display da divduvida
-    if (divduvida.style.display === "none" || divduvida.style.display === "") {
-        // Se estiver escondido ("none" ou string vazia no estado inicial), ENTÃO mostre
-        divduvida.style.display = "block";
-        transp.style.display = "block"; // Mostra o fundo transparente tambem
-
-    } else {
-        // Se NAO estiver escondido (ou seja, esta visivel), ENTÃO esconda
-        divduvida.style.display = "none";
-        transp.style.display = "none"; // Esconde o fundo transparente tambem
-    }
-}

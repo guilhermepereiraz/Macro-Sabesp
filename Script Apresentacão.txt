@@ -12,6 +12,7 @@ pip install eel
 pip install selenium
 pip install python-dateutil
 pip install pandas
+pip install pywin32
 
 INSERT into tb_usuarios (nome, email, senha, cargo) values ("Guilherme", "gui", "gui", "adm")
 
@@ -44,4 +45,46 @@ DB_CONFIG = {
     'database': 'pendlist'
 }
 
+CREATE TABLE tb_consulta_geral (
+    id INT AUTO_INCREMENT PRIMARY KEY, -- Para MySQL. Para PostgreSQL, use SERIAL PRIMARY KEY
+    pde_hidro VARCHAR(255),
+    fornecimento VARCHAR(255),
+    tipo_mercado VARCHAR(255),
+    status_fornecimento VARCHAR(255),
+    titular VARCHAR(255),
+    tipo_sujeito VARCHAR(255),
+    celular VARCHAR(20),             -- Ajustado para um tamanho mais realista para números de telefone
+    endereco VARCHAR(500),           -- Aumentado para acomodar endereços mais longos
+    tipo_fornecimento VARCHAR(255),
+    oferta_produto VARCHAR(255),
+    entrega_fatura VARCHAR(255),
+    condicao VARCHAR(255),
+    modo_de_envio VARCHAR(255),
+    grupo_faturamento VARCHAR(255),
+    data_proxima_leitura VARCHAR(255), -- Conforme seu último código
+    numero_de_residencias VARCHAR(255), -- Conforme seu último código
+    status_atual VARCHAR(255),
+    atc VARCHAR(255),
+    tipo_de_cavalete VARCHAR(255),
+    data_de_ligacao_agua DATE,       -- Mantido como DATE
+    diametro VARCHAR(255),
+    sitia VARCHAR(255),
+    status_sitia VARCHAR(255),
+    data_de_ligacao_esgoto DATE,     -- Mantido como DATE
+    sitie VARCHAR(255),
+    status_sitie VARCHAR(255),
+	autor VARCHAR(100),
+	tipo_arquivo VARCHAR(100),
+nome_arquivo VARCHAR(255),
+data_consulta datetime DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY (pde_hidro, fornecimento) -- Chave Única composta por essas duas colunas
+);
+
+
+pyinstaller --onefile --windowed --add-data "web;web" --add-binary "C:\Users\gpereira.eficien\Downloads\edgedriver_win64\msedgedriver.exe;." --hidden-import pymysql main.py
+
+pyinstaller --onedir --add-data "web;web" --add-binary "C:\Users\gpereira.eficien\Downloads\edgedriver_win64\msedgedriver.exe;." --hidden-import pymysql main.py
+
+530572
+!Q2w3e4r5t6y7u
 

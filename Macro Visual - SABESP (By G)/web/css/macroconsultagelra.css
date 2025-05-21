@@ -998,3 +998,241 @@ button#ok:hover,
     color: white;
     /* Cor mais escura ao passar o mouse */
 }
+
+/* PAUSAR PROCESSO */
+#Divpausar {
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    padding: 30px;
+    height: 45%;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.40);
+    transition: opacity 0.4s, transform 0.4s;
+    top: 40%;
+    left: 38%;
+    border-radius: 20px;
+    font-size: 1.2em;
+    border: 2px solid rgb(32, 32, 32);
+    box-shadow: 5px 5px 7px rgb(65, 64, 64);
+    z-index: 10;
+    font-weight: bolder;
+}
+
+#Divpausar.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+}
+
+button#sim2,
+#macrosite-completion-summary button {
+    display: block;
+    /* Botões em linhas separadas */
+    width: 100%;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    padding: 20px 40px;
+    background-color: #ffffff;
+    /* Cor do botão primário (exemplo Bootstrap) */
+    color: #004085;
+    border: 3px solid #004085;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.7s ease;
+    font-weight: bolder;
+    margin-top: 10%;
+    /* Espaço acima do botão */
+}
+
+button#sim2:hover,
+#macrosite-completion-summary button:hover {
+    border: 3px solid #050505;
+    color: white;
+    background-color: #f8aa00;
+    /* Cor mais escura ao passar o mouse */
+}
+
+button#nao2,
+#macrosite-completion-summary button {
+    display: block;
+    font-weight: bolder;
+    /* Botões em linhas separadas */
+    width: 100%;
+    /* Largura automática baseada no conteúdo, ou defina uma fixa */
+    padding: 20px 40px;
+    background-color: #ffffff;
+    /* Cor do botão primário (exemplo Bootstrap) */
+    color: #004085;
+    border: 3px solid #004085;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.7s ease;
+    margin-top: 5%;
+    /* Espaço acima do botão */
+}
+
+button#nao2:hover,
+#macrosite-completion-summary button:hover {
+    background-color: #0056b3;
+    color: white;
+    /* Cor mais escura ao passar o mouse */
+}
+
+/* FINAL DO PROCESSAMENTO */
+.completion-section {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 30px;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.completion-section h2 {
+    color: #0056b3;
+    font-size: 2.2em;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #0056b3;
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+.completion-section .status-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    color: #333;
+}
+
+.completion-section .status-item i {
+    margin-right: 10px;
+    color: #28a745;
+    /* Green for success icons */
+    font-size: 1.5em;
+}
+
+.completion-section .status-item.error i {
+    color: #dc3545;
+    /* Red for error icon */
+}
+
+.completion-section .status-label {
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.completion-section .percentage-bar-container {
+    width: 80%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    border: 2px solid rgb(82, 255, 2);
+    margin: 25px auto;
+    height: 50px;
+    overflow: hidden;
+}
+
+.completion-section .percentage-bar {
+    height: 100%;
+    width: 100%;
+    /* Will be set to 100% on completion */
+    background-color: #28a745;
+    /* Green for 100% completion */
+    text-align: center;
+    line-height: 25px;
+    color: white;
+    font-weight: bold;
+    transition: width 0.5s ease-in-out;
+}
+
+.completion-section .action-buttons {
+    margin-top: 30px;
+}
+
+.completion-section .action-buttons button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 10px;
+}
+
+.completion-section .action-buttons button:hover {
+    background-color: #0056b3;
+}
+
+.suggestions-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: left;
+    /* Align text within this section to the left */
+}
+
+.suggestions-section h3 {
+    color: #0056b3;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    text-align: center;
+    /* Center the heading */
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.suggestion-list li {
+    background-color: #f0f8ff;
+    /* Light blue background for list items */
+    border: 1px solid #cceeff;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    /* Align icon and text at the start */
+    font-size: 1.1em;
+    line-height: 1.4;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.suggestion-list li i {
+    font-size: 1.6em;
+    margin-right: 15px;
+    color: #007bff;
+    /* Blue color for icons */
+    flex-shrink: 0;
+    /* Prevent icon from shrinking */
+    margin-top: 3px;
+    /* Adjust icon vertical alignment */
+}
+
+.suggestion-list li a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.suggestion-list li a:hover {
+    text-decoration: underline;
+}
+
+/* Styles for the suggestion form */
+#suggestion-form textarea {
+    resize: vertical;
+    /* Allow vertical resizing */
+}
+
+#suggestion-form .styled-button {
+    padding: 10px 20px;
+    font-size: 1em;
+    margin-right: 10px;
+}

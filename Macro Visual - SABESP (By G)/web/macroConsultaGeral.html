@@ -66,9 +66,9 @@
 
     <main class="container">
         <section id="macrosite-section">
-            <h2 style="font-size: 2em;">Macro Consulta Geral - NETA</h2>
+            <h2 style="font-size: 2em; border-bottom: 2px solid #0056b3;">Macro Consulta Geral - NETA</h2>
             <i class="fas fa-info-circle icon" id="iconeduvida"
-                style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; border-top: 2px solid #0056b3; width: 100%; padding-top: 1%;"
+                style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; width: 100%;"
                 title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
             <div id="duvida-site" style="display: none;">
                 <p>Bem-vindo(a) à Macro de Consulta Geral - NETA. Esta ferramenta foi desenvolvida para otimizar a
@@ -162,9 +162,9 @@
                     <div class="rect5"></div>
                 </div>
                 <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
-                    <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
-                    <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
-                    <p>OS com Erros: <span id="oserros">- Calculando..</span></p>
+                    <p>Processando PDE|HIDROS: <span id="os-processando">- Calculando..</span></p>
+                    <p>PDE|HIDROS Processados: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
+                    <p>PDE|HIDROS com Erros: <span id="oserros">- Calculando..</span></p>
                     <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
                     <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
                 </div>
@@ -189,7 +189,7 @@
                     </div>
                 </div>
 
-                <button id="pausar" class="styled-button">Pausar</button>
+                <button id="pausar" class="styled-button" onclick="pausarMacro()">Pausar</button>
                 <button id="encerrar" class="styled-button" onclick="encerrarMacro()">Encerrar</button>
             </div>
             <div id="transps"></div>
@@ -204,13 +204,85 @@
                 <button id="nao" onclick="NaoEncerrandoMacro()">Não</button>
             </div>
 
-            <div id="DivencerrarFinal" style="display: block;">
+            <div id="Divpausar" style="display: block;">
+                <h1 style="color: #f8aa00; font-weight: bolder;">ATENÇÃO!</h1>
+                <p>Deseja pausar o processamento da macro?</p>
+                <p>A execução será temporariamente interrompida.</p>
+                <p>Você poderá continuar de onde parou a qualquer momento.</p>
+                <button id="sim2" onclick="efetuarPausaMacro()">Sim</button>
+                <button id="nao2" onclick="NaoPausarMacro()">Não</button>
+            </div>
+
+            <div id="DivencerrarFinal" style="display: none;">
                 <h1 style="color: #0056b3; font-weight: bolder;">CONSULTA GERAL - NETA</h1>
                 <p>Macro encerrada com sucesso</p>
                 <p>Clique em "OK" para
                     continuar..</p>
                 <button id="ok" onclick="fecharEncerramentoFinal()">Ok</button>
             </div>
+
+            <div id="macrosite-completion-status" class="completion-section" style="display: none;">
+                <h2>Processamento Concluído</h2>
+                <div class="status-item">
+                    <i class="fas fa-calendar-alt"></i><span class="status-label">Início:</span> <span
+                        id="start-datetime">17/05/2025 às 14:30:00</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-calendar-check"></i><span class="status-label">Término:</span> <span
+                        id="end-datetime">17/05/2025 às 15:45:30</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-check-circle"></i><span class="status-label">PDE|HIDROS Processados:</span> <span
+                        id="processed-count">1995</span>
+                </div>
+                <div class="status-item error">
+                    <i class="fas fa-times-circle"></i><span class="status-label">Erros Encontrados:</span> <span
+                        id="error-count">5</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-hourglass-half"></i><span class="status-label">Tempo Total:</span> <span
+                        id="total-time">01h 15m 30s</span>
+                </div>
+
+                <div class="percentage-bar-container">
+                    <div class="percentage-bar" style="padding-top: 20px; margin-top: -5px;">100% Concluído</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button onclick="startNewMacro()">Iniciar Nova Consulta</button>
+                    <button onclick="viewResultsFolder()">Ver Pasta de Resultados</button>
+                    <div class="suggestions-section">
+                        <h3>O que fazer agora?</h3>
+                        <ul class="suggestion-list">
+                            <li>
+                                <i class="fas fa-file-excel"></i>
+                                Analise o arquivo gerado na pasta de resultados para verificar os dados.
+                            </li>
+                            <li>
+                                <i class="fas fa-lightbulb"></i>
+                                Tem alguma sugestão para melhorar esta macro? <a href="#"
+                                    onclick="showSuggestionForm()"> Envie sua ideia.</a>
+                            </li>
+                            <li>
+                                <i class="fas fa-question-circle"></i>
+                                Precisa de ajuda ou encontrou algum problema? <a href="#" onclick="abrirDuvida()">Fale
+                                    com o suporte.</a>
+                            </li>
+                        </ul>
+
+                        <div id="suggestion-form"
+                            style="display: none; margin-top: 20px; text-align: left; background-color: #e9f5ff; padding: 20px; border-radius: 8px;">
+                            <h4>Envie sua Sugestão</h4>
+                            <textarea id="user-suggestion" rows="4" placeholder="Descreva sua sugestão aqui..."
+                                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-bottom: 10px;"></textarea>
+                            <button onclick="submitSuggestion()" class="styled-button"
+                                style="background-color: #28a745;">Enviar Sugestão</button>
+                            <button onclick="hideSuggestionForm()" class="styled-button"
+                                style="background-color: #6c757d;">Cancelar</button>
+                            <p id="suggestion-message" style="margin-top: 10px; font-weight: bold;"></p>
+                        </div>
+                    </div>
+                </div>
 
         </section>
 

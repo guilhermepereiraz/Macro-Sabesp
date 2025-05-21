@@ -9,11 +9,22 @@ from datetime import datetime
 import time
 import os
 from selenium.webdriver.support.ui import Select
-import threading  # Importar o módulo threading
-import numpy as np # Import numpy for splitting the list
-import sys # Para sys.exit()
-import traceback # Para imprimir stacktraces
-import eel  # Adiciona importação do eel para integração com frontend
+import threading
+import numpy as np
+import sys
+import traceback
+import eel
+import logging # Adicionado para consistência, já que é usado nas funções de template.
+import subprocess
+import pymysql # USANDO PyMySQL
+import pymysql.cursors
+import win32gui
+import win32con
+
+# Definição da exceção personalizada - mantida no início do arquivo
+class ItemProcessingError(Exception):
+    """Exceção para erros no processamento de itens na macro."""
+    pass
 
 # Variáveis globais para contagem
 total_processar = 0
@@ -27,21 +38,159 @@ counter_lock = threading.Lock()
 # Evento para sinalizar o thread de monitoramento a parar
 monitor_stop_event = threading.Event()
 
+current_os_being_processed = "Calculando..."
+current_os_lock = threading.Lock()
+tempo_inicial_global = None
+
+total_segundos_decorridos = 0.0
+tempo_por_item_medio = 0.0
+
+time_calculation_lock = threading.Lock()
+
+pause_event = threading.Event()
+stop_event = threading.Event()  # Novo evento para controlar o encerramento total
+
+# Variáveis globais para gerenciar drivers ativos
+active_drivers = []
+driver_lock = threading.Lock()
+
+@eel.expose
+def encerrar_threads():
+    """
+    Função para encerrar imediatamente a macro e todas as threads.
+    """
+    try:
+        print("\n=== INÍCIO DO ENCERRAMENTO DE THREADS ===")
+        print("Iniciando encerramento forçado da macro...")
+        
+        # Encerra os navegadores ativos
+        with driver_lock:
+            total_drivers = len(active_drivers)
+            print(f"Total de drivers ativos encontrados: {total_drivers}")
+            
+            for i, driver in enumerate(active_drivers, 1):
+                try:
+                    print(f"Tentando encerrar driver {i} de {total_drivers}...")
+                    driver.quit()
+                    print(f"Driver {i} encerrado com sucesso")
+                except Exception as e:
+                    print(f"Erro ao encerrar driver {i}: {str(e)}")
+                    print(f"Detalhes do erro: {traceback.format_exc()}")
+            
+            active_drivers.clear()
+            print("Lista de drivers ativos limpa")
+        
+        print("Todos os navegadores foram processados")
+        print("Preparando para encerrar processo Python...")
+        
+        # Força o encerramento do processo Python
+        import sys
+        print("=== FIM DO ENCERRAMENTO DE THREADS ===\n")
+        sys.exit(0)
+        
+    except Exception as e:
+        error_msg = f"Erro crítico ao encerrar threads: {str(e)}"
+        print(error_msg)
+        print(f"Traceback completo: {traceback.format_exc()}")
+        return {"status": "erro", "message": error_msg}
 
 
-def adiciona_nao_encontrado_template_pde(item_value, file_lock):
-    # Esta função agora recebe o valor do item não encontrado e o lock
-    import logging
+@eel.expose
+def open_results_folder():
+    """
+    Abre a pasta de resultados da Macro Consulta Geral no explorador de arquivos.
+    A pasta é Desktop/Macro JGL/Macro Consulta Geral.
+    """
+    try:
+        home_dir = os.path.expanduser('~')
+        parent_folder_path = os.path.join(home_dir, 'Desktop', 'Macro JGL')
+        results_path = os.path.join(parent_folder_path, 'Macro Consulta Geral')
+
+        if not os.path.exists(results_path):
+            print(f"Pasta de resultados '{results_path}' não encontrada. Tentando criar...")
+            try:
+                os.makedirs(results_path, exist_ok=True)
+                print(f"Pasta '{results_path}' criada com sucesso.")
+            except Exception as e_create:
+                error_message = f"Erro ao tentar criar a pasta de resultados '{results_path}': {e_create}"
+                print(error_message)
+                if os.path.exists(parent_folder_path):
+                    results_path = parent_folder_path
+                else:
+                    return {"status": "error", "message": error_message}
+
+        print(f"Tentando abrir a pasta: {results_path}")
+        
+        if sys.platform == "win32" or os.name == 'nt':
+            os.startfile(results_path)
+            
+            # Aguarda um momento para a janela abrir
+            time.sleep(1)
+            
+            # Função para encontrar a janela do explorador
+            def find_explorer_window(hwnd, param):
+                window_text = win32gui.GetWindowText(hwnd)
+                if "Macro Consulta Geral" in window_text and win32gui.IsWindowVisible(hwnd):
+                    win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
+                    win32gui.SetForegroundWindow(hwnd)
+                    return False
+                return True
+            
+            # Enumera todas as janelas procurando o explorador
+            win32gui.EnumWindows(find_explorer_window, None)
+            
+        elif sys.platform == "darwin":
+            subprocess.run(['open', results_path], check=True)
+        else:
+            subprocess.run(['xdg-open', results_path], check=True)
+            
+        return {"status": "success", "message": f"Pasta '{results_path}' aberta com sucesso."}
+        
+    except FileNotFoundError:
+        error_message = f"Erro: Caminho não encontrado ao tentar abrir '{results_path}'."
+        print(error_message)
+        return {"status": "error", "message": error_message}
+    except Exception as e:
+        error_message = f"Erro inesperado ao abrir a pasta de resultados: {e}"
+        print(error_message)
+        traceback.print_exc()
+        return {"status": "error", "message": error_message}
+
+def formatar_tempo_legivel(segundos):
+    if segundos is None:
+        return "Calculando..."
+    segundos = int(segundos)
+    if segundos < 0:
+        return "Calculando..."
+    
+    horas = segundos // 3600
+    minutos = (segundos % 3600) // 60
+    segundos_restantes = segundos % 60
+
+    partes = []
+    if horas > 0:
+        partes.append(f"{horas}h")
+    if minutos > 0 or (horas > 0 and segundos_restantes > 0):
+        partes.append(f"{minutos}m")
+    if segundos_restantes > 0 or (not partes and segundos == 0):
+        partes.append(f"{segundos_restantes}s")
+    
+    if not partes:
+        return "0s"
+    
+    return " ".join(partes)
+
+def adiciona_nao_encontrado_template_pde(item_value, lock): # Renomeado file_lock para lock para evitar shadowing
     dados = {
-        "Valor Buscado": item_value, # Adiciona o valor buscado
-        "Tipo Buscado": "PDE", # Adiciona o tipo buscado
+        "PDE": item_value,
+        "Tipo Buscado": "PDE",
         "Registro": "NÃO ENCONTRADO",
         "Status": "NÃO ENCONTRADO",
-        "PDE/HIDRO": "NÃO ENCONTRADO", # Alterado para refletir que pode ser PDE ou HIDRO não encontrado
+        "PDE/HIDRO": "NÃO ENCONTRADO",
         "Tipo de Ligação": "NÃO ENCONTRADO",
         "ATC": "NÃO ENCONTRADO",
         "Endereço": "NÃO ENCONTRADO",
-        "Tipo de Ponto": "NÃO ENCONTRADO", # Alterado para Ponto
+        "Tipo de Ponto": "NÃO ENCONTRADO",
         "Data de Ligação Agua": "NÃO ENCONTRADO",
         "Diâmetro:": "NÃO ENCONTRADO",
         "SITIA": "NÃO ENCONTRADO",
@@ -51,39 +200,34 @@ def adiciona_nao_encontrado_template_pde(item_value, file_lock):
         "Status SITIE": "NÃO ENCONTRADO"
     }
     home_dir = os.path.expanduser('~')
-    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Consulta Geral')
+    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro Consulta Geral')
     now = datetime.now()
     data_formatada = now.strftime("%d_%m_%Y")
     output_file_path = os.path.join(output_dir, f'Erros_Consulta_Geral-{data_formatada}.csv')
     df = pd.DataFrame([dados])
     try:
         os.makedirs(output_dir, exist_ok=True)
-        logging.info(f"Estrutura de pastas criada ou já existente: {output_dir}")
     except Exception as e:
-        logging.error(f"Erro ao criar a estrutura de pastas {output_dir}: {e}")
+        logging.error(f"Erro ao criar a estrutura de pastas {output_dir}: {e}") # Usando logging
+    
     file_exists = os.path.exists(output_file_path)
-    with file_lock:
+    with lock: # Usando o lock passado como argumento
         if file_exists:
             df.to_csv(output_file_path, mode="a", header=False, index=False, encoding="UTF-8-SIG", sep=";")
-            logging.info(f"Erro anexado ao arquivo: {output_file_path}")
         else:
             df.to_csv(output_file_path, index=False, encoding="UTF-8-SIG", sep=";")
-            logging.info(f"Novo arquivo de erro criado: {output_file_path}")
 
-
-def adiciona_nao_encontrado_template_hidro(item_value, file_lock):
-    # Esta função agora recebe o valor do item não encontrado e o lock
-    import logging
+def adiciona_nao_encontrado_template_hidro(item_value, lock): # Renomeado file_lock para lock
     dados = {
-        "Valor Buscado": item_value, # Adiciona o valor buscado
-        "Tipo Buscado": "HIDROMETRO", # Adiciona o tipo buscado
+        "HIDRO": item_value,
+        "Tipo Buscado": "HIDROMETRO",
         "Registro": "NÃO ENCONTRADO",
         "Status": "NÃO ENCONTRADO",
-        "PDE/HIDRO": "NÃO ENCONTRADO", # Alterado para refletir que pode ser PDE ou HIDRO não encontrado
+        "PDE/HIDRO": "NÃO ENCONTRADO",
         "Tipo de Ligação": "NÃO ENCONTRADO",
         "ATC": "NÃO ENCONTRADO",
         "Endereço": "NÃO ENCONTRADO",
-        "Tipo de Ponto": "NÃO ENCONTRADO", # Alterado para Ponto
+        "Tipo de Ponto": "NÃO ENCONTRADO",
         "Data de Ligação Agua": "NÃO ENCONTRADO",
         "Diâmetro:": "NÃO ENCONTRADO",
         "SITIA": "NÃO ENCONTRADO",
@@ -93,99 +237,200 @@ def adiciona_nao_encontrado_template_hidro(item_value, file_lock):
         "Status SITIE": "NÃO ENCONTRADO"
     }
     home_dir = os.path.expanduser('~')
-    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Consulta Geral')
+    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro Consulta Gerall')
     now = datetime.now()
     data_formatada = now.strftime("%d_%m_%Y")
     output_file_path = os.path.join(output_dir, f'Erros_Consulta_Geral-{data_formatada}.csv')
     df = pd.DataFrame([dados])
     try:
         os.makedirs(output_dir, exist_ok=True)
-        logging.info(f"Estrutura de pastas criada ou já existente: {output_dir}")
     except Exception as e:
         logging.error(f"Erro ao criar a estrutura de pastas {output_dir}: {e}")
+
     file_exists = os.path.exists(output_file_path)
-    with file_lock:
+    with lock: # Usando o lock passado como argumento
         if file_exists:
             df.to_csv(output_file_path, mode="a", header=False, index=False, encoding="UTF-8-SIG", sep=";")
-            logging.info(f"Erro anexado ao arquivo: {output_file_path}")
         else:
             df.to_csv(output_file_path, index=False, encoding="UTF-8-SIG", sep=";")
-            logging.info(f"Novo arquivo de erro criado: {output_file_path}")
 
-
-def apagar_processada(item_value, file_lock):
-    """
-    Lê o arquivo 'template.csv', remove a linha correspondente ao item_value e salva as alterações.
-    Usa um lock para garantir acesso thread-safe ao arquivo.
-    Recebe o valor do item a ser removido.
-    """
+def apagar_processada(item_value, lock): # Renomeado file_lock para lock
     arquivo = 'template.csv'
-
-    with file_lock: # Usa o lock para acesso thread-safe
+    with lock: # Usando o lock passado como argumento
         if os.path.exists(arquivo):
             try:
                 df = pd.read_csv(arquivo)
                 if not df.empty:
                     initial_row_count = len(df)
-                     # Remove a linha onde a primeira coluna (convertida para string) é igual ao item_value (convertido para string)
                     df = df[df.iloc[:, 0].astype(str) != str(item_value)]
                     if len(df) < initial_row_count:
                         df.to_csv(arquivo, index=False)
-                        # print(f"Item {item_value} removido com sucesso de {arquivo}.")
-                    # else:
-                         # print(f"Item {item_value} não encontrado em {arquivo} para remoção.")
-                # else:
-                    # print(f"O arquivo {arquivo} está vazio.")
             except FileNotFoundError:
                 print(f"Arquivo {arquivo} não encontrado.")
             except Exception as e:
                 print(f"Ocorreu um erro ao remover o item {item_value}: {e}")
-        # else:
-            # print(f"Arquivo {arquivo} não encontrado.")
 
+def connect_to_database():
+    """
+    Estabelece conexão com o banco de dados MySQL.
+    Retorna a conexão e o cursor.
+    """
+    try:
+        connection = pymysql.connect(
+            host='10.51.109.123',  # Altere conforme seu host
+            user='root',      # Altere conforme seu usuário
+            password='SB28@sabesp',      # Altere conforme sua senha
+            database='pendlist',  # Altere conforme seu banco
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        cursor = connection.cursor()
+        return connection, cursor
+    except Exception as e:
+        print(f"Erro ao conectar ao banco de dados: {e}")
+        return None, None
 
-def armazena_final(dados, file_lock):
+def store_data_in_database(dados, identificador, nome_arquivo, tipo_arquivo):
     """
-    Armazena os dados extraídos em um arquivo CSV na pasta Macro JGL/Consulta Geral na área de trabalho.
-    Usa um lock para garantir acesso thread-safe ao arquivo.
+    Armazena os dados coletados no banco de dados MySQL.
     """
-    import logging
-    home_dir = os.path.expanduser('~')
-    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro Consulta Geral')
-    now = datetime.now()
-    data_formatada = now.strftime("%d_%m_%Y")
-    output_file_path = os.path.join(output_dir, f'Resultado_Consulta_Geral-{data_formatada}.csv')
-    df = pd.DataFrame([dados])
+    connection, cursor = connect_to_database()
+    if not connection or not cursor:
+        raise ItemProcessingError("Não foi possível estabelecer conexão com o banco de dados")
 
     try:
-        os.makedirs(output_dir, exist_ok=True)
-        logging.info(f"Estrutura de pastas criada ou já existente: {output_dir}")
+        def convert_date_for_db(date_str):
+            if not date_str or date_str == "NÃO ENCONTRADO":
+                return None
+            try:
+                # Remove qualquer texto adicional e espaços
+                date_str = date_str.split()[0].strip()
+                # Remove texto adicional como "- LIBERADO"
+                date_str = date_str.split('-')[0].strip()
+                # Converte a data do formato dd/mm/yyyy para yyyy-mm-dd
+                date_obj = datetime.strptime(date_str, '%d/%m/%Y')
+                return date_obj.strftime('%Y-%m-%d')
+            except (ValueError, AttributeError) as e:
+                print(f"Erro ao converter data {date_str}: {str(e)}")
+                return None
+
+        # Prepara os valores, tratando cada campo individualmente
+        values = [
+            dados.get('PDE') or dados.get('Hidrometro'),
+            dados.get('Fornecimento'),
+            dados.get('Tipo Mercado'),
+            dados.get('Status Fornecimento'),
+            dados.get('Titular'),
+            dados.get('Tipo Sujeito'),
+            dados.get('Celular'),
+            dados.get('Endereço Fornecimento'),
+            dados.get('Tipo Fornecimento'),
+            dados.get('Oferta/Produto'),
+            dados.get('Entrega Fatura'),
+            dados.get('Condição de Pagamento'),
+            dados.get('Modo de Envio'),
+            dados.get('Grupo Faturamento'),
+            dados.get('Data Proxima Leitura'),
+            dados.get('Numero de Residencias'),
+            dados.get('Status Atual'),
+            dados.get('ATC'),
+            dados.get('Tipo de Cavalete'),
+            convert_date_for_db(dados.get('Data de Ligação Agua')),
+            dados.get('Diâmetro:'),
+            dados.get('SITIA'),
+            dados.get('Status SITIA'),
+            convert_date_for_db(dados.get('Data de Ligação Esgoto')),
+            dados.get('SITIE'),
+            dados.get('Status SITIE'),
+            identificador,
+            tipo_arquivo,
+            nome_arquivo
+        ]
+
+        # SQL para inserção dos dados
+        sql = """
+        INSERT INTO tb_consulta_geral (
+            pde_hidro, fornecimento, tipo_mercado, status_fornecimento,
+            titular, tipo_sujeito, celular, endereco, tipo_fornecimento,
+            oferta_produto, entrega_fatura, condicao, modo_de_envio,
+            grupo_faturamento, data_proxima_leitura, numero_de_residencias,
+            status_atual, atc, tipo_de_cavalete, data_de_ligacao_agua,
+            diametro, sitia, status_sitia, data_de_ligacao_esgoto,
+            sitie, status_sitie, autor, tipo_arquivo, nome_arquivo
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(sql, values)
+        connection.commit()
+        print("Dados armazenados com sucesso no banco de dados")
+        return True
+
     except Exception as e:
-        logging.error(f"Erro ao criar a estrutura de pastas {output_dir}: {e}")
+        error_msg = f"Erro ao inserir dados no banco: {str(e)}"
+        print(error_msg)
+        print("Valores que causaram erro:", values)
+        connection.rollback()
+        raise ItemProcessingError(error_msg) from e
+    
+    finally:
+        cursor.close()
+        connection.close()
 
-    file_exists = os.path.exists(output_file_path)
+def armazena_final(dados, lock, identificador, nome_arquivo, tipo_arquivo):
+    """
+    Armazena os dados tanto no arquivo CSV quanto no banco de dados MySQL.
+    """
+    # Validação básica dos dados antes de salvar
+    campos_obrigatorrios = ["PDE", "Status Atual", "ATC"]
+    for campo in campos_obrigatorrios:
+        if campo not in dados or not dados[campo] or dados[campo].strip() == "":
+            print(f"Aviso: Campo obrigatório '{campo}' não encontrado ou vazio nos dados")
+            return False
 
-    with file_lock:
-        try:
+    # Primeiro, tenta armazenar no banco de dados
+    try:
+        print(f"Tentando armazenar dados com identificador: {identificador}")
+        print(f"Nome do arquivo: {nome_arquivo}")
+        print(f"Tipo do arquivo: {tipo_arquivo}")
+        stored_in_db = store_data_in_database(dados, identificador, nome_arquivo, tipo_arquivo)
+        if not stored_in_db:
+            print("Falha ao armazenar dados no banco")
+            return False
+    except Exception as e:
+        print(f"Erro ao armazenar no banco: {e}")
+        return False
+
+    # Depois, continua com o armazenamento em CSV
+    try:
+        home_dir = os.path.expanduser('~')
+        output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro Consulta Geral')
+        now = datetime.now()
+        data_formatada = now.strftime("%d_%m_%Y")
+        output_file_path = os.path.join(output_dir, f'Resultado_Consulta_Geral-{data_formatada}.csv')
+        
+        os.makedirs(output_dir, exist_ok=True)
+        
+        df = pd.DataFrame([dados])
+        file_exists = os.path.exists(output_file_path)
+        
+        with lock:
             if file_exists:
                 df.to_csv(output_file_path, mode="a", header=False, index=False, encoding="UTF-8-SIG", sep=";")
-                logging.info(f"Dados anexados ao arquivo: {output_file_path}")
             else:
                 df.to_csv(output_file_path, index=False, encoding="UTF-8-SIG", sep=";")
-                logging.info(f"Novo arquivo criado: {output_file_path}")
-        except Exception as e:
-            logging.error(f"Erro ao salvar os dados no arquivo CSV {output_file_path}: {e}")
+        
+        return True
+    except Exception as e:
+        print(f"Erro ao salvar CSV: {e}")
+        return False
 
 
 def login(thread_id, l_login=None, s_senha=None):
-    """
-    Inicializa o driver e faz login no site NETA usando as credenciais fornecidas.
-    Se l_login e s_senha não forem passados, usa os valores padrão.
-    """
     options = Options()
     options.add_argument("--incognito")
-    # options.add_argument("--headless") # Deixa o navegador invisivel
-    # options.add_argument("--disable-gpu") # Deixa o navegador invisivel
+    options.add_argument("--headless") 
+    options.add_argument("--disable-gpu") 
     options.page_load_strategy = 'normal'
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -200,602 +445,750 @@ def login(thread_id, l_login=None, s_senha=None):
     driver = None
     try:
         print(f"Thread {threading.current_thread().name} - Inicializando driver...")
-        driver = webdriver.ChromiumEdge(options=options)
+        driver = webdriver.ChromiumEdge(options=options) # Supondo Edge, se for Chrome, mudar para webdriver.Chrome
+        with driver_lock:
+            active_drivers.append(driver)
         print(f"Thread {threading.current_thread().name} - Driver inicializado.")
         url_login = "https://conecta.sabesp.com.br/NETAinf/login.aspx"
-
-        print("Abrindo Navegador")
-
         url_destino_pos_login = 'https://conecta.sabesp.com.br/NETASIU/SIUWeb/SiuWeb.Crm/Forms/DashBoards/RicercaCliente.aspx'
-        print(f"Thread {threading.current_thread().name} - Navegando para {url_login}...")
+        
+        print(f"Thread {threading.current_thread().name} - Abrindo Navegador e navegando para {url_login}...")
         driver.get(url_login)
         print(f"Thread {threading.current_thread().name} - Página de login carregada.")
         driver.maximize_window()
-        wait = WebDriverWait(driver, 40)
-        print(f"Thread {threading.current_thread().name} - Esperando pelos campos de login (USER/PASSWORD/LOGIN)...")
-        username_field = wait.until(
-            EC.presence_of_element_located((By.ID, "extended_login_Username"))
-        )
-        password_field = wait.until(
-            EC.presence_of_element_located((By.ID, "extended_login_Password"))
-        )
-        login_button = wait.until(
-            EC.element_to_be_clickable((By.ID, "extended_login_Login"))
-        )
-        print(f"Thread {threading.current_thread().name} - Campos de login encontrados.")
-        # Usa as credenciais passadas, se não, usa padrão
-
-        print("Inserindo Login e Senha")
-
-        username_field.send_keys(l_login if l_login else '530572')
-        password_field.send_keys(s_senha if s_senha else '!Q2w3e4r')
+        
+        print(f"Thread {threading.current_thread().name} - Esperando pelos campos de login...")
+        username_field = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "extended_login_Username")))
+        password_field = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "extended_login_Password")))
+        login_button = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.ID, "extended_login_Login")))
+        print(f"Thread {threading.current_thread().name} - Campos de login encontrados. Inserindo Login e Senha...")
+        
+        username_field.send_keys(l_login if l_login else '530572') # Credenciais padrão se não fornecidas
+        password_field.send_keys(s_senha if s_senha else '!Q2w3e4r') # Credenciais padrão se não fornecidas
+        
         print(f"Thread {threading.current_thread().name} - Clicando no botão de login...")
         login_button.click()
-        print(f"Thread {threading.current_thread().name} - Botão de login clicado. Aguardando página pós-login...")
+        
         print(f"Thread {threading.current_thread().name} - Navegando diretamente para a página de busca: {url_destino_pos_login}")
         driver.get(url_destino_pos_login)
         try:
-            print(f"Thread {threading.current_thread().name} - Esperando por elemento chave na página de busca (após navegação direta)...")
-            wait.until(
-                EC.presence_of_element_located((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr/td[3]/div/fieldset/input[4]"))
-            )
-            print(f"Thread {threading.current_thread().name} - Elemento chave na página de busca encontrado.")
+            print(f"Thread {threading.current_thread().name} - Esperando por elemento chave na página de busca...")
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr/td[3]/div/fieldset/input[4]")))
+            print(f"Thread {threading.current_thread().name} - Elemento chave encontrado. Login realizado com sucesso.")
         except TimeoutException:
-            print(f"Thread {threading.current_thread().name} - Timeout ({wait._timeout}s) esperando pelo elemento chave na página de busca APÓS navegação direta.")
-            print(f"Thread {threading.current_thread().name} - URL atual no momento do timeout: {driver.current_url}")
+            print(f"Thread {threading.current_thread().name} - Timeout esperando elemento chave na página de busca APÓS navegação direta. URL: {driver.current_url}")
             if driver:
-                print(f"Thread {threading.current_thread().name} - Fechando driver devido a timeout no login/navegação direta.")
                 driver.quit()
             return None
-        print(f"Thread {threading.current_thread().name} - Login realizado com sucesso e página de busca pronta.")
         return driver
     except Exception as e:
         print(f"Thread {threading.current_thread().name} - Erro crítico durante o login: {str(e)}")
         traceback.print_exc(file=sys.stdout)
         if driver:
-            print(f"Thread {threading.current_thread().name} - Fechando driver devido a erro no login.")
             driver.quit()
         return None
 
-
-# Função para monitorar e imprimir o progresso no console
 def monitor_progresso():
-    """
-    Função alvo para o thread de monitoramento.
-    Imprime o progresso no console periodicamente.
-    """
-    print("\nIniciando monitoramento do progresso...") # Imprime uma linha para separar o monitoramento
+    print("\nIniciando monitoramento do progresso...")
+    global tempo_inicial_global, processados, erros, total_processar, monitor_stop_event, current_os_being_processed, current_os_lock
 
-    while not monitor_stop_event.is_set(): # Continua rodando até o evento de parada ser acionado
-        with counter_lock: # Acessa os contadores globais de forma segura
+    while not monitor_stop_event.is_set():
+        with counter_lock:
             proc = processados
             err = erros
-            total = total_processar # Total é lido uma vez no início do script principal
+            total = total_processar
 
+        with current_os_lock:
+            os_atual_para_frontend = current_os_being_processed
+        
         completos = proc + err
         restantes = total - completos
 
-        # Imprime o progresso na mesma linha
-        # \r volta o cursor para o início da linha
-        print(f"\rProcessados: {proc}/{total} | Erros: {err} | Restantes: {restantes}", end='', flush=True)
+        print(f"\rProcessando: {os_atual_para_frontend} | Processados: {proc}/{total} | Erros: {err} | Restantes: {restantes}      ", end='', flush=True)
 
-        # Espera um pouco antes de atualizar novamente, ou até que o evento de parada seja acionado
-        # use o wait() do evento para que ele possa ser interrompido rapidamente
-        monitor_stop_event.wait(5) # Espera por 5 segundos ou até o evento ser setado
+        porcentagem_str = "0%"
+        if total > 0:
+            porcentagem_val = (completos / total) * 100
+            porcentagem_str = f"{porcentagem_val:.0f}%"
 
-    # Imprime a linha final para garantir que o último status completo seja mostrado
-    with counter_lock:
-        proc = processados
-        err = erros
-        total = total_processar
-    completos = proc + err
-    restantes = total - completos
-    print(f"\rProcessados: {proc}/{total} | Erros: {err} | Restantes: {restantes} - FIM      ", flush=True) # Adiciona espaços para limpar a linha anterior
-
-
-# Função macro adaptada para processar um único item (baseado no padrão do MacroSITE_V4)
-# Esta função encapsula a lógica principal de busca e extração para um item
-def macro(driver, first_column_value, item_type, file_lock, counter_lock):
-    global processados, erros # Necessário para modificar os contadores globais
-
-    # Log detalhado do início do processamento
-    print(f"\nThread {threading.current_thread().name} - Iniciando macro para:")
-    print(f"- Tipo de pesquisa: {item_type}")
-    print(f"- Valor: {str(first_column_value).strip()}")
-
-
-    wait = WebDriverWait(driver, 10) # Espera local para este driver (tempo para ações DENTRO da macro)
-
-    # Flag para rastrear se o item foi processado/encontrado com sucesso na única tentativa
-    processed_successfully = False
-    driver.refresh() # Atualiza a página para garantir que está limpa antes de buscar
-    try:
-        # Navegar de volta para a página de busca se não estiver nela
-        current_url = driver.current_url
-        # Verifica se a URL atual contém 'RicercaCliente.aspx', se não, navega
-        if 'RicercaCliente.aspx' not in current_url:
-             print(f"\nThread {threading.current_thread().name} - Não estava na página de busca ({current_url}), navegando para processar {str(first_column_value).strip()}.", flush=True)
-             driver.get('https://conecta.sabesp.com.br/NETASIU/SIUWeb/SiuWeb.Crm/Forms/DashBoards/RicercaCliente.aspx')
-             # Adicionado uma espera explícita robusta após a navegação para garantir que a página de busca carregou
-             # Usando um timeout maior para esta navegação crítica se necessário
-             wait_nav = WebDriverWait(driver, 30) # Timeout maior para navegação
-             wait_nav.until(EC.presence_of_element_located((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr/td[3]/div/fieldset/input[4]")))
-             print(f"\nThread {threading.current_thread().name} - Navegou de volta para a página de busca para {str(first_column_value).strip()}.", flush=True)
-
-
-        # --- Lógica da ÚNICA tentativa de busca e extração de dados ---
-        # Pequena espera pode ser útil para estabilizar a página após navegação/refresh
-        time.sleep(0.5)        # Garantir que item_type seja tratado de forma consistente
-        item_type = item_type.lower().strip()
-
-        # Determinar o XPath com base no tipo de pesquisa
-        if item_type == "pde":
-            xpath = "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr/td[3]/div/fieldset/input[4]"
-            print(f"Thread {threading.current_thread().name} - Tipo de pesquisa PDE detectado", flush=True)
-        elif item_type in ["hidro", "hidrometro"]:
-            xpath = "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr/td[3]/div/fieldset/input[3]"
-            print(f"Thread {threading.current_thread().name} - Tipo de pesquisa HIDRO detectado", flush=True)
+        tempo_estimado_str = "Calculando..."
+        if tempo_inicial_global:
+             tempo_decorrido_total_segundos = (datetime.now() - tempo_inicial_global).total_seconds()
+             if completos > 0:
+                 tempo_medio_por_item_atual = tempo_decorrido_total_segundos / completos
+                 segundos_restantes_estimados = tempo_medio_por_item_atual * restantes
+                 if segundos_restantes_estimados > 0:
+                     h = int(segundos_restantes_estimados // 3600)
+                     m = int((segundos_restantes_estimados % 3600) // 60)
+                     s = int(segundos_restantes_estimados % 60)
+                     tempo_estimado_str = f"{h:02d}h {m:02d}m {s:02d}s" if h > 0 else f"{m:02d}m {s:02d}s"
+                 else:
+                     tempo_estimado_str = "Concluindo..."
         else:
-            raise ValueError(f"Tipo de pesquisa inválido: {item_type}")
+            tempo_estimado_str = "Iniciando..."
 
-        print(f"Thread {threading.current_thread().name} - Usando XPath: {xpath} para {item_type}", flush=True)
+        dados_para_frontend = {
+            "os_processando": os_atual_para_frontend,
+            "quantidade": proc,
+            "total_count": total,
+            "oserros": err,
+            "tempoestimado": tempo_estimado_str,
+            "porcentagem_concluida": porcentagem_str,
+            "finalizado": False
+        }
 
+        if eel:
+            try:
+                eel.update_progress(dados_para_frontend)
+            except Exception as e_eel:
+                print(f"Erro ao chamar eel.update_progress: {e_eel}")
+                pass
+
+        if monitor_stop_event.is_set() and (total > 0 and completos >= total):
+            break 
+        elif monitor_stop_event.is_set() and total == 0:
+            break
+        monitor_stop_event.wait(1)
+
+    with counter_lock:
+        proc_final = processados
+        err_final = erros
+        total_final = total_processar
+    completos_final = proc_final + err_final
+
+    print(f"\rProcessados: {proc_final}/{total_final} | Erros: {err_final} - FIM      ", flush=True)
+
+    dados_finais_frontend = {
+        "os_processando": "Concluído",
+        "quantidade": proc_final,
+        "total_count": total_final,
+        "oserros": err_final,
+        "tempoestimado": "00m 00s",
+        "porcentagem_concluida": "100%" if total_final > 0 and completos_final == total_final else f"{((completos_final / total_final) * 100) if total_final > 0 else 0:.0f}%",
+        "finalizado": True,
+        "start_datetime": tempo_inicial_global.strftime("%d/%m/%Y às %H:%M:%S") if tempo_inicial_global else "",
+        "end_datetime": datetime.now().strftime("%d/%m/%Y às %H:%M:%S"),
+        "processed_count": proc_final,
+        "error_count": err_final,
+        "total_time": formatar_tempo_legivel(int((datetime.now() - tempo_inicial_global).total_seconds())) if tempo_inicial_global else ""
+    }
+    if eel:
         try:
-            input_field = wait.until(
-                EC.presence_of_element_located((By.XPATH, xpath))
-            )
-
-            print("Inserindo PDE|HIDRO no campo de pesquisa")
-
-            if input_field.is_displayed():
-                print(f"Thread {threading.current_thread().name} - Elemento encontrado e visível para {item_type}", flush=True)
-            else:
-                print(f"Thread {threading.current_thread().name} - Elemento encontrado, mas não visível para {item_type}", flush=True)
-        except TimeoutException:
-            print(f"Thread {threading.current_thread().name} - Timeout ao localizar o elemento para {item_type} com XPath: {xpath}", flush=True)
-            raise
-
-        processed_value = str(first_column_value).strip()
-        # Verifica se o valor lido é numérico e se o comprimento é menor que 10
-        if processed_value.isdigit() and len(processed_value) < 10:
-            # Calcula quantos zeros precisam ser adicionados (10 - comprimento atual)
-            zeros_a_adicionar = 10 - len(processed_value)
-            processed_value = '0' * zeros_a_adicionar + processed_value
-            print(f"\nThread {threading.current_thread().name} - Valor {str(first_column_value).strip()} tem menos de 10 caracteres, usando {processed_value} para buscar.", flush=True)
-        # --- Fim da lógica de adição de '0' ---
-
-        input_field.clear()
-        time.sleep(0.5) # Pequena espera entre clear e send_keys
-        input_field.send_keys(processed_value) # Envia o valor processado (com ou sem zero adicionado)
-
-        button = wait.until(
-            EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td/input[3]"))
-        )
-        button.click()
-        # Espera explícita pelos resultados da busca ou pelo iframe que indica o resultado
-        # Usando um timeout maior aqui para a busca, pois pode demorar
-
-        
-        iframe = wait.until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
-        iframe.find_element(By.XPATH, '//*[@id="ifCruscottoPdr"]')
-        driver.switch_to.frame(iframe)
-
-        print("Extraindo dados do Painel de Fornecimento")
-
-        painel_fornecimento = driver.find_element(By.XPATH, '//*[@id="ctl00_NetSiuCPH_btni_crm_crupdr_apricruf"]')
-        painel_fornecimento.click()
-
-        time.sleep(1)
-        driver.switch_to.default_content()
-
-        time.sleep(1)
-        iframe = wait.until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoUtenza"]')))
-        iframe.find_element(By.XPATH, '//*[@id="ifCruscottoUtenza"]')
-        driver.switch_to.frame(iframe)
-     
-
-        dados = {}
-
-        dados['Fornecimento'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[1]/span[2]'))).text
-
-        dados['PDE'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
-
-        dados['Tipo Mercado'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[3]/span[2]'))).text
-
-        dados['Status Fornecimento'] = wait.until(EC.presence_of_element_located((By.XPATH, '//html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[2]'))).text
-
-        dados['Titular'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[4]'))).text     
-
-        dados['Tipo Sujeito'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[6]'))).text             
-
-        dados['Celular'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[8]'))).text   
-
-        dados['Endereço Fornecimento'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[10]/span[2]'))).text
-
-        dados['Tipo Fornecimento'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[13]'))).text
-
-        dados['Oferta/Produto'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[15]'))).text
-
-        dados['Entrega Fatura'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[17]'))).text
-
-        dados['Condição de Pagamento'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[19]'))).text
-
-        dados['Modo de Envio'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[2]/tbody/tr/td[1]/span[2]'))).text
-
-        dados['Grupo Faturamento'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[1]/span[2]'))).text
-
-        dados['Data Proxima Leitura'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[3]/span[2]'))).text
-
-        dados['Numero de Residencias'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[21]'))).text
-
-        driver.switch_to.default_content()
-
-        fechar_painel_fornecimento =  driver.find_element(By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')
-        time.sleep(0.5) # Pequena espera antes de clicar
-        fechar_painel_fornecimento.click()
-
-        time.sleep(1)
-        iframe = wait.until(
-            EC.element_to_be_clickable((By.XPATH, '/html/body/form/div[4]/div[5]/iframe'))) 
-        driver.switch_to.frame(iframe)
-
-        print("Extraindo dados do Painel de SITE")
-
-        painel_element_sitia = driver.find_element(By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')
-        painel_element_sitia.click()
-
-        print(f"\nThread {threading.current_thread().name} - Busca para {processed_value} encontrou resultados.", flush=True)
-
-        driver.switch_to.default_content()
-
-        iframe_detail = wait.until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]'))
-        )
-        driver.switch_to.frame(iframe_detail)
-
-        dados['Status Atual'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
-        dados['ATC'] = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
-        tipo_pde_elemento = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[4]/td/div/fieldset/p[2]/select')))
-        tipo_pde_select = Select(tipo_pde_elemento)
-        dados['Tipo de Cavalete'] = tipo_pde_select.first_selected_option.text
-        dados['Data de Ligação Agua'] = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_txtIt"]'))).get_attribute('value')
-        dados['Diâmetro:'] = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value')
-        dados['SITIA'] = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value') # Note: Same 
-        dados['Status SITIA'] = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_origine_pod_Description"]'))).get_attribute('value')
-        dados['Data de Ligação Esgoto'] = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_2_txtIt"]'))).get_attribute('value')
-        dados['SITIE'] = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Code"]'))).get_attribute('value')
-        dados['Status SITIE'] = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Description"]'))).get_attribute('value')
+            eel.update_progress(dados_finais_frontend)
+        except Exception as e_eel:
+            print(f"Erro ao chamar eel.update_progress (final): {e_eel}")
 
 
-        print(f"\nThread {threading.current_thread().name} - Dados extraídos para {item_type} {processed_value}", flush=True)
-        
-        driver.back()
-        time.sleep(0.5) # Pequena espera
+def macro(driver, item_value, item_type, current_file_lock, first_column_value, identificador=None, nome_arquivo=None, tipo_arquivo=None):
+    print(f"\nThread {threading.current_thread().name} - Processando {item_type} {str(first_column_value).strip()}", flush=True)
+    processed_successfully = False
 
-        fechar_paineis =  driver.find_element(By.XPATH, '/html/body/form/div[4]/div[4]/div[1]/ul[3]/li/a/span/input')
-        time.sleep(0.5) # Pequena espera antes de clicar
-        fechar_paineis.click()
-        driver.switch_to.default_content()
+    try:
+        # Verifica se está pausado antes de iniciar processamento
+        while pause_event.is_set() and not monitor_stop_event.is_set():
+            print(f"Thread {threading.current_thread().name} - Em pausa...", flush=True)
+            time.sleep(1)
 
-        # Clicar no botão de fechar o detalhe (parece ser um botão no conteúdo padrão)
-        try:
-             # Wait.until(EC.element_to_be_clickable) é mais seguro que find_element para cliques
-             botao_fechar = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_NetSiuCPH_TabCRM_bli_tcrm_cruscotti"]/li/a/span/input')))
-             botao_fechar.click()
-             # print("Botão 'chiudi_tab' clicado com sucesso.")
-        except NoSuchElementException:
-             print(f"\nThread {threading.current_thread().name} - Botão de fechar detalhe não encontrado após processar {processed_value}. Continuando...", flush=True)
-        except Exception as e:
-             print(f"\nThread {threading.current_thread().name} - Erro ao clicar no botão de fechar detalhe após processar {processed_value}:", flush=True)
+        if monitor_stop_event.is_set():
+            raise ItemProcessingError("Processamento interrompido pelo usuário")
 
+        driver.refresh()
+        time.sleep(2)  # Aumentado tempo de espera após refresh
+        current_url = driver.current_url
+        if 'RicercaCliente.aspx' not in current_url:
+            print(f"\nThread {threading.current_thread().name} - Navegando para página de busca para {str(first_column_value).strip()}.", flush=True)
+            driver.get('https://conecta.sabesp.com.br/NETASIU/SIUWeb/SiuWeb.Crm/Forms/DashBoards/RicercaCliente.aspx')
+            wait_nav = WebDriverWait(driver, 45)  # Aumentado timeout para 45 segundos
+            wait_nav.until(lambda driver: 'RicercaCliente.aspx' in driver.current_url and
+                         driver.execute_script('return document.readyState') == 'complete')
 
-        armazena_final(dados, file_lock) # Passa o lock
-        with counter_lock: # Protege o acesso ao contador
-             processados += 1
-        processed_successfully = True # Marca como processado com sucesso
+        time.sleep(0.5)
+        item_type_lower = item_type.lower() # Usar uma variável local para evitar modificar o parâmetro
+        processed_value_str = str(first_column_value).strip()
 
-    except Exception as e:
-         # Este except pega QUALQUER erro durante a busca/extração inicial
-         print(f"\nThread {threading.current_thread().name} - Erro durante a busca/extração para {item_type} {str(first_column_value).strip()}: {e}", flush=True)
-         traceback.print_exc(file=sys.stdout) # Imprime stacktrace no console
-         processed_successfully = False # Marca como falha
+        dados = {} # Inicializa o dicionário de dados aqui
 
+        if item_type_lower in ["hidro", "hidrometro"]:
+            print(f"Thread {threading.current_thread().name} - Iniciando busca específica para HIDRO: {processed_value_str}", flush=True)
+            # --- Lógica de busca e extração para HIDRO ---
+            # (Mantida a lógica original de cliques e extração, mas sem incrementar contadores)
+            try:
+                # Clicar em "Busca por Endereço"
+                time.sleep(1)
+                busca_endereco = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/div[1]/ul[2]/li[2]/a")))
+                busca_endereco.click()
+                time.sleep(1)
+                input_field_hidro = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td[3]/div/fieldset/input[2]")))
+                input_field_hidro.clear()
+                time.sleep(1)
+                input_field_hidro.send_keys(processed_value_str)
+                time.sleep(1)
+                bnt_pesquisa = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td[2]/input[4]")))
+                bnt_pesquisa.click()
+                time.sleep(1)
+                bnt_busca_detalhe = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td[2]/input[2]")))
+                bnt_busca_detalhe.click()
+                print(f"Thread {threading.current_thread().name} - Sequência de busca HIDRO concluída para {processed_value_str}. Iniciando Extração...", flush=True)
+              
+                try: # Try para extração de dados do HIDRO
+                    iframe = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
+                    driver.switch_to.frame(iframe)
+                    painel_fornecimento = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_btni_crm_crupdr_apricruf"]')))
+                    painel_fornecimento.click()
+                    time.sleep(1)
+                    driver.switch_to.default_content()
+                    time.sleep(1)
+                    iframe_utenza = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoUtenza"]')))
+                    driver.switch_to.frame(iframe_utenza)
 
+                    time.sleep(1)
+                    dados['Hidrometro'] = processed_value_str
+                    dados['Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[1]/span[2]'))).text
+                    dados['PDE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
+                    dados['Tipo Mercado'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[3]/span[2]'))).text
+                    dados['Status Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[2]'))).text
+                    dados['Titular'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[4]'))).text
+                    dados['Tipo Sujeito'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[6]'))).text
+                    dados['Celular'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[8]'))).text
+                    dados['Endereço Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[10]/span[2]'))).text
+                    dados['Tipo Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[13]'))).text
+                    dados['Oferta/Produto'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[15]'))).text
+                    dados['Entrega Fatura'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[17]'))).text
+                    dados['Condição de Pagamento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[19]'))).text
+                    dados['Modo de Envio'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[2]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Grupo Faturamento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Data Proxima Leitura'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[3]/span[2]'))).text
+                    dados['Numero de Residencias'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[21]'))).text
+                    
+                    driver.switch_to.default_content()
+                    fechar_painel_fornecimento = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')))
+                    time.sleep(1)
+                    fechar_painel_fornecimento.click()
+                    time.sleep(1)
+                    iframe_sit = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '/html/body/form/div[4]/div[5]/iframe')))
+                    driver.switch_to.frame(iframe_sit)
+                    painel_element_sitia = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')))
+                    painel_element_sitia.click()
+                    time.sleep(1)
+                    driver.switch_to.default_content()
+                    iframe_detail_sit = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
+                    driver.switch_to.frame(iframe_detail_sit)
+                    
+                    time.sleep(1)
+                    dados['Status Atual'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
+                    dados['ATC'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
+                    tipo_pde_elemento = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[4]/td/div/fieldset/p[2]/select')))
+                    tipo_pde_select = Select(tipo_pde_elemento)
+                    dados['Tipo de Cavalete'] = tipo_pde_select.first_selected_option.text
+                    dados['Data de Ligação Agua'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_txtIt"]'))).get_attribute('value')
+                    dados['Diâmetro:'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value')
+                    dados['SITIA'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value') # Note: Same
+                    dados['Status SITIA'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_origine_pod_Description"]'))).get_attribute('value')
+                    dados['Data de Ligação Esgoto'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_2_txtIt"]'))).get_attribute('value')
+                    dados['SITIE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Code"]'))).get_attribute('value')
+                    dados['Status SITIE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Description"]'))).get_attribute('value')
+
+                    driver.switch_to.default_content()
+                    fechar_painel_sitie = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="NETAModalDialog"]/div[1]/div[1]/button/span[1]')))
+                    fechar_painel_sitie.click()
+                    
+                    armazena_final(dados, current_file_lock, identificador, nome_arquivo, tipo_arquivo) # Passa todos os argumentos necessários
+                    processed_successfully = True # Define sucesso APÓS armazenar
+
+                    try:
+                        time.sleep(1)
+                        botao_fechar = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_NetSiuCPH_TabCRM_bli_tcrm_cruscotti"]/li/a/span/input')))
+                        botao_fechar.click()
+                    except Exception: # NoSuchElementException ou TimeoutException
+                        print(f"Thread {threading.current_thread().name} - Botão de fechar detalhe não encontrado/clicável (HIDRO).")
+                
+                except TimeoutException:
+                    print(f"Thread {threading.current_thread().name} - Timeout durante a extração de dados para HIDRO {processed_value_str}.")
+                    traceback.print_exc(file=sys.stdout) # Adicionado para detalhar o timeout
+                    # processed_successfully permanece False
+                except Exception as e_extract:
+                    print(f"Thread {threading.current_thread().name} - Erro durante a extração de dados para HIDRO {processed_value_str}: {e_extract}")
+                    traceback.print_exc(file=sys.stdout)
+                    # processed_successfully permanece False
+            
+            except TimeoutException: # Para a sequência de busca HIDRO
+                print(f"Thread {threading.current_thread().name} - Timeout na sequência de busca HIDRO para {processed_value_str}.")
+                # processed_successfully permanece False
+            except Exception as e_search_hidro: # Para a sequência de busca HIDRO
+                print(f"Thread {threading.current_thread().name} - Erro na sequência de busca HIDRO para {processed_value_str}: {e_search_hidro}")
+                traceback.print_exc(file=sys.stdout)
+                # processed_successfully permanece False
+
+        elif item_type_lower == "pde":
+            print(f"Thread {threading.current_thread().name} - Iniciando busca PDE: {processed_value_str}", flush=True)
+            xpath_pde = "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr/td[3]/div/fieldset/input[4]"
+            
+            try:
+                input_field_pde = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, xpath_pde)))
+                
+                pde_to_search = processed_value_str
+                print(f"Thread {threading.current_thread().name} - Valor PDE original: {pde_to_search}", flush=True)
+                
+                if pde_to_search.isdigit() and len(pde_to_search) < 10:
+                    zeros_a_adicionar = 10 - len(pde_to_search)
+                    pde_to_search = '0' * zeros_a_adicionar + pde_to_search
+                    print(f"Thread {threading.current_thread().name} - PDE formatado com zeros: {pde_to_search}", flush=True)
+                elif not pde_to_search.isdigit():
+                    print(f"Thread {threading.current_thread().name} - AVISO: PDE não é um número válido: {pde_to_search}", flush=True)
+                
+                input_field_pde.clear()
+                time.sleep(1)
+                input_field_pde.send_keys(pde_to_search)
+                print(f"Thread {threading.current_thread().name} - PDE inserido no campo de busca: {pde_to_search}", flush=True)
+                
+                button_pde = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td/input[3]")))
+                button_pde.click()
+                time.sleep(1)
+
+                try: # Try para extração de dados do PDE
+                    iframe = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
+                    driver.switch_to.frame(iframe)
+                    painel_fornecimento = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_btni_crm_crupdr_apricruf"]')))
+                    painel_fornecimento.click()
+                    time.sleep(1)
+                    driver.switch_to.default_content()
+                    time.sleep(1)
+                    iframe_utenza = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoUtenza"]')))
+                    driver.switch_to.frame(iframe_utenza)
+
+                    time.sleep(1)
+                    dados['PDE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
+                    dados['Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Tipo Mercado'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[3]/span[2]'))).text
+                    dados['Status Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[2]'))).text
+                    dados['Titular'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[4]'))).text
+                    dados['Tipo Sujeito'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[6]'))).text
+                    dados['Celular'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[8]'))).text
+                    dados['Endereço Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[10]/span[2]'))).text
+                    dados['Tipo Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[13]'))).text
+                    dados['Oferta/Produto'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[15]'))).text
+                    dados['Entrega Fatura'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[17]'))).text
+                    dados['Condição de Pagamento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[19]'))).text
+                    dados['Modo de Envio'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[2]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Grupo Faturamento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Data Proxima Leitura'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[3]/span[2]'))).text
+                    dados['Numero de Residencias'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[21]'))).text
+
+                    time.sleep(1)
+                    driver.switch_to.default_content()
+                    fechar_painel_fornecimento = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')))
+                    time.sleep(1)
+                    fechar_painel_fornecimento.click()
+                    time.sleep(1)
+                    iframe_sit = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '/html/body/form/div[4]/div[5]/iframe')))
+                    driver.switch_to.frame(iframe_sit)
+                    painel_element_sitia = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')))
+                    painel_element_sitia.click()
+                    driver.switch_to.default_content()
+                    iframe_detail_sit = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
+                    driver.switch_to.frame(iframe_detail_sit)
+
+                    time.sleep(1)
+                    dados['Status Atual'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
+                    dados['ATC'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
+                    tipo_pde_elemento = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[4]/td/div/fieldset/p[2]/select')))
+                    tipo_pde_select = Select(tipo_pde_elemento)
+                    dados['Tipo de Cavalete'] = tipo_pde_select.first_selected_option.text
+                    dados['Data de Ligação Agua'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_txtIt"]'))).get_attribute('value')
+                    dados['Diâmetro:'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value')
+                    dados['SITIA'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value') # Note: Same
+                    dados['Status SITIA'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_origine_pod_Description"]'))).get_attribute('value')
+                    dados['Data de Ligação Esgoto'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_2_txtIt"]'))).get_attribute('value')
+                    dados['SITIE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Code"]'))).get_attribute('value')
+                    dados['Status SITIE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Description"]'))).get_attribute('value')
+                    
+                    time.sleep(1)
+                    driver.switch_to.default_content()
+                    fechar_painel_sitie = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="NETAModalDialog"]/div[1]/div[1]/button/span[1]')))
+                    fechar_painel_sitie.click()
+
+                    time.sleep(1)
+                    armazena_final(dados, current_file_lock, identificador, nome_arquivo, tipo_arquivo) # Passa todos os argumentos necessários
+                    processed_successfully = True # Define sucesso APÓS armazenar
+
+                    try:
+                        botao_fechar = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_NetSiuCPH_TabCRM_bli_tcrm_cruscotti"]/li/a/span/input')))
+                        botao_fechar.click()
+                    except Exception: # NoSuchElementException ou TimeoutException
+                        print(f"Thread {threading.current_thread().name} - Botão de fechar detalhe não encontrado/clicável (PDE).")
+
+                except TimeoutException:
+                    print(f"Thread {threading.current_thread().name} - Timeout durante a extração de dados para PDE {processed_value_str}.")
+                    traceback.print_exc(file=sys.stdout) # Adicionado para detalhar o timeout
+                    # processed_successfully permanece False
+                except Exception as e_extract_pde:
+                    print(f"Thread {threading.current_thread().name} - Erro durante a extração de dados para PDE {processed_value_str}: {e_extract_pde}")
+                    traceback.print_exc(file=sys.stdout)
+                    # processed_successfully permanece False
+
+            except TimeoutException: # Para a busca PDE inicial
+                 print(f"Thread {threading.current_thread().name} - Timeout na busca PDE inicial para {processed_value_str}.")
+                 # processed_successfully permanece False
+            except Exception as e_search_pde: # Para a busca PDE inicial
+                 print(f"Thread {threading.current_thread().name} - Erro na busca PDE inicial para {processed_value_str}: {e_search_pde}")
+                 traceback.print_exc(file=sys.stdout)
+                 # processed_successfully permanece False
+        else:
+            print(f"Thread {threading.current_thread().name} - Tipo de item inválido recebido na macro: {item_type}. Item: {processed_value_str}", flush=True)
+            processed_successfully = False # Falha explícita
+
+        # Se, após toda a lógica, o item não foi processado com sucesso, levanta uma exceção.
+        # Isso será pego pela thread_task para contabilizar como erro.
+        if not processed_successfully:
+            raise ItemProcessingError(f"Processamento do item {item_type} '{processed_value_str}' falhou (lógica interna da macro).")
+
+    except ItemProcessingError: # Se a exceção ItemProcessingError foi levantada acima ou por erro crítico
+        processed_successfully = False # Garante que está False para o bloco finally
+        raise # Re-levanta para ser pega pela thread_task
+    except (StaleElementReferenceException, NoSuchElementException, WebDriverException, TimeoutException) as selenium_ex:
+        # Captura exceções críticas de Selenium não tratadas internamente que indicam falha no processamento do item
+        print(f"\nThread {threading.current_thread().name} - Erro crítico de Selenium na macro para {item_type} {str(first_column_value).strip()}: {selenium_ex}", flush=True)
+        traceback.print_exc(file=sys.stdout)
+        processed_successfully = False # Falha
+        raise ItemProcessingError(f"Erro Selenium '{type(selenium_ex).__name__}' ao processar {item_type} {str(first_column_value).strip()}") from selenium_ex
+    except Exception as e_general:
+        # Captura qualquer outra exceção inesperada
+        print(f"\nThread {threading.current_thread().name} - Erro geral inesperado na macro para {item_type} {str(first_column_value).strip()}: {e_general}", flush=True)
+        traceback.print_exc(file=sys.stdout)
+        processed_successfully = False # Falha
+        raise ItemProcessingError(f"Erro inesperado '{type(e_general).__name__}' ao processar {item_type} {str(first_column_value).strip()}") from e_general
     finally:
-         # Este bloco é executado SEMPRE, garantindo que a OS seja removida do template.csv
-         # e que os contadores de erro sejam atualizados SE a OS não foi processada com sucesso.
+        # Este bloco é executado SEMPRE, independentemente de sucesso ou falha.
+        # A remoção do item do template.csv é feita aqui.
+        apagar_processada(first_column_value, current_file_lock)
 
-         # Sempre tenta apagar o item do arquivo de entrada, independentemente de sucesso ou falha
-         # Passa o valor e o lock para apagar_processada
-         # Usamos o valor ORIGINAL para garantir que a linha correta seja removida do template.csv
-         # O arquivo de erros recebe o valor ORIGINAL também, com a indicação do tipo de busca
-         apagar_processada(first_column_value, file_lock)
+        # Se o item NÃO foi processado com sucesso (flag é False),
+        # ele é adicionado ao arquivo de erros apropriado.
+        # O contador de 'erros' será incrementado pela thread_task se uma exceção foi levantada.
+        if not processed_successfully:
+            if item_type.lower() == "pde": # Usar item_type_lower aqui seria mais consistente, mas item_type original também funciona
+                adiciona_nao_encontrado_template_pde(first_column_value, current_file_lock)
+            elif item_type.lower() in ["hidro", "hidrometro"]:
+                adiciona_nao_encontrado_template_hidro(first_column_value, current_file_lock)
+            # REMOVIDO: Incremento do contador 'erros' daqui.
 
-         # Se o item NÃO foi processado com sucesso (falhou na única tentativa)
-         if not processed_successfully:
-             # Adiciona ao arquivo de erros
-             if item_type == "PDE":
-                 adiciona_nao_encontrado_template_pde(first_column_value, file_lock) # Passa valor ORIGINAL e lock
-             elif item_type == "HIDROMETRO":
-                 adiciona_nao_encontrado_template_hidro(first_column_value, file_lock) # Passa valor ORIGINAL e lock
-             else:
-                 # Caso de tipo inválido, adicionar um erro genérico se necessário
-                 print(f"\nThread {threading.current_thread().name} - Tipo de item inválido, não adicionando erro específico para {str(first_column_value).strip()}.", flush=True)
+def thread_task(thread_id, items_chunk, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None): # Renomeado locks para clareza
+    global current_os_being_processed, current_os_lock
+    global processados, erros # Acesso para modificar os contadores globais
 
-             # Atualiza o contador de erros
-             with counter_lock: # Protege o acesso ao contador
-                 global erros # Declaração global é necessária aqui no finalmente se for modificar
-                 erros += 1
-         #else:
-             # Se processou com sucesso, o contador de processados já foi incrementado na seção try correspondente.
-
-
-# Função para a tarefa de cada thread (baseado em processar_lote_thread do MacroSITE_V4)
-def thread_task(thread_id, items_chunk, item_type, file_lock, counter_lock, l_login=None, s_senha=None):
-    """
-    Função executada por cada thread.
-    Inicializa seu driver, faz login e processa seu pedaço de itens.
-    """
     print(f"Thread {threading.current_thread().name} started. Tipo de pesquisa: {item_type}", flush=True)
-
     driver = None
     try:
-        # Realiza o login para esta thread, obtendo sua instância de driver
         driver = login(thread_id, l_login, s_senha)
+        if not driver:
+            print(f"Thread {threading.current_thread().name} - Falha no login. Encerrando thread.", flush=True)
+            return
 
-        if driver: # Só prossegue se o login for bem-sucedido
-            # Itera sobre os itens no pedaço atribuído a esta thread
-            for item_value in items_chunk:
-                print(f"Thread {threading.current_thread().name} - Processando item {item_value} com tipo {item_type}", flush=True)
+        for item_value in items_chunk:
+            # Verifica se a macro deve parar
+            if monitor_stop_event.is_set() or stop_event.is_set():
+                print(f"Thread {threading.current_thread().name} - Sinal de parada detectado. Encerrando thread.", flush=True)
+                break
+
+            # Verifica se a macro está pausada
+            while pause_event.is_set():
+                if monitor_stop_event.is_set() or stop_event.is_set():
+                    print(f"Thread {threading.current_thread().name} - Encerrando (durante pausa) devido ao sinal de parada.")
+                    return
+                time.sleep(0.5)
                 
-                # Chama a função macro adaptada para processar um único item
-                # Passa o driver da thread, o valor do item, tipo e locks necessários
-                macro(driver, item_value, item_type, file_lock, counter_lock)
+            with current_os_lock:
+                current_os_being_processed = str(item_value).strip()
 
+            print(f"Thread {threading.current_thread().name} - Processando item {item_value} com tipo {item_type}", flush=True)
+            
+            try:
+                # Chama a função macro. Se a macro falhar, ela levantará uma exceção.
+                macro(driver, item_value, item_type, current_file_lock, item_value, 
+                      identificador=identificador, 
+                      nome_arquivo=nome_arquivo, 
+                      tipo_arquivo=tipo_arquivo)
+                
+                # Se a macro completou sem exceções, o item foi processado com sucesso.
+                with current_counter_lock:
+                    processados += 1
+            
+            except Exception as e_macro: # Captura ItemProcessingError ou qualquer outra exceção da macro
+                print(f"Thread {threading.current_thread().name} - Erro ao processar item {item_value} (capturado pela thread_task): {e_macro}", flush=True)
+                # Não precisa imprimir traceback aqui se a macro já o fez.
+                
+                with current_counter_lock:
+                    erros += 1
+                # REMOVIDO: adiciona_nao_encontrado_template_pde(item_value, current_file_lock)
+                # A função 'macro' em seu bloco 'finally' já lida com o registro no CSV de erro correto.
+        if monitor_stop_event.is_set() or stop_event.is_set():
+             print(f"Thread {threading.current_thread().name} - Loop de itens interrompido pelo sinal de parada.")
 
-    except Exception as e:
-        # Em caso de erro crítico na thread (ex: falha no login que retorna None), imprimir stacktrace para diagnóstico
-        print(f"\nThread {threading.current_thread().name} encountered a critical error: {e}", flush=True)
-        traceback.print_exc(file=sys.stdout) # Imprime stacktrace no console
-
-
+    except Exception as e_thread:
+        print(f"\nThread {threading.current_thread().name} encontrou um erro crítico na task: {e_thread}", flush=True)
+        traceback.print_exc(file=sys.stdout)
     finally:
-        # Garante que o driver é fechado ao final da thread, independentemente de erros
         if driver:
+            with driver_lock:
+                if driver in active_drivers:
+                    active_drivers.remove(driver)
             driver.quit()
             print(f"\nThread {threading.current_thread().name} terminou e saiu do driver.", flush=True)
 
-
-def thread_macro_wrapper(item, item_type, file_lock, counter_lock, l_login=None, s_senha=None):
-    global processados, erros
+# thread_macro_wrapper não é usada pela interface Eel, mantida como estava mas com ressalva sobre o uso de counter_lock
+def thread_macro_wrapper(item, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None):
+    global processados, erros # Acesso para modificar os contadores globais
     driver = login(threading.current_thread().name, l_login, s_senha)
     try:
-        macro(driver, item, item_type, file_lock, counter_lock)
-        with counter_lock:
+        # ATENÇÃO: A função macro espera 'first_column_value' como último argumento, não 'counter_lock'.
+        # Esta chamada está passando 'current_counter_lock' onde 'first_column_value' é esperado.
+        # Se esta função for usada, isso precisa ser corrigido.
+        # Assumindo que 'item' é o 'first_column_value':
+        macro(driver, item, item_type, current_file_lock, item) # Corrigido para passar 'item'
+        with current_counter_lock:
             processados += 1
-    except Exception as e:
-        with counter_lock:
+    except Exception as e: # Captura exceções da macro
+        with current_counter_lock:
             erros += 1
     finally:
         if driver:
+            with driver_lock:
+                if driver in active_drivers:
+                    active_drivers.remove(driver)
             driver.quit()
 
-
 @eel.expose
-def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, num_browsers=1):
+def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, num_browsers=5, identificador=None):
     """
-    Função exposta ao frontend para iniciar a macro Consulta Geral.
-    Recebe os parâmetros do frontend, carrega o arquivo, inicia as threads e monitora o progresso.
-    Agora recebe o tipo_pesquisa (pde/hidro) e repassa para o processamento.
-    O parâmetro num_browsers define quantas instâncias (navegadores) serão abertas.
+    Função principal para iniciar a macro de consulta geral.
+    Parâmetros:
+        conteudo_base64: Conteúdo do arquivo em base64
+        login_usuario: Login do usuário no NETA
+        senha_usuario: Senha do usuário no NETA
+        nome_arquivo: Nome do arquivo sendo processado
+        tipo_arquivo: Tipo do arquivo (csv ou excel)
+        tipo_pesquisa: Tipo de pesquisa (pde ou hidro)
+        num_browsers: Número de navegadores para processamento paralelo
+        identificador: Nome ou identificador do usuário (novo parâmetro)
     """
     import base64
     import io
-    global total_processar, processados, erros
-    
-    # Carregar arquivo enviado pelo frontend
+    global total_processar, processados, erros, tempo_inicial_global, current_os_being_processed
+
     try:
         if tipo_arquivo == 'csv':
             conteudo_decodificado = base64.b64decode(conteudo_base64).decode('utf-8')
-            df = pd.read_csv(io.StringIO(conteudo_decodificado), sep=';', encoding='utf-8')
+            df = pd.read_csv(io.StringIO(conteudo_decodificado), sep=';', encoding='utf-8') 
         elif tipo_arquivo == 'excel':
             conteudo_decodificado = base64.b64decode(conteudo_base64)
             df = pd.read_excel(io.BytesIO(conteudo_decodificado))
         else:
-            if hasattr(eel, 'display_macro_error_frontend'):
-                eel.display_macro_error_frontend('Tipo de arquivo não suportado.')
+            if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Tipo de arquivo não suportado.')
             return {"status": "erro", "message": "Tipo de arquivo não suportado."}
     except Exception as e:
-        if hasattr(eel, 'display_macro_error_frontend'):
-            eel.display_macro_error_frontend(f'Erro ao carregar arquivo: {str(e)}')
+        if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend(f'Erro ao carregar arquivo: {str(e)}')
         return {"status": "erro", "message": f"Erro ao carregar arquivo: {str(e)}"}
 
     if df.empty:
-        if hasattr(eel, 'display_macro_error_frontend'):
-            eel.display_macro_error_frontend('Arquivo enviado está vazio.')
+        if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Arquivo enviado está vazio.')
         return {"status": "erro", "message": "Arquivo enviado está vazio."}
 
-    # Determina a coluna de OS/PDE/HIDRO
-    colunas_esperadas = ['PDE', 'pde', 'Pde', 'hidro', 'HIDRO', 'Hidro', 'HIDROMETRO']
+    colunas_esperadas = ['PDE', 'pde', 'Pde', 'hidro', 'HIDRO', 'Hidro', 'HIDROMETRO'] # Adiciona a primeira coluna como fallback
     lista_os = None
-    for col in colunas_esperadas:
-        if col in df.columns:
-            lista_os = df[col].dropna().tolist()
+    for col in df.columns: # Itera sobre as colunas existentes no DataFrame
+        if col in colunas_esperadas: # Verifica se o nome da coluna está na lista de nomes esperados
+            lista_os = df[col].dropna().astype(str).tolist()
+            print(f"Coluna encontrada para processamento: {col}")
             break
-    if lista_os is None or not lista_os:
-        if hasattr(eel, 'display_macro_error_frontend'):
-            eel.display_macro_error_frontend('Coluna de OS/PDE/HIDRO não encontrada no arquivo.')
-        return {"status": "erro", "message": "Coluna de OS/PDE/HIDRO não encontrada no arquivo."}
+    if lista_os is None: # Se nenhuma coluna esperada foi encontrada, usa a primeira coluna por padrão
+        if not df.empty and len(df.columns) > 0:
+            primeira_coluna = df.columns[0]
+            lista_os = df[primeira_coluna].dropna().astype(str).tolist()
+            print(f"Nenhuma coluna específica encontrada, usando a primeira coluna por padrão: {primeira_coluna}")
+        else: # Se o DataFrame não tem colunas (improvável após a checagem de df.empty, mas por segurança)
+            if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Arquivo não contém colunas de dados.')
+            return {"status": "erro", "message": "Arquivo não contém colunas de dados."}
+
+
+    if not lista_os: # Checagem final se, mesmo após os fallbacks, a lista está vazia
+        if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Nenhuma OS/PDE/HIDRO encontrada no arquivo para processar.')
+        return {"status": "erro", "message": "Nenhuma OS/PDE/HIDRO encontrada no arquivo para processar."}
+
 
     total_processar = len(lista_os)
-    processados = 0
-    erros = 0
-
-    # Inicia o monitoramento do progresso em thread separada
+    processados = 0 
+    erros = 0     
+    
+    with current_os_lock:
+        current_os_being_processed = "Calculando..." 
+    tempo_inicial_global = datetime.now()
     monitor_stop_event.clear()
+    pause_event.clear() # Garante que não comece pausado de uma execução anterior
+    stop_event.clear()  # Garante que não comece com sinal de parada
+
     monitor_thread = threading.Thread(target=monitor_progresso, daemon=True)
     monitor_thread.start()
 
-    tempo_inicial = datetime.now()
     if hasattr(eel, 'display_macro_processing_status_frontend'):
         eel.display_macro_processing_status_frontend(f"Iniciando processamento de {total_processar} itens...")
 
     threads = []
-    # Divide a lista de itens em pedaços para cada navegador
-    import numpy as np
+    num_browsers = int(num_browsers) # Garante que é inteiro
     if num_browsers < 1:
         num_browsers = 1
-    item_chunks = np.array_split(lista_os, num_browsers)
+    if num_browsers > total_processar and total_processar > 0 : # Evita mais browsers que itens
+        num_browsers = total_processar
+    
+    item_chunks = np.array_split(np.array(lista_os), num_browsers) if total_processar > 0 else []
+
+
     for i in range(num_browsers):
-        chunk = item_chunks[i].tolist()
+        chunk = item_chunks[i].tolist() if i < len(item_chunks) else []
         if chunk:
-            t = threading.Thread(target=thread_task,
-                                 args=(i, chunk, tipo_pesquisa, file_lock, counter_lock, login_usuario, senha_usuario),
-                                 name=f"Browser-{i+1}")
+            t = threading.Thread(
+                target=thread_task,
+                args=(i, chunk, tipo_pesquisa, file_lock, counter_lock, 
+                      login_usuario, senha_usuario),
+                kwargs={
+                    'identificador': identificador or login_usuario,  # Usa login_usuario como fallback
+                    'nome_arquivo': nome_arquivo,
+                    'tipo_arquivo': tipo_arquivo
+                },
+                name=f"Browser-{i+1}"
+            )
             threads.append(t)
             t.start()
 
     for t in threads:
-        t.join()
+        t.join() 
 
-    monitor_stop_event.set()
-    monitor_thread.join()
+    monitor_stop_event.set() 
+    monitor_thread.join() 
 
-    tempo_final = datetime.now()
-    tempo_total = tempo_final - tempo_inicial
-    total_segundos = int(tempo_total.total_seconds())
-    tempo_str = f"{total_segundos} segundos" if total_segundos < 60 else f"{total_segundos//60} min {total_segundos%60} s"
+    tempo_final_global = datetime.now() # Renomeado para não confundir com outras variáveis tempo_final
+    tempo_total_exec = tempo_final_global - tempo_inicial_global 
+    tempo_str = formatar_tempo_legivel(int(tempo_total_exec.total_seconds()))
+
 
     if hasattr(eel, 'display_macro_completion_frontend'):
         eel.display_macro_completion_frontend(f"Processamento concluído em {tempo_str}.")
+    # Prepara dados finais para enviar, mesmo que já tenham sido enviados pelo monitor
+    # Isso garante que a interface receba o estado final absoluto.
+    dados_finais_completos = {
+        "os_processando": "Concluído",
+        "quantidade": processados, # Usa os contadores globais finais
+        "total_count": total_processar,
+        "oserros": erros,
+        "tempoestimado": "00m 00s",
+        "porcentagem_concluida": "100%" if total_processar > 0 and (processados + erros) == total_processar else f"{(((processados + erros) / total_processar) * 100) if total_processar > 0 else 0:.0f}%",
+        "finalizado": True,
+        "start_datetime": tempo_inicial_global.strftime("%d/%m/%Y às %H:%M:%S") if tempo_inicial_global else "",
+        "end_datetime": tempo_final_global.strftime("%d/%m/%Y às %H:%M:%S"), # Usa tempo_final_global
+        "processed_count": processados,
+        "error_count": erros,
+        "total_time": tempo_str
+    }
+    if eel and hasattr(eel, 'update_progress'): # Verifica se eel e a função existem
+        try:
+            eel.update_progress(dados_finais_completos)
+        except Exception as e_eel_final:
+            print(f"Erro ao chamar eel.update_progress (dados finais completos): {e_eel_final}")
 
     return {"status": "sucesso", "message": f"Processamento concluído em {tempo_str}."}
 
 
 if __name__ == "__main__":
-    # --- Configuração e Início da Macro Multi-Thread ---
-
-    modelo = str(input("Digite com qual voce vai filtra PDE / HIDROMETRO  (I / II): "))
-    if modelo.lower() not in ["i", "ii", "1", "2"]:
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s') # Configuração básica de logging
+    
+    modelo_input = str(input("Digite com qual voce vai filtra PDE / HIDROMETRO  (I / II): ")).lower()
+    if modelo_input not in ["i", "ii", "1", "2"]:
         print("Modelo inválido. Por favor, insira 'I' ou 'II'.")
-        sys.exit() # Sai do script se o modelo for inválido
-    else:
-        item_type = "PDE" if modelo.lower() in ["i", "1"] else "HIDROMETRO"
+        sys.exit()
+    
+    item_type_main = "PDE" if modelo_input in ["i", "1"] else "HIDROMETRO"
 
-        # --- Define o número de navegadores/threads diretamente aqui ---
-        num_browsers = 1 # <<<<<<<< Altere este número para definir quantas instâncias você quer
+    try:
+        num_browsers_main = int(input(f"Digite o número de navegadores para processar (padrão 1): ") or 1)
+        if num_browsers_main < 1:
+            num_browsers_main = 1
+    except ValueError:
+        print("Número de navegadores inválido. Usando 1 por padrão.")
+        num_browsers_main = 1
+        
+    arquivo_entrada_main = 'template.csv'
+    if not os.path.exists(arquivo_entrada_main):
+        print(f"Erro: Arquivo de entrada '{arquivo_entrada_main}' não encontrado.")
+        sys.exit()
 
+    try:
+        df_initial_main = pd.read_csv(arquivo_entrada_main)
+        if df_initial_main.empty:
+            print(f"Arquivo {arquivo_entrada_main} está vazio. Nada para processar.")
+            sys.exit()
 
-        # --- Leitura do Arquivo de Entrada ---
-        arquivo_entrada = 'template.csv' # Nome do arquivo de entrada (como no seu código original)
+        all_items_main = df_initial_main.iloc[:, 0].dropna().astype(str).tolist()
+        if not all_items_main:
+            print(f"Nenhum item válido encontrado na primeira coluna do {arquivo_entrada_main}.")
+            sys.exit()
 
-        if not os.path.exists(arquivo_entrada):
-             print(f"Erro: Arquivo de entrada '{arquivo_entrada}' não encontrado.")
-             sys.exit() # Encerra o script se o arquivo não existe
+        total_processar = len(all_items_main) # Define global
+        processados = 0 # Reseta globais
+        erros = 0       # Reseta globais
+        
+        print(f"Total de valores para processar: {total_processar}")
 
-        try:
-            df_initial = pd.read_csv(arquivo_entrada)
+        if num_browsers_main > total_processar:
+            print(f"Número de navegadores ({num_browsers_main}) é maior que o número de itens ({total_processar}). Usando {total_processar} navegadores.")
+            num_browsers_main = total_processar
+        
+        item_chunks_main = np.array_split(np.array(all_items_main), num_browsers_main) if total_processar > 0 else []
 
-            if df_initial.empty:
-                print("Arquivo template.csv está vazio. Nada para processar.")
-                sys.exit() # Encerra o script se o arquivo está vazio
+        tempo_inicial_global = datetime.now() # Define global
+        print("Começo da operação: ", tempo_inicial_global.strftime("%H:%M -- %d/%m"))
 
-            # Obtém todos os itens para processar uma única vez no início
-            all_items = df_initial.iloc[:, 0].tolist()
-            total_processar = len(all_items) # Atualiza a variável global
-            print(f"Total de valores para processar: {total_processar}")
+        with current_os_lock: # Define antes de iniciar o monitor
+            current_os_being_processed = "Iniciando..."
 
-            # Ajusta o número de threads se for maior que o número de itens
-            if num_browsers > total_processar:
-                print(f"Número de navegadores ({num_browsers}) é maior que o número de itens ({total_processar}). Usando {total_processar} navegadores.")
-                num_browsers = total_processar
-            # Garante pelo menos 1 navegador se houver itens, mesmo que num_browsers seja definido como 0 ou menos
-            elif num_browsers <= 0 and total_processar > 0:
-                 print(f"Número de navegadores ({num_browsers}) inválido. Usando 1 navegador.")
-                 num_browsers = 1
-            elif num_browsers <= 0 and total_processar == 0:
-                 print("Não há itens para processar.")
-                 sys.exit() # Sai se não houver itens e 0 navegadores solicitados
+        monitor_stop_event.clear()
+        pause_event.clear() # Garante que não comece pausado
+        stop_event.clear()  # Garante que não comece com sinal de parada
 
+        monitor_thread_main = threading.Thread(target=monitor_progresso, name="Monitor", daemon=True)
+        monitor_thread_main.start()
 
-            # Cria instâncias dos locks (já declarados no início do script)
-            # file_lock = threading.Lock() # Já declarado
-            # counter_lock = threading.Lock() # Já declarado
-            # monitor_stop_event = threading.Event() # Já declarado
+        threads_main = []
+        for i in range(num_browsers_main):
+            chunk_main = item_chunks_main[i].tolist() if i < len(item_chunks_main) else []
+            if chunk_main:
+                thread = threading.Thread(target=thread_task,
+                                          args=(i, chunk_main, item_type_main, file_lock, counter_lock), # Não passa login/senha, usará padrão
+                                          name=f"Browser-{i+1}")
+                threads_main.append(thread)
+                thread.start()
 
+        for thread_main_item in threads_main: # Renomeado para evitar conflito com 'thread' do módulo
+            thread_main_item.join()
 
-            # Divide os itens em pedaços para cada thread
-            # Usando numpy.array_split lida bem com divisões desiguais
-            item_chunks = np.array_split(all_items, num_browsers)
+        monitor_stop_event.set()
+        monitor_thread_main.join()
 
-            tempo_inicial = datetime.now()
-            print("Começo da operação: ", tempo_inicial.strftime("%H:%M -- %d/%m"))
+        print("\n----------------------------------")
+        print("Processamento concluído.")
+        print("----------------------------------")
+        print("Começo da operação: ", tempo_inicial_global.strftime("%H:%M -- %d/%m"))
+        tempo_final_main = datetime.now()
+        print("Termino da operação: ", tempo_final_main.strftime("%H:%M -- %d/%m"))
+        
+        with counter_lock: # Acessa os contadores finais de forma segura
+            print(f"Total de itens processados: {processados}")
+            print(f"Total de erros: {erros}")
+        print(f"Total de itens que estavam no {arquivo_entrada_main} no início: {total_processar}")
 
-            threads = []
-            # Cria e inicia os threads de processamento
-            for i in range(num_browsers):
-                # Converte o pedaço numpy array de volta para lista, e verifica se não está vazio
-                chunk = item_chunks[i].tolist()
-                if chunk:
-                     # Cria a thread, passando a função thread_task como alvo
-                     # Passa o thread_id (para o user data dir), o pedaço de itens, o tipo e os locks
-                    thread = threading.Thread(target=thread_task,
-                                              args=(i, chunk, item_type, file_lock, counter_lock),
-                                              name=f"Browser-{i+1}") # Nomeia a thread
-                    threads.append(thread)
-                    thread.start() # Inicia a thread
+        tempo_total_main = tempo_final_main - tempo_inicial_global
+        print(f"Tempo total da operação: {formatar_tempo_legivel(int(tempo_total_main.total_seconds()))}")
 
-
-            # Cria e inicia o thread de monitoramento APÓS os threads de processamento
-            monitor_thread = threading.Thread(target=monitor_progresso, name="Monitor")
-            monitor_thread.start()
-
-
-            # Espera todos os threads de processamento completarem
-            for thread in threads:
-                thread.join()
-
-            # Sinaliza para o thread de monitoramento parar e espera ele terminar
-            monitor_stop_event.set() # Define o evento para sinalizar a parada
-            monitor_thread.join() # Espera o thread de monitoramento terminar
-
-
-            # --- Resumo Final (Executado após todas as threads terminarem) ---
-            print("\n----------------------------------") # Pula uma linha após a linha final do monitoramento
-            print("Processamento concluído.")
-            print("----------------------------------")
-            print("Começo da operação: ", tempo_inicial.strftime("%H:%M -- %d/%m"))
-
-            tempo_final = datetime.now()
-            print("Termino da operação: ", tempo_final.strftime("%H:%M -- %d/%m"))
-            # Os contadores finais já foram atualizados pelo monitor_progresso antes de parar
-            # Mas podemos imprimir novamente aqui para clareza no resumo final
-            with counter_lock:
-                 print(f"Total de itens processados: {processados}")
-                 print(f"Total de erros: {erros}")
-            print(f"Total de itens que estavam no template.csv no início: {total_processar}")
-
-
-            tempo_total = tempo_final - tempo_inicial
-            total_segundos = int(tempo_total.total_seconds())
-
-            if total_segundos < 60:
-                print(f"Tempo total da operação: {total_segundos} segundos")
-            else:
-                total_minutos = total_segundos // 60
-                total_segundos_restantes = total_segundos % 60
-                if total_minutos < 60:
-                    print(f"Tempo total da operação: {total_minutos} minutos e {total_segundos_restantes} segundos")
-                else:
-                    total_horas = total_minutos // 60
-                    total_minutos_restantes = total_minutos % 60
-                    print(f"Tempo total da operação: {total_horas} horas e {total_minutos_restantes} minutos")
-
-        except FileNotFoundError:
-            # Esta exceção já é tratada pela verificação inicial, mas mantida por segurança
-            print("Erro: Arquivo template.csv não encontrado.")
-        except Exception as e:
-            print(f"Ocorreu um erro no processo principal: {e}")
-            traceback.print_exc(file=sys.stdout) # Imprime stacktrace no console
+    except FileNotFoundError:
+        print(f"Erro: Arquivo {arquivo_entrada_main} não encontrado.")
+    except Exception as e_main:
+        print(f"Ocorreu um erro no processo principal: {e_main}")
+        traceback.print_exc(file=sys.stdout)

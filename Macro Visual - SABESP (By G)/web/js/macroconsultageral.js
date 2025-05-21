@@ -205,19 +205,43 @@ window.onload = function () {
 
     // Filtro dinâmico do input de arquivo (listener adicionado dentro de window.onload)
     function atualizarFiltroArquivo() {
+        console.log("atualizarFiltroArquivo chamada");
+        
         if (inputArquivo && csvOption && excelOption) {
+            console.log("Estado dos inputs:", {
+                csvChecked: csvOption.checked,
+                excelChecked: excelOption.checked,
+                inputArquivo: inputArquivo.id
+            });
+            
             if (csvOption.checked) {
                 inputArquivo.accept = '.csv';
+                console.log("Filtro definido para CSV");
             } else if (excelOption.checked) {
                 inputArquivo.accept = '.xlsx,.xls';
+                console.log("Filtro definido para Excel");
             } else {
                 inputArquivo.accept = '';
+                console.log("Nenhum filtro definido");
             }
+        } else {
+            console.error("Elementos necessários não encontrados:", {
+                inputArquivo: !!inputArquivo,
+                csvOption: !!csvOption,
+                excelOption: !!excelOption
+            });
         }
     }
     // Adicionando listeners APÓS a declaração dos elementos e da função
-    if (csvOption) csvOption.addEventListener('change', atualizarFiltroArquivo);
-    if (excelOption) excelOption.addEventListener('change', atualizarFiltroArquivo);
+    if (csvOption) {
+        csvOption.addEventListener('change', atualizarFiltroArquivo);
+        console.log("Listener adicionado ao csvOption");
+    }
+    
+    if (excelOption) {
+        excelOption.addEventListener('change', atualizarFiltroArquivo);
+        console.log("Listener adicionado ao excelOption");
+    }
     atualizarFiltroArquivo();
 
 
@@ -276,6 +300,10 @@ window.onload = function () {
             var tipoArquivo = (csvOption && csvOption.checked) ? 'csv' : (excelOption && excelOption.checked) ? 'excel' : '';
             var nomeArquivo = arquivoInputFile.files && arquivoInputFile.files[0] ? arquivoInputFile.files[0].name : '';
 
+            // Obtém o nome do usuário do span
+            const nomeUsuarioSpan = document.getElementById('nome-usuario');
+            const nomeUsuario = nomeUsuarioSpan ? nomeUsuarioSpan.textContent.trim() : 'Usuário não identificado';
+
             if (arquivoInputFile.files && arquivoInputFile.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function (event) {
@@ -287,8 +315,13 @@ window.onload = function () {
                             senha,
                             nomeArquivo,
                             tipoArquivo,
-                            tipoPesquisa
-                        );
+                            tipoPesquisa,
+                            nomeUsuario // Adiciona o nome do usuário como último parâmetro
+                        )().then(response => {
+                            // ... resto do código de tratamento da resposta ...
+                        }).catch(error => {
+                            console.error("Erro ao iniciar macro:", error);
+                        });
                     } else {
                         console.error("Objeto 'eel' não definido. Certifique-se de que o backend Python está rodando e o eel.js está incluído corretamente.");
                     }
@@ -302,8 +335,92 @@ window.onload = function () {
         console.error("Elemento com ID 'processar' (botão Iniciar Processamento) não encontrado no DOM.");
     }
 
+    // Função para carregar e atualizar o nome do usuário
+    async function carregarNomeUsuario() {
+        console.log("[macroconsultageral.js] Iniciando carregamento do nome do usuário");
+        
+        const nomeUsuarioElement = document.getElementById('nome-usuario');
+        let identificadorUsuario = null;
+
+        // Tenta obter o ID do usuário de várias fontes
+        const identificadorUsuarioDaURL = obterParametroDaURL('identificador');
+        const userIdFromUrl = obterParametroDaURL('user_id');
+        const firstLoginComplete = obterParametroDaURL('first_login_complete');
+
+        console.log("[macroconsultageral.js] Parâmetros URL:", {
+            identificadorUsuarioDaURL,
+            userIdFromUrl,
+            firstLoginComplete
+        });
+
+        if (identificadorUsuarioDaURL) {
+            identificadorUsuario = identificadorUsuarioDaURL;
+            sessionStorage.setItem('nomeUsuario', identificadorUsuario);
+            console.log("[macroconsultageral.js] Nome do usuário obtido da URL");
+        } else if (userIdFromUrl && firstLoginComplete === 'true') {
+            console.log("[macroconsultageral.js] Tentando obter nome por ID do usuário");
+            try {
+                const resultadoNome = await eel.get_username_by_id(userIdFromUrl)();
+                console.log("[macroconsultageral.js] Resultado get_username_by_id:", resultadoNome);
+
+                if (resultadoNome && resultadoNome.status === 'success') {
+                    identificadorUsuario = resultadoNome.username;
+                    sessionStorage.setItem('nomeUsuario', identificadorUsuario);
+                } else {
+                    console.error("[macroconsultageral.js] Falha ao obter nome:", resultadoNome);
+                }
+            } catch (error) {
+                console.error("[macroconsultageral.js] Erro ao chamar get_username_by_id:", error);
+            }
+        } else {
+            identificadorUsuario = sessionStorage.getItem('nomeUsuario');
+            console.log("[macroconsultageral.js] Tentando obter do sessionStorage:", identificadorUsuario);
+        }
+
+        if (nomeUsuarioElement) {
+            if (identificadorUsuario) {
+                nomeUsuarioElement.textContent = identificadorUsuario;
+                console.log("[macroconsultageral.js] Nome atualizado:", identificadorUsuario);
+            } else {
+                console.log("[macroconsultageral.js] Nome não encontrado, redirecionando...");
+                window.location.href = './login.html';
+            }
+        } else {
+            console.error("[macroconsultageral.js] Elemento nome-usuario não encontrado");
+        }
+    }
+
+    // Função auxiliar para obter parâmetros da URL
+    function obterParametroDaURL(nome) {
+        nome = nome.replace(/[\[\]]/g, '\\$&');
+        const regex = new RegExp('[?&]' + nome + '(=([^&#]*)|&|#|$)');
+        const results = regex.exec(window.location.href);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    // Chama a função para carregar o nome do usuário
+    carregarNomeUsuario();
 
 }; // Fim de window.onload
+
+
+function deslogar() {
+    console.log("[index.js] Chamada a deslogar.");
+    const deslog = document.getElementById('deslog'); // Este ID pode ser do botão de logout
+    if (deslog) {
+        sessionStorage.removeItem('nomeUsuario'); // Limpa o nome do usuário no logout
+        console.log("[index.js] sessionStorage 'nomeUsuario' limpo. Redirecionando para login.html");
+        window.location.href = './login.html';
+    } else {
+        console.error("[index.js] Elemento com ID 'deslog' (botão de logout) não encontrado.");
+         // Mesmo se o botão não for encontrado, tentar redirecionar e limpar storage pode ser desejável
+         sessionStorage.removeItem('nomeUsuario');
+         console.log("[index.js] sessionStorage 'nomeUsuario' limpo (fallback). Redirecionando para login.html");
+         window.location.href = './login.html';
+    }
+}
 
 
 // >>> INÍCIO CÓDIGO PARA DICAS COM FADE (FUNÇÕES E VARIÁVEIS NO FINAL) <<<
@@ -375,6 +492,21 @@ function encerrarMacro() {
     }
 };
 
+function pausarMacro() {
+    const botaoencerrar = document.getElementById('pausar');
+    const divencerrado = document.getElementById('Divpausar');
+    const divtrasparente = document.getElementById('transps');
+
+    if (botaoencerrar && divencerrado && divtrasparente) {
+        divencerrado.style.display = "block"; // Garante que fique visível para animar
+        divtrasparente.style.display = "block"; // <-- ADICIONE ESTA LINHA
+        // Força reflow para garantir a transição
+        void divencerrado.offsetWidth;
+        divencerrado.classList.add("active");
+        divtrasparente.classList.add("active");
+    }
+};
+
 function NaoEncerrandoMacro() {
     const botaoencerrar = document.getElementById('encerrar');
     const divencerrado = document.getElementById('Divencerrar');
@@ -393,28 +525,202 @@ function NaoEncerrandoMacro() {
     }
 };
 
+function NaoPausarMacro() {
+    const botaoencerrar = document.getElementById('pausar');
+    const divencerrado = document.getElementById('Divpausar');
+    const divtrasparente = document.getElementById('transps');
+
+    if (botaoencerrar && divencerrado && divtrasparente) {
+        // Inicia a animação de saída
+        divencerrado.classList.remove("active");
+        divtrasparente.classList.remove("active");
+
+        // Após a transição, esconde os elementos
+        setTimeout(() => {
+            divencerrado.style.display = "none";
+            divtrasparente.style.display = "none";
+        }, 400); // 400ms deve ser igual ao tempo do transition no CSS
+    }
+};
+
+function efetuarPausaMacro() {
+    console.log('efetuarPausaMacro chamada');
+    const divPausar = document.getElementById('Divpausar');
+    const botaoPausar = document.getElementById('pausar');
+    const statusSpan = document.querySelector('.ml7 .letters');
+    const spinner = document.querySelector('.spinner');
+    const divTransps = document.getElementById('transps');
+
+    if (divPausar && botaoPausar) {
+        // Se já está em modo "Continuar", volta para Executando/azul
+        if (botaoPausar.innerText === "Continuar") {
+            // Chama o backend para CONTINUAR a macro
+            // Chama o backend para CONTINUAR a macro
+            if (typeof eel !== 'undefined' && eel.continuar_macro_consulta_geral) {
+                eel.continuar_macro_consulta_geral()().then(result => {
+                    if (result.status === 'ok') {
+                        // NÃO mostra a div de pausa, só faz as trocas visuais
+                        divPausar.style.display = "none";
+                        if (divTransps) divTransps.style.display = "none";
+
+                        botaoPausar.innerText = "Pausar";
+                        botaoPausar.style.backgroundColor = "#056ef8"; // Azul padrão
+
+                        // Volta o status para "Executando" e azul
+                        if (statusSpan) {
+                            statusSpan.innerHTML = "Executando".replace(/\S/g, "<span class='letter'>$&</span>");
+                            statusSpan.style.color = "#056ef8";
+                            anime.remove('.ml7 .letter');
+                            anime.timeline({ loop: true })
+                                .add({
+                                    targets: '.ml7 .letter',
+                                    translateY: ["1.1em", 0],
+                                    translateX: ["0.55em", 0],
+                                    translateZ: 0,
+                                    rotateZ: [180, 0],
+                                    duration: 750,
+                                    easing: "easeOutExpo",
+                                    delay: (el, i) => 50 * i
+                                });
+                        }
+
+                        // Volta a spinner para azul
+                        if (spinner) {
+                            const rects = spinner.querySelectorAll('div');
+                            rects.forEach(rect => {
+                                rect.style.backgroundColor = "#056ef8";
+                            });
+                        }
+                    }
+                });
+            }
+            return; // Sai da função, não executa o resto
+        }        // --- Código de pausa (apenas quando está em modo "Pausar") ---
+        if (typeof eel !== 'undefined' && eel.pausar_macro_consulta_geral) {
+            // Chama o backend para PAUSAR a macro
+            eel.pausar_macro_consulta_geral()().then(result => {
+                if (result.status === 'ok') {
+                    divPausar.classList.remove("active");
+                    setTimeout(() => {
+                        divPausar.style.display = "none";
+                        if (divTransps) divTransps.style.display = "none";
+                    }, 400);
+
+                    botaoPausar.innerText = "Continuar";
+                    botaoPausar.style.backgroundColor = "#f8aa00"; // Amarelo
+
+                    if (statusSpan) {
+                        statusSpan.innerHTML = "Pausado".replace(/\S/g, "<span class='letter'>$&</span>");
+                        statusSpan.style.color = "#f8aa00";
+                        anime.remove('.ml7 .letter');
+                        anime.timeline({ loop: true })
+                            .add({
+                                targets: '.ml7 .letter',
+                                translateY: ["1.1em", 0],
+                                translateX: ["0.55em", 0],
+                                translateZ: 0,
+                                rotateZ: [180, 0],
+                                duration: 750,
+                                easing: "easeOutExpo",
+                                delay: (el, i) => 50 * i
+                            });
+                    }
+
+                    if (spinner) {
+                        const rects = spinner.querySelectorAll('div');
+                        rects.forEach(rect => {
+                            rect.style.backgroundColor = "#f8aa00";
+                        });
+                    }
+                }
+            });
+        }
+    }
+}
+
+function pausarMacro() {
+    const botaoPausar = document.getElementById('pausar');
+    const divPausar = document.getElementById('Divpausar');
+    const divTransps = document.getElementById('transps');
+
+    // Só mostra a div de pausa se o botão estiver como "Pausar"
+    if (botaoPausar && botaoPausar.innerText === "Pausar") {
+        if (divPausar && divTransps) {
+            divPausar.style.display = "block";
+            divTransps.style.display = "block";
+            void divPausar.offsetWidth;
+            divPausar.classList.add("active");
+            divTransps.classList.add("active");
+        }
+    } else {
+        // Se estiver como "Continuar", só faz as trocas visuais
+        efetuarPausaMacro();
+    }
+}
+
 function mostrarEncerramentoFinal() {
+    console.log("mostrarEncerramentoFinal: Iniciando encerramento da macro...");
+    
+    // Verifica se eel está disponível
+    if (typeof eel !== 'undefined' && eel.encerrar_threads) {
+        console.log("mostrarEncerramentoFinal: Chamando eel.encerrar_threads()...");
+        
+        eel.encerrar_threads()().then(response => {
+            console.log("mostrarEncerramentoFinal: Resposta recebida do Python:", response);
+            
+            if (response && response.status === "erro") {
+                console.error("mostrarEncerramentoFinal: Erro retornado pelo Python:", response.message);
+                alert("Erro ao encerrar a macro: " + response.message);
+            } else {
+                console.log("mostrarEncerramentoFinal: Encerramento bem-sucedido, iniciando animação...");
+                executarAnimacaoEncerramentoFinal();
+            }
+        }).catch(error => {
+            console.error("mostrarEncerramentoFinal: Erro ao chamar encerrar_threads:", error);
+            alert("Erro ao tentar encerrar a macro. Verifique o console para mais detalhes.");
+        });
+    } else {
+        console.error("mostrarEncerramentoFinal: eel.encerrar_threads não está disponível!");
+        alert("Erro: Conexão com o backend Python não está disponível.");
+    }
+}
+
+// Função auxiliar para executar a animação após o encerramento
+function executarAnimacaoEncerramentoFinal() {
+    console.log("executarAnimacaoEncerramentoFinal: Iniciando animação de encerramento...");
+    
     const divencerrado = document.getElementById('Divencerrar');
     const divfinal = document.getElementById('DivencerrarFinal');
     const divtrasparente = document.getElementById('transps');
-
+    
     if (divencerrado && divfinal && divtrasparente) {
+        console.log("executarAnimacaoEncerramentoFinal: Todos os elementos encontrados, executando animações...");
+        
         // Oculta a div de confirmação com animação
         divencerrado.classList.remove("active");
         setTimeout(() => {
             divencerrado.style.display = "none";
-        }, 400); // Espera a animação terminar
+            console.log("executarAnimacaoEncerramentoFinal: Div de confirmação ocultada");
+        }, 400);
 
         // Mostra a div final com animação
         divfinal.style.display = "block";
-        void divfinal.offsetWidth; // Força reflow para garantir a transição
+        void divfinal.offsetWidth; // Força reflow
         divfinal.classList.add("active");
+        console.log("executarAnimacaoEncerramentoFinal: Div final mostrada");
 
-        // Mantém o fundo escuro visível e animado
+        // Mantém o fundo escuro
         divtrasparente.style.display = "block";
         divtrasparente.classList.add("active");
+        console.log("executarAnimacaoEncerramentoFinal: Fundo escuro mantido");
+    } else {
+        console.error("executarAnimacaoEncerramentoFinal: Um ou mais elementos não encontrados:", {
+            divencerrado: !!divencerrado,
+            divfinal: !!divfinal,
+            divtrasparente: !!divtrasparente
+        });
     }
-};
+}
 
 function fecharEncerramentoFinal() {
     const divfinal = document.getElementById('DivencerrarFinal');
@@ -432,3 +738,194 @@ function fecharEncerramentoFinal() {
         }, 400); // 400ms igual ao transition do CSS
     }
 };
+
+eel.expose(update_progress);
+function update_progress(data) {
+    console.log("Dados recebidos do Python:", data); // Para depuração
+
+    // Elementos HTML que você deseja atualizar
+    const osProcessando = document.getElementById('os-processando');
+    const quantidade = document.getElementById('quantidade');
+    const totalCount = document.getElementById('total-count');
+    const oserros = document.getElementById('oserros');
+    const tempoEstimado = document.getElementById('tempoestimado');
+    const porcentagemConcluida = document.getElementById('porcentagem-concluida');
+    const divencerrarfinal = document.getElementById('DivencerrarFinal');
+    
+
+    // Atualiza "Processando OS"
+    // Espera-se que 'data.os_processando' contenha o identificador do item atual
+    if (osProcessando && data.os_processando !== undefined) {
+        osProcessando.innerText = data.os_processando;
+    }
+
+    // Atualiza "OS Processadas" (quantidade)
+    // Espera-se que 'data.quantidade' contenha o número de itens processados
+    if (quantidade && data.quantidade !== undefined) {
+        quantidade.innerText = data.quantidade;
+    }
+
+    // Atualiza o total de OS a serem processadas (total-count)
+    // Espera-se que 'data.total_count' contenha o número total de itens
+    if (totalCount && data.total_count !== undefined) {
+        totalCount.innerText = ` de ${data.total_count}`; // Ex: "150 de 300"
+    } else if (totalCount) {
+        totalCount.innerText = ""; // Limpa se não houver contagem total
+    }
+
+    // Atualiza "OS com Erros"
+    // Espera-se que 'data.oserros' contenha o número de erros
+    if (oserros && data.oserros !== undefined) {
+        oserros.innerText = data.oserros;
+    }
+
+    // Atualiza "Tempo Estimado"
+    // Espera-se que 'data.tempoestimado' contenha a estimativa de tempo
+    if (tempoEstimado && data.tempoestimado !== undefined) {
+        tempoEstimado.innerText = data.tempoestimado;
+    }
+
+    // Atualiza "Porcentagem Concluída"
+    // Espera-se que 'data.porcentagem_concluida' contenha a porcentagem
+    if (porcentagemConcluida && data.porcentagem_concluida !== undefined) {
+        porcentagemConcluida.innerText = data.porcentagem_concluida;
+    }
+
+    // Lógica para lidar com a finalização do processo
+    if (data.finalizado) {
+        // Esconde status de processamento
+        document.getElementById('macrosite-processing-status').style.display = 'none';
+        
+        // Garante que as divs de confirmação de encerramento/pausa manual e o overlay
+        // sejam escondidos quando a macro finaliza, caso estivessem visíveis.
+        const divEncerrar = document.getElementById('Divencerrar');
+        const divPausar = document.getElementById('Divpausar');
+        const divTransps = document.getElementById('transps');
+
+        if (divEncerrar) divEncerrar.style.display = 'none';
+        if (divPausar) divPausar.style.display = 'none';
+        if (divTransps) divTransps.style.display = 'none';
+
+        // Mostra status de conclusão (o resumo detalhado com tempos, contagens, etc.)
+        document.getElementById('macrosite-completion-status').style.display = 'block';
+
+
+        // Atualiza os campos finais
+        if (data.start_datetime) document.getElementById('start-datetime').innerText = data.start_datetime;
+        if (data.end_datetime) document.getElementById('end-datetime').innerText = data.end_datetime;
+        if (data.processed_count !== undefined) document.getElementById('processed-count').innerText = data.processed_count;
+        if (data.error_count !== undefined) document.getElementById('error-count').innerText = data.error_count;
+        if (data.total_time) document.getElementById('total-time').innerText = data.total_time;
+
+        // REMOVIDO: mostrarEncerramentoFinal();
+        // A DivencerrarFinal (mensagem "Macro encerrada com sucesso") só deve aparecer
+        // no fluxo de encerramento MANUAL do usuário (quando ele clica "Sim" na Divencerrar),
+        // e não quando a macro termina naturalmente seu processamento.
+    }
+
+    // Lógica para lidar com erros críticos do processo
+    if (data.error) {
+        alert("Erro no processo: " + data.error);
+    }
+}
+
+function showSuggestionForm() {
+    document.getElementById('suggestion-form').style.display = 'block';
+    document.getElementById('suggestion-message').textContent = ''; // Clear previous messages
+    document.getElementById('user-suggestion').value = ''; // Clear textarea
+}
+
+// Function to hide the suggestion form
+function hideSuggestionForm() {
+    document.getElementById('suggestion-form').style.display = 'none';
+}
+
+// Function to handle submitting the suggestion
+async function submitSuggestion() {
+    const suggestionText = document.getElementById('user-suggestion').value.trim();
+    const suggestionMessage = document.getElementById('suggestion-message');
+
+    if (suggestionText === '') {
+        suggestionMessage.style.color = 'red';
+        suggestionMessage.textContent = 'Por favor, digite sua sugestão antes de enviar.';
+        return;
+    }
+
+    suggestionMessage.style.color = '#007bff';
+    suggestionMessage.textContent = 'Enviando sugestão...';
+
+    try {
+        // Here you would call your eel backend function to handle the suggestion
+        // For example:
+        // await eel.send_suggestion_to_backend(suggestionText)();
+
+        // Simulate a successful send (remove in real implementation)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        suggestionMessage.style.color = 'green';
+        suggestionMessage.textContent = 'Obrigado! Sua sugestão foi enviada com sucesso.';
+        document.getElementById('user-suggestion').value = ''; // Clear the textarea
+
+        // Optionally, hide the form after a short delay
+        setTimeout(() => {
+            hideSuggestionForm();
+        }, 3000);
+
+    } catch (error) {
+        console.error("Erro ao enviar sugestão:", error);
+        suggestionMessage.style.color = 'red';
+        suggestionMessage.textContent = 'Erro ao enviar sua sugestão. Tente novamente.';
+    }
+}
+
+function startNewMacro() {
+    const divprocessamento = document.getElementById("macrosite-completion-status")
+    const divcomecar = document.getElementById("macrosite-form")
+    const divpreview = document.getElementById("site-preview")
+
+    if(divprocessamento && divcomecar && divpreview){
+        divprocessamento.style.display = "none";
+        divcomecar.style.display = "block";
+        divpreview.style.display = "block";
+    }
+}
+
+async function viewResultsFolder() {
+    console.log("Solicitando abertura da pasta de resultados...");
+    try {
+        const result = await eel.open_results_folder()(); // Chama a função Python exposta
+        
+        if (result) { // Verifica se houve um retorno
+            if (result.status === "success") {
+                console.log("Comando para abrir pasta enviado com sucesso:", result.message);
+                // Normalmente, nenhuma mensagem é necessária para o usuário aqui,
+                // pois o explorador de arquivos deve abrir.
+            } else {
+                console.error("Erro retornado pelo Python ao tentar abrir pasta:", result.message);
+                // Você pode exibir uma mensagem de erro para o usuário se desejar
+                const errorDiv = document.getElementById('macrosite-error-message'); // Supondo que você tenha um div para erros
+                if (errorDiv) {
+                    errorDiv.textContent = "Não foi possível abrir a pasta de resultados: " + result.message;
+                    errorDiv.style.display = 'block';
+                    setTimeout(() => { errorDiv.style.display = 'none'; }, 7000); // Esconde após 7 segundos
+                } else {
+                    alert("Erro ao abrir pasta de resultados: " + result.message);
+                }
+            }
+        } else {
+            console.warn("Nenhum resultado retornado pela chamada eel.open_results_folder(). Verifique o backend.");
+            // alert("Não foi possível confirmar a ação de abrir a pasta. Verifique o console do backend.");
+        }
+    } catch (error) {
+        console.error("Erro ao tentar chamar eel.open_results_folder():", error);
+        // Exibe um erro genérico
+        const errorDiv = document.getElementById('macrosite-error-message');
+        if (errorDiv) {
+            errorDiv.textContent = "Erro de comunicação ao tentar abrir a pasta de resultados.";
+            errorDiv.style.display = 'block';
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 7000);
+        } else {
+            alert("Ocorreu um erro ao tentar abrir a pasta de resultados. Verifique o console para mais detalhes.");
+        }
+    }
+}

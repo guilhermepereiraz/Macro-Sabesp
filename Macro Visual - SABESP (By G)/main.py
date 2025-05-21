@@ -41,10 +41,10 @@ logging.info("--- main.py Iniciado ---")
 
 
 DB_CONFIG = {
-    'host': '127.0.0.1',
+    'host': '10.51.109.123',
     'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
-    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
-    'database': 'pendilist'
+    'password': 'SB28@sabesp', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendlist'
 }
 
 EMAIL_CONFIG = {
@@ -467,14 +467,30 @@ def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, 
 
 
 @eel.expose
-def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa):
+def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, nome_usuario=None):
     logging.info(f"Chamada para iniciar macro Consulta Geral para '{tipo_pesquisa.upper()}'")
-    if tipo_pesquisa.lower() not in ['pde', 'hidro']:
-        logging.error(f"Tipo de pesquisa inválido: {tipo_pesquisa}")
-        return {"status": "erro", "message": "Tipo de pesquisa deve ser 'pde' ou 'hidro'"}
+    
     try:
-        # Passa o tipo_pesquisa para a função principal
-        return iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa)
+        if not nome_usuario:
+            logging.warning("Nome do usuário não fornecido")
+            nome_usuario = "Usuário não identificado"
+            
+        logging.info(f"Nome do usuário: {nome_usuario}")
+        
+        if tipo_pesquisa.lower() not in ['pde', 'hidro']:
+            logging.error(f"Tipo de pesquisa inválido: {tipo_pesquisa}")
+            return {"status": "erro", "message": "Tipo de pesquisa deve ser 'pde' ou 'hidro'"}
+            
+        # Passa o nome_usuario como identificador
+        return iniciar_macro_consulta_geral(
+            conteudo_base64, 
+            login_usuario, 
+            senha_usuario, 
+            nome_arquivo, 
+            tipo_arquivo, 
+            tipo_pesquisa,
+            identificador=nome_usuario
+        )
     except Exception as e:
         logging.error(f"Erro ao iniciar a macro Consulta Geral: {e}")
         logging.exception("Detalhes do erro ao iniciar a macro Consulta Geral:")

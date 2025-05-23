@@ -116,7 +116,11 @@ body.is-visible {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-family: Arial, sans-serif;
     font-size: 0.9em;
-    margin: 0;
+            position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
 .header .container {

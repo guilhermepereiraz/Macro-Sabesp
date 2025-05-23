@@ -183,7 +183,6 @@ def formatar_tempo_legivel(segundos):
 def adiciona_nao_encontrado_template_pde(item_value, lock): # Renomeado file_lock para lock para evitar shadowing
     dados = {
         "PDE": item_value,
-        "Tipo Buscado": "PDE",
         "Registro": "NÃO ENCONTRADO",
         "Status": "NÃO ENCONTRADO",
         "PDE/HIDRO": "NÃO ENCONTRADO",
@@ -220,7 +219,6 @@ def adiciona_nao_encontrado_template_pde(item_value, lock): # Renomeado file_loc
 def adiciona_nao_encontrado_template_hidro(item_value, lock): # Renomeado file_lock para lock
     dados = {
         "HIDRO": item_value,
-        "Tipo Buscado": "HIDROMETRO",
         "Registro": "NÃO ENCONTRADO",
         "Status": "NÃO ENCONTRADO",
         "PDE/HIDRO": "NÃO ENCONTRADO",
@@ -429,8 +427,8 @@ def armazena_final(dados, lock, identificador, nome_arquivo, tipo_arquivo):
 def login(thread_id, l_login=None, s_senha=None):
     options = Options()
     options.add_argument("--incognito")
-    options.add_argument("--headless") 
-    options.add_argument("--disable-gpu") 
+    # options.add_argument("--headless") 
+    # options.add_argument("--disable-gpu") 
     options.page_load_strategy = 'normal'
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -614,90 +612,90 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
             # (Mantida a lógica original de cliques e extração, mas sem incrementar contadores)
             try:
                 # Clicar em "Busca por Endereço"
-                time.sleep(1)
                 busca_endereco = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/div[1]/ul[2]/li[2]/a")))
                 busca_endereco.click()
-                time.sleep(1)
-                input_field_hidro = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td[3]/div/fieldset/input[2]")))
+                time.sleep(0.5)
+                input_field_hidro = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr[1]/td[3]/div/fieldset/input[2]")))
                 input_field_hidro.clear()
-                time.sleep(1)
+                time.sleep(0.5)
                 input_field_hidro.send_keys(processed_value_str)
-                time.sleep(1)
+                time.sleep(0.5)
                 bnt_pesquisa = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td[2]/input[4]")))
                 bnt_pesquisa.click()
-                time.sleep(1)
+                time.sleep(0.5)
                 bnt_busca_detalhe = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td[2]/input[2]")))
                 bnt_busca_detalhe.click()
+                time.sleep(0.5)
                 print(f"Thread {threading.current_thread().name} - Sequência de busca HIDRO concluída para {processed_value_str}. Iniciando Extração...", flush=True)
               
                 try: # Try para extração de dados do HIDRO
-                    iframe = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
+                    iframe = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
                     driver.switch_to.frame(iframe)
-                    painel_fornecimento = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_btni_crm_crupdr_apricruf"]')))
+                    painel_fornecimento = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_btni_crm_crupdr_apricruf"]')))
                     painel_fornecimento.click()
-                    time.sleep(1)
+                    time.sleep(0.5)
                     driver.switch_to.default_content()
-                    time.sleep(1)
-                    iframe_utenza = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoUtenza"]')))
+                    time.sleep(0.5)
+                    iframe_utenza = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ifCruscottoUtenza"]')))
                     driver.switch_to.frame(iframe_utenza)
+                    time.sleep(0.5)
 
-                    time.sleep(1)
                     dados['Hidrometro'] = processed_value_str
-                    dados['Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[1]/span[2]'))).text
-                    dados['PDE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
-                    dados['Tipo Mercado'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[3]/span[2]'))).text
-                    dados['Status Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[2]'))).text
-                    dados['Titular'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[4]'))).text
-                    dados['Tipo Sujeito'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[6]'))).text
-                    dados['Celular'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[8]'))).text
-                    dados['Endereço Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[10]/span[2]'))).text
-                    dados['Tipo Fornecimento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[13]'))).text
-                    dados['Oferta/Produto'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[15]'))).text
-                    dados['Entrega Fatura'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[17]'))).text
-                    dados['Condição de Pagamento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[19]'))).text
-                    dados['Modo de Envio'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[2]/tbody/tr/td[1]/span[2]'))).text
-                    dados['Grupo Faturamento'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[1]/span[2]'))).text
-                    dados['Data Proxima Leitura'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[3]/span[2]'))).text
-                    dados['Numero de Residencias'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[21]'))).text
+                    dados['Fornecimento'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[1]/span[2]'))).text
+                    dados['PDE'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
+                    dados['Tipo Mercado'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[3]/span[2]'))).text
+                    dados['Status Fornecimento'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[2]'))).text
+                    dados['Titular'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[4]'))).text
+                    dados['Tipo Sujeito'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[6]'))).text
+                    dados['Celular'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[8]'))).text
+                    dados['Endereço Fornecimento'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[10]/span[2]'))).text
+                    dados['Tipo Fornecimento'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[13]'))).text
+                    dados['Oferta/Produto'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[15]'))).text
+                    dados['Entrega Fatura'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[17]'))).text
+                    dados['Condição de Pagamento'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[19]'))).text
+                    dados['Modo de Envio'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[2]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Grupo Faturamento'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Data Proxima Leitura'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[3]/span[2]'))).text
+                    dados['Numero de Residencias'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[21]'))).text
                     
+                    time.sleep(0.5)
                     driver.switch_to.default_content()
                     fechar_painel_fornecimento = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')))
-                    time.sleep(1)
+                    time.sleep(0.5)
                     fechar_painel_fornecimento.click()
-                    time.sleep(1)
+                    time.sleep(0.5)
                     iframe_sit = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '/html/body/form/div[4]/div[5]/iframe')))
                     driver.switch_to.frame(iframe_sit)
-                    painel_element_sitia = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')))
+                    painel_element_sitia = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')))
                     painel_element_sitia.click()
-                    time.sleep(1)
                     driver.switch_to.default_content()
                     iframe_detail_sit = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
                     driver.switch_to.frame(iframe_detail_sit)
                     
-                    time.sleep(1)
-                    dados['Status Atual'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
-                    dados['ATC'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
-                    tipo_pde_elemento = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[4]/td/div/fieldset/p[2]/select')))
+
+                    dados['Status Atual'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
+                    dados['ATC'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
+                    tipo_pde_elemento = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[4]/td/div/fieldset/p[2]/select')))
                     tipo_pde_select = Select(tipo_pde_elemento)
                     dados['Tipo de Cavalete'] = tipo_pde_select.first_selected_option.text
-                    dados['Data de Ligação Agua'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_txtIt"]'))).get_attribute('value')
-                    dados['Diâmetro:'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value')
-                    dados['SITIA'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value') # Note: Same
-                    dados['Status SITIA'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_origine_pod_Description"]'))).get_attribute('value')
-                    dados['Data de Ligação Esgoto'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_2_txtIt"]'))).get_attribute('value')
-                    dados['SITIE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Code"]'))).get_attribute('value')
-                    dados['Status SITIE'] = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Description"]'))).get_attribute('value')
+                    dados['Data de Ligação Agua'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_txtIt"]'))).get_attribute('value')
+                    dados['Diâmetro:'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value')
+                    dados['SITIA'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_port_pot_lim_Code"]'))).get_attribute('value') # Note: Same
+                    dados['Status SITIA'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_origine_pod_Description"]'))).get_attribute('value')
+                    dados['Data de Ligação Esgoto'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_dbx_pun_data_allaccio_2_txtIt"]'))).get_attribute('value')
+                    dados['SITIE'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Code"]'))).get_attribute('value')
+                    dados['Status SITIE'] = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_lov_pun_tipologia_pos_Description"]'))).get_attribute('value')
 
                     driver.switch_to.default_content()
-                    fechar_painel_sitie = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="NETAModalDialog"]/div[1]/div[1]/button/span[1]')))
+                    fechar_painel_sitie = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="NETAModalDialog"]/div[1]/div[1]/button/span[1]')))
                     fechar_painel_sitie.click()
                     
                     armazena_final(dados, current_file_lock, identificador, nome_arquivo, tipo_arquivo) # Passa todos os argumentos necessários
                     processed_successfully = True # Define sucesso APÓS armazenar
 
                     try:
-                        time.sleep(1)
-                        botao_fechar = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_NetSiuCPH_TabCRM_bli_tcrm_cruscotti"]/li/a/span/input')))
+
+                        botao_fechar = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_NetSiuCPH_TabCRM_bli_tcrm_cruscotti"]/li/a/span/input')))
                         botao_fechar.click()
                     except Exception: # NoSuchElementException ou TimeoutException
                         print(f"Thread {threading.current_thread().name} - Botão de fechar detalhe não encontrado/clicável (HIDRO).")
@@ -872,68 +870,54 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                 adiciona_nao_encontrado_template_hidro(first_column_value, current_file_lock)
             # REMOVIDO: Incremento do contador 'erros' daqui.
 
-def thread_task(thread_id, items_chunk, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None): # Renomeado locks para clareza
+def thread_task(thread_id, items_chunk, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None):
     global current_os_being_processed, current_os_lock
-    global processados, erros # Acesso para modificar os contadores globais
+    global processados, erros
 
     print(f"Thread {threading.current_thread().name} started. Tipo de pesquisa: {item_type}", flush=True)
     driver = None
     try:
         driver = login(thread_id, l_login, s_senha)
-        if not driver:
-            print(f"Thread {threading.current_thread().name} - Falha no login. Encerrando thread.", flush=True)
-            return
+    except Exception as e:
+        print(f"Thread {threading.current_thread().name} - Erro ao inicializar driver: {e}", flush=True)
+        driver = None
 
-        for item_value in items_chunk:
-            # Verifica se a macro deve parar
-            if monitor_stop_event.is_set() or stop_event.is_set():
-                print(f"Thread {threading.current_thread().name} - Sinal de parada detectado. Encerrando thread.", flush=True)
-                break
-
-            # Verifica se a macro está pausada
-            while pause_event.is_set():
-                if monitor_stop_event.is_set() or stop_event.is_set():
-                    print(f"Thread {threading.current_thread().name} - Encerrando (durante pausa) devido ao sinal de parada.")
-                    return
-                time.sleep(0.5)
-                
-            with current_os_lock:
-                current_os_being_processed = str(item_value).strip()
-
-            print(f"Thread {threading.current_thread().name} - Processando item {item_value} com tipo {item_type}", flush=True)
-            
+    for item_value in items_chunk:
+        # Nunca interrompe o loop por erro, sempre tenta processar tudo
+        # Se o driver não existir (por erro anterior), tenta reabrir
+        if driver is None:
             try:
-                # Chama a função macro. Se a macro falhar, ela levantará uma exceção.
+                driver = login(thread_id, l_login, s_senha)
+            except Exception as e:
+                print(f"Thread {threading.current_thread().name} - Erro ao tentar reabrir driver: {e}", flush=True)
+                driver = None
+        
+        with current_os_lock:
+            current_os_being_processed = str(item_value).strip()
+
+        print(f"Thread {threading.current_thread().name} - Processando item {item_value} com tipo {item_type}", flush=True)
+        try:
+            if driver:
                 macro(driver, item_value, item_type, current_file_lock, item_value, 
                       identificador=identificador, 
                       nome_arquivo=nome_arquivo, 
                       tipo_arquivo=tipo_arquivo)
-                
-                # Se a macro completou sem exceções, o item foi processado com sucesso.
-                with current_counter_lock:
-                    processados += 1
-            
-            except Exception as e_macro: # Captura ItemProcessingError ou qualquer outra exceção da macro
-                print(f"Thread {threading.current_thread().name} - Erro ao processar item {item_value} (capturado pela thread_task): {e_macro}", flush=True)
-                # Não precisa imprimir traceback aqui se a macro já o fez.
-                
-                with current_counter_lock:
-                    erros += 1
-                # REMOVIDO: adiciona_nao_encontrado_template_pde(item_value, current_file_lock)
-                # A função 'macro' em seu bloco 'finally' já lida com o registro no CSV de erro correto.
-        if monitor_stop_event.is_set() or stop_event.is_set():
-             print(f"Thread {threading.current_thread().name} - Loop de itens interrompido pelo sinal de parada.")
-
-    except Exception as e_thread:
-        print(f"\nThread {threading.current_thread().name} encontrou um erro crítico na task: {e_thread}", flush=True)
-        traceback.print_exc(file=sys.stdout)
-    finally:
-        if driver:
-            with driver_lock:
-                if driver in active_drivers:
-                    active_drivers.remove(driver)
-            driver.quit()
-            print(f"\nThread {threading.current_thread().name} terminou e saiu do driver.", flush=True)
+            else:
+                raise Exception("Driver não disponível para processar item.")
+            with current_counter_lock:
+                processados += 1
+        except Exception as e_macro:
+            print(f"Thread {threading.current_thread().name} - Erro ao processar item {item_value} (capturado pela thread_task): {e_macro}", flush=True)
+            with current_counter_lock:
+                erros += 1
+            # Nunca retorna ou quebra o loop, apenas registra o erro e segue
+    # Ao final, fecha o driver se existir
+    if driver:
+        with driver_lock:
+            if driver in active_drivers:
+                active_drivers.remove(driver)
+        driver.quit()
+        print(f"\nThread {threading.current_thread().name} terminou e saiu do driver.", flush=True)
 
 # thread_macro_wrapper não é usada pela interface Eel, mantida como estava mas com ressalva sobre o uso de counter_lock
 def thread_macro_wrapper(item, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None):
@@ -958,7 +942,7 @@ def thread_macro_wrapper(item, item_type, current_file_lock, current_counter_loc
             driver.quit()
 
 @eel.expose
-def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, num_browsers=5, identificador=None):
+def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, num_browsers=1, identificador=None):
     """
     Função principal para iniciar a macro de consulta geral.
     Parâmetros:
@@ -993,27 +977,69 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
         if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Arquivo enviado está vazio.')
         return {"status": "erro", "message": "Arquivo enviado está vazio."}
 
-    colunas_esperadas = ['PDE', 'pde', 'Pde', 'hidro', 'HIDRO', 'Hidro', 'HIDROMETRO'] # Adiciona a primeira coluna como fallback
+    # Detecta se o arquivo tem cabeçalho ou não
+    colunas_esperadas = ['PDE', 'pde', 'Pde', 'hidro', 'HIDRO', 'Hidro', 'HIDROMETRO']
     lista_os = None
-    for col in df.columns: # Itera sobre as colunas existentes no DataFrame
-        if col in colunas_esperadas: # Verifica se o nome da coluna está na lista de nomes esperados
-            lista_os = df[col].dropna().astype(str).tolist()
-            print(f"Coluna encontrada para processamento: {col}")
-            break
-    if lista_os is None: # Se nenhuma coluna esperada foi encontrada, usa a primeira coluna por padrão
-        if not df.empty and len(df.columns) > 0:
-            primeira_coluna = df.columns[0]
-            lista_os = df[primeira_coluna].dropna().astype(str).tolist()
-            print(f"Nenhuma coluna específica encontrada, usando a primeira coluna por padrão: {primeira_coluna}")
-        else: # Se o DataFrame não tem colunas (improvável após a checagem de df.empty, mas por segurança)
-            if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Arquivo não contém colunas de dados.')
-            return {"status": "erro", "message": "Arquivo não contém colunas de dados."}
+    coluna_encontrada = None
+    linha_hidro = None
+    idx_col_hidro = None
 
+    # Se o DataFrame tem colunas Unnamed, provavelmente não tem cabeçalho
+    if all(str(col).startswith('Unnamed') for col in df.columns):
+        # Procura a palavra HIDRO/HIDROMETRO em TODAS as células
+        found = False
+        for row_idx in range(df.shape[0]):
+            for col_idx in range(df.shape[1]):
+                valor = str(df.iat[row_idx, col_idx]).strip().lower()
+                if any(palavra in valor for palavra in ["hidro", "hidrometro"]):
+                    idx_col_hidro = col_idx
+                    coluna_encontrada = df.columns[idx_col_hidro]
+                    linha_hidro = row_idx
+                    print(f"Coluna HIDRO/HIDROMETRO encontrada na célula ({linha_hidro}, {idx_col_hidro})")
+                    found = True
+                    break
+            if found:
+                break
+        if idx_col_hidro is not None and linha_hidro is not None:
+            # Pega todos os valores abaixo da célula encontrada
+            lista_os = df.iloc[linha_hidro+1:, idx_col_hidro].dropna().astype(str).tolist()
+            print(f"Processando todos os valores abaixo da célula HIDRO/HIDROMETRO na coluna {coluna_encontrada}.")
+        else:
+            # Se não encontrou, usa a primeira coluna (sem cabeçalho)
+            lista_os = df.iloc[:, 0].dropna().astype(str).tolist()
+            coluna_encontrada = df.columns[0]
+            print(f"Nenhuma célula HIDRO/HIDROMETRO encontrada, usando a primeira coluna por padrão: {coluna_encontrada}")
+    else:
+        # Modo normal: busca por nome de coluna
+        for col in df.columns:
+            if col in colunas_esperadas:
+                lista_os = df[col].dropna().astype(str).tolist()
+                coluna_encontrada = col
+                print(f"Coluna encontrada para processamento: {col}")
+                break
+        if lista_os is None:
+            if not df.empty and len(df.columns) > 0:
+                primeira_coluna = df.columns[0]
+                lista_os = df[primeira_coluna].dropna().astype(str).tolist()
+                coluna_encontrada = primeira_coluna
+                print(f"Nenhuma coluna específica encontrada, usando a primeira coluna por padrão: {primeira_coluna}")
+            else:
+                if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Arquivo não contém colunas de dados.')
+                return {"status": "erro", "message": "Arquivo não contém colunas de dados."}
 
-    if not lista_os: # Checagem final se, mesmo após os fallbacks, a lista está vazia
+    if not lista_os:
         if hasattr(eel, 'display_macro_error_frontend'): eel.display_macro_error_frontend('Nenhuma OS/PDE/HIDRO encontrada no arquivo para processar.')
         return {"status": "erro", "message": "Nenhuma OS/PDE/HIDRO encontrada no arquivo para processar."}
 
+    # Adaptação: se for pesquisa por HIDRO, processa todos os valores da coluna HIDRO/HIDROMETRO encontrada
+    # Só sobrescreve lista_os se o cabeçalho for válido (ou seja, não foi um caso de célula encontrada no meio)
+    if (
+        tipo_pesquisa.lower() in ["hidro", "hidrometro"]
+        and coluna_encontrada is not None
+        and not (linha_hidro is not None and idx_col_hidro is not None)
+    ):
+        lista_os = df[coluna_encontrada].dropna().astype(str).tolist()
+        print(f"Processando todos os valores da coluna {coluna_encontrada} para HIDRO/HIDROMETRO.")
 
     total_processar = len(lista_os)
     processados = 0 
@@ -1091,6 +1117,7 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
     if eel and hasattr(eel, 'update_progress'): # Verifica se eel e a função existem
         try:
             eel.update_progress(dados_finais_completos)
+
         except Exception as e_eel_final:
             print(f"Erro ao chamar eel.update_progress (dados finais completos): {e_eel_final}")
 

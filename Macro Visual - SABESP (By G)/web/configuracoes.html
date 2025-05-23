@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro JGL - Configurações</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/configuracoes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+     <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-block">
+                    <img src="imagens/logo-sabesp-1024.png" alt="Logo Macro JGL">
+                    <div class="logo-text">Macro JGL</div>
+                </div>
+                <span style="margin-left: 24%;"></span>
+
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="macros.html">Macros</a>
+                        </li>
+                        <li><a href="#">Consultas</a></li>
+                        <li><a href="#">Ajuda</a></li>
+                        <li><a href="#">Sugestão</a></li>
+                        <li><a href="#" style="text-decoration: underline; color: rgb(12, 38, 53);">Configurações</a></li>
+                        <li><a href="#">Sobre</a></li>
+                    </ul>
+                </nav>
+                <span style="margin-left: 10%;"></span>
+                <div class="user-actions-group">
+                    <div class="user-info">
+                        <div class="user-status-block">
+                            <i class="fas fa-user icon-user"></i>
+                            <div class="user-status-text">
+                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
+                                    Usuário</span>
+                                <span style="margin-top: 1px;">Usuário ativo</span>
+                            </div>
+                        </div>
+                        <div class="user-time-block">
+                            <i class="fas fa-clock icon-clock"></i>
+                            <div class="time-info-text">
+                                <span id="current-time" style="font-size: 1.2em; font-weight: 600;">Horario Atual</span>
+                                <span id="logged-in-time" style="margin-top: 1px;">Horario Logado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;"
+                        onclick="deslogar()" id="deslog">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="content-area">
+        <div class="breadcrumb" id="breadcrumb">
+            <a href="#" class="breadcrumb-item" data-section="main">Configurações</a>
+            <span class="breadcrumb-separator">></span>
+            <span class="breadcrumb-item current-section"></span>
+        </div>
+
+        <h1 class="page-title">Configurações do Sistema</h1>
+
+        <div class="search-config-container">
+            <input type="text" id="config-search" placeholder="Pesquisar configurações..." class="form-control">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+
+        <div class="quick-settings-section">
+            <h2 class="section-title">Configurações Rápidas & Sugestões</h2>
+            <div class="quick-settings-grid">
+                <div class="quick-setting-item">
+                    <div class="card-icon"><i class="fas fa-sun"></i></div>
+                    <h3>Mudar Tema</h3>
+                    <p>Altere o esquema de cores da aplicação.</p>
+                    <button class="btn btn-sm btn-secondary" onclick="showSection('preferencias')">Alterar</button>
+                </div>
+                <div class="quick-setting-item">
+                    <i class="fas fa-key quick-icon"></i>
+                    <h3>Alterar Senha</h3>
+                    <p>Mantenha sua conta segura.</p>
+                    <button class="btn btn-sm btn-secondary" onclick="showSection('seguranca')">Alterar</button>
+                </div>
+                <div class="quick-setting-item">
+                    <i class="fas fa-bell quick-icon"></i>
+                    <h3>Notificações</h3>
+                    <p>Gerencie seus alertas e avisos.</p>
+                    <button class="btn btn-sm btn-secondary" onclick="showSection('notificacoes')">Configurar</button>
+                </div>
+                </div>
+        </div>
+
+        <div class="config-grid">
+            <div class="config-card" data-card-name="Perfil do Usuário">
+                <div class="card-icon"><i class="fas fa-user"></i></div> <h2 class="card-title">Perfil do Usuário</h2>
+                <p class="card-description">Gerencie suas informações pessoais e credenciais.</p>
+                <div class="card-actions">
+                    <button class="btn btn-primary" data-section="perfil">Acessar</button>
+                </div>
+            </div>
+
+            <div class="config-card" data-card-name="Notificações">
+                <div class="card-icon"><i class="fas fa-bell"></i></div>
+                <h2 class="card-title">Notificações</h2>
+                <p class="card-description">Configure como você recebe alertas e atualizações.</p>
+                <div class="card-actions">
+                    <button class="btn btn-primary" data-section="notificacoes">Acessar</button>
+                </div>
+            </div>
+
+            <div class="config-card" data-card-name="Segurança e Privacidade">
+                <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+                <h2 class="card-title">Segurança e Privacidade</h2>
+                <p class="card-description">Definições de segurança, senhas e acesso.</p>
+                <div class="card-actions">
+                    <button class="btn btn-primary" data-section="seguranca">Acessar</button>
+                </div>
+            </div>
+
+            <div class="config-card" data-card-name="Preferências Gerais">
+                <div class="card-icon"><i class="fas fa-cogs"></i></div>
+                <h2 class="card-title">Preferências Gerais</h2>
+                <p class="card-description">Ajustes gerais da interface e comportamento do sistema.</p>
+                <div class="card-actions">
+                    <button class="btn btn-primary" data-section="preferencias">Acessar</button>
+                </div>
+            </div>
+
+            <div class="config-card admin-only" data-card-name="Gerenciamento de Macros" style="display: none;">
+                <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+                <h2 class="card-title">Gerenciamento de Macros</h2>
+                <p class="card-description">Ajustes avançados para criação e moderação de macros.</p>
+                <div class="card-actions">
+                    <button class="btn btn-primary" data-section="gerenciamento-macros">Acessar</button>
+                </div>
+            </div>
+
+            <div class="config-card" data-card-name="Dados e Backup" style="display: none;">
+                <div class="card-icon"><i class="fas fa-database"></i></div>
+                <h2 class="card-title">Dados e Backup</h2>
+                <p class="card-description">Gerencie seus dados e opções de backup.</p>
+                <div class="card-actions">
+                    <button class="btn btn-primary" data-section="dados-backup">Acessar</button>
+                </div>
+            </div>
+
+
+        </div> <div id="config-sections-container">
+            <section id="perfil" class="config-detail-section" style="display: none;">
+                <h2 class="section-title">Perfil do Usuário</h2>
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="info-pessoal">Informações Pessoais</button>
+                    <button class="tab-button" data-tab="credenciais">Credenciais de Login</button>
+                </div>
+
+                <div id="info-pessoal" class="tab-content active">
+                    <form id="form-perfil-info">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo:</label>
+                            <input type="text" id="nome" name="nome" value="Administrador" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-mail:</label>
+                            <input type="email" id="email" name="email" value="admin@macrojgl.com">
+                            <span class="error-message" id="email-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefone">Telefone:</label>
+                            <input type="tel" id="telefone" name="telefone" value="(XX) XXXXX-XXXX">
+                            <span class="error-message" id="telefone-error"></span>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="edit-perfil-info">Editar</button>
+                            <button type="submit" class="btn btn-success" id="save-perfil-info" style="display: none;">Salvar Alterações</button>
+                            <button type="button" class="btn btn-danger" id="delete-account-btn" style="margin-left: auto;">Excluir Conta</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="credenciais" class="tab-content" style="display: none;">
+                    <form id="form-perfil-credenciais">
+                        <p class="form-description">Gerencie sua senha e métodos de autenticação.</p>
+                        <div class="form-group">
+                            <label for="perfil-senha-atual">Senha Atual:</label>
+                            <input type="password" id="perfil-senha-atual" name="senha-atual">
+                            <span class="error-message" id="perfil-senha-atual-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="perfil-nova-senha">Nova Senha:</label>
+                            <input type="password" id="perfil-nova-senha" name="nova-senha">
+                            <span class="error-message" id="perfil-nova-senha-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="perfil-confirmar-senha">Confirmar Nova Senha:</label>
+                            <input type="password" id="perfil-confirmar-senha" name="confirmar-senha">
+                            <span class="error-message" id="perfil-confirmar-senha-error"></span>
+                        </div>
+                        <div class="form-group toggle-group">
+                            <label for="perfil-autenticacao-dois-fatores">Habilitar autenticação de dois fatores</label>
+                            <label class="switch">
+                                <input type="checkbox" id="perfil-autenticacao-dois-fatores" name="autenticacao-dois-fatores">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">Atualizar Credenciais</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="form-actions" style="justify-content: flex-start; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideSection('perfil')">Voltar à Visão Geral</button>
+                </div>
+            </section>
+
+            <section id="notificacoes" class="config-detail-section" style="display: none;">
+                <h2 class="section-title">Configurações de Notificações</h2>
+                <form id="form-notificacoes">
+                    <p class="form-description">Gerencie como você recebe alertas e atualizações do sistema.</p>
+
+                    <div class="form-group toggle-group">
+                        <label for="email-notif">Receber notificações por e-mail
+                            <span class="tooltip-icon" data-tooltip="Envie notificações importantes para o seu endereço de e-mail cadastrado.">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <label class="switch">
+                            <input type="checkbox" id="email-notif" name="email-notif" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="form-group" id="frequencia-notif-group">
+                        <label for="frequencia-notif">Frequência de Notificações por E-mail:</label>
+                        <select id="frequencia-notif" name="frequencia-notif">
+                            <option value="imediato">Imediato (ao ocorrer)</option>
+                            <option value="diario">Diário (um resumo por dia)</option>
+                            <option value="semanal">Semanal (um resumo por semana)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group toggle-group">
+                        <label for="app-notif">Receber notificações no aplicativo
+                             <span class="tooltip-icon" data-tooltip="Receba alertas e avisos diretamente na interface da aplicação.">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <label class="switch">
+                            <input type="checkbox" id="app-notif" name="app-notif" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipo-notif">Tipos de Notificações:</label>
+                        <div class="checkbox-group-grid">
+                            <label><input type="checkbox" name="notif-type" value="macros" checked> Atualizações de Macros</label>
+                            <label><input type="checkbox" name="notif-type" value="seguranca" checked> Alertas de Segurança</label>
+                            <label><input type="checkbox" name="notif-type" value="sistema"> Mensagens do Sistema</label>
+                            <label><input type="checkbox" name="notif-type" value="promocoes"> Promoções e Novidades</label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideSection('notificacoes')">Voltar</button>
+                        <button type="button" class="btn btn-info" id="test-notification-btn" style="margin-left: auto;">Testar Notificação</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="seguranca" class="config-detail-section" style="display: none;">
+                <h2 class="section-title">Segurança e Privacidade</h2>
+                <form id="form-seguranca">
+                    <p class="form-description">Proteja sua conta e gerencie suas configurações de privacidade.</p>
+
+                    <fieldset class="form-fieldset">
+                        <legend>Alterar Senha</legend>
+                        <div class="form-group">
+                            <label for="senha-atual">Senha Atual:</label>
+                            <input type="password" id="senha-atual" name="senha-atual">
+                            <span class="error-message" id="senha-atual-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="nova-senha">Nova Senha:
+                                <span class="tooltip-icon" data-tooltip="A senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e símbolos.">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </label>
+                            <input type="password" id="nova-senha" name="nova-senha">
+                            <span class="error-message" id="nova-senha-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmar-senha">Confirmar Nova Senha:</label>
+                            <input type="password" id="confirmar-senha" name="confirmar-senha">
+                            <span class="error-message" id="confirmar-senha-error"></span>
+                        </div>
+                        <button type="submit" class="btn btn-success">Alterar Senha</button>
+                    </fieldset>
+
+                    <fieldset class="form-fieldset">
+                        <legend>Autenticação de Dois Fatores (2FA)</legend>
+                        <div class="form-group toggle-group">
+                            <label for="autenticacao-dois-fatores">Habilitar autenticação de dois fatores</label>
+                            <label class="switch">
+                                <input type="checkbox" id="autenticacao-dois-fatores" name="autenticacao-dois-fatores">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="form-group" id="2fa-config-group" style="display: none;">
+                            <label for="2fa-method">Método de Autenticação 2FA:</label>
+                            <select id="2fa-method" name="2fa-method">
+                                <option value="app">Aplicativo Autenticador (Google Authenticator, Authy)</option>
+                                <option value="sms">SMS para telefone cadastrado</option>
+                                <option value="email">E-mail para endereço cadastrado</option>
+                            </select>
+                            <p class="form-hint">Você será solicitado a configurar o método escolhido após salvar.</p>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="form-fieldset">
+                        <legend>Controle de Sessões Ativas</legend>
+                        <p class="form-description">Gerencie onde sua conta está logada.</p>
+                        <ul id="active-sessions-list" class="session-list">
+                            <li><i class="fas fa-desktop"></i> Desktop (Windows) - São Paulo, BR <small>Ativo agora</small> <button class="btn btn-xs btn-danger">Desconectar</button></li>
+                            <li><i class="fas fa-mobile-alt"></i> Mobile (Android) - Rio de Janeiro, BR <small>Último acesso: 22/05/2025</small> <button class="btn btn-xs btn-danger">Desconectar</button></li>
+                            </ul>
+                        <button type="button" class="btn btn-secondary">Desconectar de Todas as Sessões</button>
+                    </fieldset>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="hideSection('seguranca')">Voltar</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="preferencias" class="config-detail-section" style="display: none;">
+                <h2 class="section-title">Preferências Gerais</h2>
+                <form id="form-preferencias">
+                    <p class="form-description">Personalize a sua experiência de uso da plataforma.</p>
+                    <div class="form-group">
+                        <label for="idioma">Idioma:</label>
+                        <select id="idioma" name="idioma">
+                            <option value="pt-BR">Português (Brasil)</option>
+                            <option value="en-US">English (US)</option>
+                            <option value="es">Español</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tema">Tema da Interface:</label>
+                        <select id="tema" name="tema">
+                            <option value="claro">Claro (Padrão)</option>
+                            <option value="escuro">Escuro</option>
+                            <option value="contraste">Alto Contraste</option>
+                        </select>
+                    </div>
+                    <div class="form-group toggle-group">
+                        <label for="enable-animations">Habilitar Animações da UI
+                             <span class="tooltip-icon" data-tooltip="Desative para uma experiência mais leve em dispositivos antigos.">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <label class="switch">
+                            <input type="checkbox" id="enable-animations" name="enable-animations" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Salvar Preferências</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideSection('preferencias')">Voltar</button>
+                        <button type="button" class="btn btn-info" id="reset-preferences-btn" style="margin-left: auto;">Redefinir Padrões</button>
+                    </div>
+                </form>
+            </section>
+
+    <section id="gerenciamento-macros" class="config-detail-section">
+                <h2 class="section-title">Configurações Gerais de Macro</h2>
+                <form id="form-gerenciamento-macros">
+                    <p class="form-description">Ajuste as configurações gerais de execução e gerenciamento de macros no sistema.</p>
+
+                    <div class="form-group">
+                        <label for="macro-max-threads">Número de Threads para Execução:</label>
+                        <input type="number" id="macro-max-threads" name="macro-max-threads" min="1" value="4">
+                        <p class="form-hint">Defina o número máximo de operações paralelas (threads) para a execução de macros em lote.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="macro-default-category">Categoria Padrão para Novas Macros:</label>
+                        <input type="text" id="macro-default-category" name="macro-default-category" value="Geral">
+                        <p class="form-hint">Defina a categoria predefinida ao criar novas macros.</p>
+                    </div>
+                    <div class="form-group toggle-group">
+                        <label for="enable-macro-review">Exigir Revisão para Novas Macros Publicadas</label>
+                        <label class="switch">
+                            <input type="checkbox" id="enable-macro-review" name="enable-macro-review" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="max-macro-size">Tamanho Máximo de Upload de Macro (KB):
+                               <span class="tooltip-icon" data-tooltip="Define o tamanho máximo permitido para o arquivo de uma macro.">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <input type="number" id="max-macro-size" name="max-macro-size" value="500" min="100" max="5000">
+                    </div>
+                    <div class="form-group">
+                        <label for="allowed-macro-types">Tipos de Arquivo de Macro Permitidos (separados por vírgula):</label>
+                        <input type="text" id="allowed-macro-types" name="allowed-macro-types" value=".ahk, .js, .exe">
+                        <p class="form-hint">Ex: .ahk, .js, .exe</p>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Salvar Configurações</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideSection('gerenciamento-macros')">Voltar</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="other-settings-section" id="other-settings-section">
+            <h2 id="tito">Outras Configurações</h2>
+            <div class="config-grid large-cards" id="other-settings-grid">
+                <div class="config-card" data-section="integracoes-sistema" onclick="showSection('integracoes-sistema')" style="cursor:pointer;">
+                    <div class="card-icon"><i class="fas fa-link"></i></div> <h3>Integrações de Sistema</h3>
+                    <p>Gerencie as conexões com sistemas externos (WFM, NETA, etc.).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mantém apenas UMA seção de integrações do sistema, removendo duplicidade -->
+        <section id="integracoes-sistema" class="config-detail-section" style="display: none;">
+            <h2 class="section-title" style="text-align: center;">Integrações do Sistema</h2>
+            <div class="integrations-container">
+                <div class="integration-card">
+                    <h3>Vincular Neta</h3>
+                    <form id="form-vincular-neta" class="integration-form">
+                        <div class="form-group">
+                            <label for="neta-login">Login:</label>
+                            <input type="text" id="neta-login" name="neta-login" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="neta-senha">Senha:</label>
+                            <input type="password" id="neta-senha" name="neta-senha" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Vincular Neta</button>
+                    </form>
+                    <p id="neta-status" class="integration-status" style="display: none;"></p>
+                </div>
+
+                <div class="integration-card">
+                    <h3>Vincular WFM</h3>
+                    <form id="form-vincular-wfm" class="integration-form">
+                        <div class="form-group">
+                            <label for="wfm-login">Login:</label>
+                            <input type="text" id="wfm-login" name="wfm-login" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="wfm-senha">Senha:</label>
+                            <input type="password" id="wfm-senha" name="wfm-senha" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Vincular WFM</button>
+                    </form>
+                    <p id="wfm-status" class="integration-status" style="display: none;"></p>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="hideSection('integracoes-sistema')">Voltar</button>
+            </div>
+        </section>
+
+        <div class="detail-sections-container">
+
+
+        </div> <div id="toast-notification" class="toast-message" style="display: none;">
+            <p id="toast-text"></p>
+        </div>
+
+        <div id="confirmation-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2 id="modal-title">Confirmar Ação</h2>
+                <p id="modal-message">Você tem certeza que deseja realizar esta ação?</p>
+                <div class="modal-buttons">
+                    <button id="modal-confirm-btn" class="btn btn-danger">Confirmar</button>
+                    <button id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+        
+
+    </main>
+
+    <script src="script.js"></script>
+    <script src="js/configuracoes.js"></script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit-id.js" crossorigin="anonymous"></script>
+</body>
+</html>

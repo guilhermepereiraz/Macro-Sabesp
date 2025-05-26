@@ -436,6 +436,21 @@ body.is-visible {
     background-color: #0056b3;
 }
 
+#bntvinc2{
+    background-color: #d3382d;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#bntvinc2:hover {
+    background-color: #df1a0c;
+}
+
 .btn-success {
     background-color: #28a745;
     color: white;

@@ -12,6 +12,8 @@ window.deslogar = function() {
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log("[macrosite.js] DOMContentLoaded iniciado.");
 
+    preencherCamposWFM_SITE();
+
     // Obter referências aos elementos da UI (IDs ajustados para o seu HTML)
     const processarBotao = document.getElementById('processar'); // OK: ID 'processar' no HTML
     const novoProcessamentoButton = document.querySelector('#macrosite-completion-summary button'); // OK: Seleciona o botão dentro da div de conclusão, que não tem ID próprio
@@ -128,7 +130,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
 
         // Calcula e atualiza a barra de progresso e a porcentagem
-        if (total_count > 0) { // Evita divisão por zero
+        if (total_count > 0) // Evita divisão por zero
+        {
             const progress = (processed_count / total_count) * 100;
             if (progressBar) {
                 progressBar.style.width = `${progress}%`;
@@ -406,10 +409,8 @@ function iniciarTransicaoPagina() {
         setTimeout(() => {
             bodyElement.classList.add('is-visible');
             console.log("[macros.js] Transição de entrada iniciada para o body.");
-            // Inicializa o carrossel aqui, após o display ser ajustado e um pequeno atraso
-            calculateCarouselMetrics(); // <-- Nota: Esta função precisa estar definida e acessível
-            updateCarouselDisplay(); // <-- Nota: Esta função precisa estar definida e acessível
-        }, 5); // Atraso após display:block antes de adicionar a classe e inicializar carrossel
+            // Carrossel removido: não chama calculateCarouselMetrics nem updateCarouselDisplay
+        }, 5);
     } else {
         console.error("[macros.js] Elemento body não encontrado.");
     }
@@ -536,8 +537,6 @@ function updateLoggedInTime(sessionStartTime) {
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log("[macrosite.js] DOMContentLoaded iniciado.");
 
-    // ... (seu código existente dentro do DOMContentLoaded) ...
-
     // Código da animação anime.js movido para dentro do DOMContentLoaded
     var textWrapper = document.querySelector('.ml7 .letters');
     
@@ -568,4 +567,49 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     console.log("[macrosite.js] DOMContentLoaded finalizado.");
+});
+
+async function preencherCamposWFM_SITE() {
+    const usuarioId = sessionStorage.getItem('user_id');
+    if (!usuarioId) return;
+    try {
+        const res = await eel.get_wfm_vinculo_by_user_id(usuarioId)();
+        const loginInput = document.getElementById('site-login');
+        const senhaInput = document.getElementById('site-password');
+        if (res && res.status === 'success' && res.wfm_login && res.wfm_senha) {
+            // Preenche login e senha reais e desabilita os campos
+            if (loginInput) {
+                loginInput.value = res.wfm_login || '';
+                loginInput.readOnly = true;
+                loginInput.parentElement.style.display = 'block';
+                loginInput.style.backgroundColor = 'rgb(230, 228, 228)';
+            }
+            if (senhaInput) {
+                senhaInput.value = res.wfm_senha || '';
+                senhaInput.readOnly = true;
+                senhaInput.parentElement.style.display = 'block';
+                senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';
+            }
+        } else {
+            // Se não houver vínculo, limpa e habilita os campos
+            if (loginInput) {
+                loginInput.value = '';
+                loginInput.readOnly = false;
+                loginInput.parentElement.style.display = 'block';
+            }
+            if (senhaInput) {
+                senhaInput.value = '';
+                senhaInput.readOnly = false;
+                senhaInput.parentElement.style.display = 'block';
+            }
+        }
+    } catch (e) {
+        // opcional: mostrar erro
+        console.error('Erro ao preencher campos WFM SITE:', e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    preencherCamposWFM_SITE();
+    // ...outros códigos do DOMContentLoaded...
 });

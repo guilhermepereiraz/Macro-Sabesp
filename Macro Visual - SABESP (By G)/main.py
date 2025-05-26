@@ -11,6 +11,7 @@ import smtplib
 from email.mime.text import MIMEText
 import tkinter as tk
 from Consulta_GeraL_Final import iniciar_macro_consulta_geral
+from VinculoWFM import login
 
 # Detecta o tamanho da tela
 root = tk.Tk()
@@ -39,12 +40,11 @@ if not any(isinstance(handler, logging.StreamHandler) for handler in logging.get
 
 logging.info("--- main.py Iniciado ---")
 
-
 DB_CONFIG = {
-    'host': '127.0.0.1',
+    'host': '10.51.109.123',
     'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
-    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
-    'database': 'pendilist'
+    'password': 'SB28@sabesp', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendlist'
 }
 
 EMAIL_CONFIG = {                
@@ -234,6 +234,7 @@ def get_username_by_id(user_id):
             cursor.close()
         if connection:
             connection.close()
+
 # >>> FIM DA NOVA FUNÇÃO <<<
 
 @eel.expose
@@ -409,7 +410,7 @@ def verificar_credenciais(email, senha_texto_claro):
                         # ----------------------------------------------------
 
                         # Retorna status 'success' e o nome do usuário
-                        return {"status": "success", "identifier": usuario.get('nome')}
+                        return {"status": "success", "identifier": usuario.get('nome'), "user_id": usuario.get('id')}
 
                 else:
                     logging.warning(f"Falha de login: Senha incorreta (texto claro) para: {email}")
@@ -441,6 +442,75 @@ def verificar_credenciais(email, senha_texto_claro):
             logging.info("Conexão com o banco de dados para login fechada.")
 
 
+
+@eel.expose
+def vincular_wfm(usuario_id, wfm_login, wfm_senha):
+    logging.info(f"[vincular_wfm] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={wfm_login}")
+    # Chama Selenium para obter nome e perfil
+    resultado = login(wfm_login, wfm_senha)
+    logging.info(f"[vincular_wfm] Resultado do Selenium: {resultado}")
+    # Se não conseguiu extrair nome ou perfil, considera erro de autenticação
+    if not resultado or not resultado.get('nome') or not resultado.get('perfil'):
+        logging.error("[vincular_wfm] Falha ao autenticar no WFM. Login ou senha inválidos, ou erro na extração.")
+        return {"status": "error", "message": "Falha ao autenticar no WFM. Verifique login e senha."}
+
+    wfm_nome = resultado.get('nome', '')
+    wfm_perfil = resultado.get('perfil', '')
+    logging.info(f"[vincular_wfm] Nome extraído: {wfm_nome} | Perfil extraído: {wfm_perfil}")
+
+    connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+    try:
+        with connection.cursor() as cursor:
+            sql_check = "SELECT id FROM tb_vinculo_wfm WHERE usuario_id = %s"
+            cursor.execute(sql_check, (usuario_id,))
+            vinculo = cursor.fetchone()
+            logging.info(f"[vincular_wfm] Já existe vínculo? {vinculo}")
+            if vinculo:
+                sql_update = "UPDATE tb_vinculo_wfm SET wfm_login=%s, wfm_senha=%s, wfm_nome=%s, wfm_perfil=%s, data_vinculo=NOW() WHERE usuario_id=%s"
+                cursor.execute(sql_update, (wfm_login, wfm_senha, wfm_nome, wfm_perfil, usuario_id))
+                logging.info(f"[vincular_wfm] Vínculo atualizado para usuario_id={usuario_id}")
+            else:
+                sql_insert = "INSERT INTO tb_vinculo_wfm (usuario_id, wfm_login, wfm_senha, wfm_nome, wfm_perfil) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(sql_insert, (usuario_id, wfm_login, wfm_senha, wfm_nome, wfm_perfil))
+                logging.info(f"[vincular_wfm] Vínculo criado para usuario_id={usuario_id}")
+            connection.commit()
+            logging.info(f"[vincular_wfm] Commit realizado para usuario_id={usuario_id}")
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"[vincular_wfm] Erro ao salvar vínculo WFM: {e}")
+        return {"status": "error", "message": str(e)}
+    finally:
+        connection.close()
+        logging.info(f"[vincular_wfm] Conexão com o banco fechada para usuario_id={usuario_id}")
+
+
+@eel.expose
+def get_wfm_vinculo_by_user_id(user_id):
+    """
+    Retorna o nome, perfil, login e senha WFM vinculados ao usuário, se existir na tabela tb_vinculo_wfm.
+    """
+    try:
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            sql = "SELECT wfm_nome, wfm_perfil, wfm_login, wfm_senha FROM tb_vinculo_wfm WHERE usuario_id = %s"
+            cursor.execute(sql, (user_id,))
+            vinculo = cursor.fetchone()
+            if vinculo:
+                return {
+                    "status": "success",
+                    "wfm_nome": vinculo.get("wfm_nome", ""),
+                    "wfm_perfil": vinculo.get("wfm_perfil", ""),
+                    "wfm_login": vinculo.get("wfm_login", ""),
+                    "wfm_senha": vinculo.get("wfm_senha", "")
+                }
+            else:
+                return {"status": "not_found"}
+    except Exception as e:
+        logging.error(f"Erro ao buscar vínculo WFM: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+        
 @eel.expose
 def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario):
     """

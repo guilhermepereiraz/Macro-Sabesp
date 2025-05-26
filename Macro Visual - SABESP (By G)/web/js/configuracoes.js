@@ -536,6 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const login = document.getElementById('neta-login').value;
             const senha = document.getElementById('neta-senha').value;
 
+
             // Simulação de chamada API ou lógica de vinculação
             console.log('Tentando vincular Neta com:', { login, senha });
 
@@ -544,6 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
             netaStatus.classList.remove('success', 'error');
 
             if (login && senha) {
+
                 // Aqui você faria a chamada real para o backend
                 // Por exemplo: fetch('/api/vincular-neta', { method: 'POST', body: JSON.stringify({ login, senha }) })
                 // .then(response => response.json())
@@ -584,58 +586,173 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Lógica para o formulário Vincular WFM
     if (formVincularWFM) {
-        formVincularWFM.addEventListener('submit', function (event) {
-            event.preventDefault(); // Impede o envio padrão do formulário
-
+        formVincularWFM.addEventListener('submit', async function (event) {
+            event.preventDefault();
             const login = document.getElementById('wfm-login').value;
             const senha = document.getElementById('wfm-senha').value;
-
-            // Simulação de chamada API ou lógica de vinculação
-            console.log('Tentando vincular WFM com:', { login, senha });
-
-            // Exibir mensagem de status
-            wfmStatus.style.display = 'block';
-            wfmStatus.classList.remove('success', 'error');
-
-            if (login && senha) {
-                // Aqui você faria a chamada real para o backend
-                // fetch('/api/vincular-wfm', { method: 'POST', body: JSON.stringify({ login, senha }) })
-                // .then(response => response.json())
-                // .then(data => {
-                //     if (data.success) {
-                //         wfmStatus.textContent = 'WFM vinculado com sucesso!';
-                //         wfmStatus.classList.add('success');
-                //         showToast('WFM vinculado com sucesso!', 'success');
-                //     } else {
-                //         wfmStatus.textContent = 'Erro ao vincular WFM: ' + (data.message || 'Credenciais inválidas.');
-                //         wfmStatus.classList.add('error');
-                //         showToast('Erro ao vincular WFM.', 'error');
-                //     }
-                // })
-                // .catch(error => {
-                //     wfmStatus.textContent = 'Erro de conexão ao vincular WFM.';
-                //     wfmStatus.classList.add('error');
-                //     showToast('Erro de rede ao vincular WFM.', 'error');
-                // });
-
-                // Simulação de sucesso após um pequeno atraso
-                setTimeout(() => {
-                    wfmStatus.textContent = 'WFM vinculado com sucesso!';
-                    wfmStatus.classList.add('success');
-                    showToast('WFM vinculado com sucesso!', 'success');
-                    // Opcional: Limpar campos após sucesso
-                    // document.getElementById('wfm-login').value = '';
-                    // document.getElementById('wfm-senha').value = '';
-                }, 1000);
-
-            } else {
-                wfmStatus.textContent = 'Por favor, preencha login e senha para WFM.';
-                wfmStatus.classList.add('error');
-                showToast('Preencha os campos para WFM.', 'error');
+            const nome = document.getElementById('wfm-nome');
+            const perfil = document.getElementById('wfm-perfil');
+            const botaoVincular = document.getElementById('bntvinc');
+            const botaoRedefinir = document.getElementById('bntvinc2');
+            const spinnerVinculo = document.getElementById('spinervinc');
+            const loginInput = document.getElementById('wfm-login');
+            const senhaInput = document.getElementById('wfm-senha');
+            const mensagemErroDiv = document.getElementById('mensagem-de-erro');
+            // Pega o user_id já salvo na sessionStorage
+            const usuarioId = sessionStorage.getItem('user_id');
+            if (!usuarioId) {
+                alert('ID do usuário não encontrado. Faça login novamente.');
+                return;
             }
+            // Esconde mensagem de erro antes de tentar
+            if (mensagemErroDiv) {
+                mensagemErroDiv.style.display = 'none';
+                mensagemErroDiv.textContent = '';
+            }
+            // Mostra apenas título, botão e spinner
+            if (loginInput) loginInput.parentElement.style.display = 'none';
+            if (senhaInput) senhaInput.parentElement.style.display = 'none';
+            if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+            if (botaoVincular) botaoVincular.style.display = 'inline-block';
+            if (spinnerVinculo) spinnerVinculo.style.display = 'inline-block';
+            // Chama o backend para vincular
+            let resultadoVinculo = null;
+            try {
+                resultadoVinculo = await eel.vincular_wfm(usuarioId, login, senha)();
+            } catch (e) {
+                if (mensagemErroDiv) {
+                    mensagemErroDiv.textContent = 'Erro de comunicação com o backend.';
+                    mensagemErroDiv.style.display = 'block';
+                }
+                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+                // Mostra novamente os campos de login e senha para o usuário tentar de novo
+                if (loginInput) loginInput.parentElement.style.display = 'block';
+                if (loginInput) loginInput.value = '';
+                if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (senhaInput) senhaInput.value = '';
+                if (botaoVincular) botaoVincular.style.display = 'inline-block';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+                return;
+            }
+            // Se o backend retornar erro, mostra na div
+            if (!resultadoVinculo || resultadoVinculo.status !== 'success') {
+                if (mensagemErroDiv) {
+                    mensagemErroDiv.textContent = resultadoVinculo && resultadoVinculo.message ? resultadoVinculo.message : 'Erro ao vincular WFM. Verifique login e senha.';
+                    mensagemErroDiv.style.display = 'block';
+                }
+                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+                // Mostra novamente os campos de login e senha para o usuário tentar de novo
+                if (loginInput) loginInput.parentElement.style.display = 'block';
+                if (loginInput) loginInput.value = '';
+                if (senhaInput) senhaInput.value = '';
+                if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (botaoVincular) botaoVincular.style.display = 'inline-block';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+                return;
+            }
+            // Simula processamento de 7 segundos (mantém sua lógica)
+            setTimeout(async () => {
+                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+                if (botaoVincular) botaoVincular.style.display = 'none';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'inline-block';
+                // Após o vínculo, busca e preenche os campos atualizados do backend
+                if (typeof preencherCamposWFM === 'function') {
+                    await preencherCamposWFM();
+                }
+                // Garante visibilidade dos campos
+                if (nome) {
+                    nome.parentElement.style.display = 'block';
+                    nome.style.display = 'block';
+                }
+                if (perfil) {
+                    perfil.parentElement.style.display = 'block';
+                    perfil.style.display = 'block';
+                }
+                wfmStatus.textContent = 'WFM vinculado com sucesso!';
+                wfmStatus.classList.add('success');
+                showToast('WFM vinculado com sucesso!', 'success');
+            }, 7000);
         });
+
+        // Lógica para o botão Redefinir WFM
+        const botaoRedefinir = document.getElementById('bntvinc2');
+        if (botaoRedefinir) {
+            botaoRedefinir.addEventListener('click', function(event) {
+                event.preventDefault();
+                const loginInput = document.getElementById('wfm-login');
+                const senhaInput = document.getElementById('wfm-senha');
+                const botaoVincular = document.getElementById('bntvinc');
+                const spinnerVinculo = document.getElementById('spinervinc');
+                const nome = document.getElementById('wfm-nome');
+                const perfil = document.getElementById('wfm-perfil');
+                // Mostra login e senha novamente
+                if (loginInput) {
+                    loginInput.parentElement.style.display = 'block';
+                    loginInput.value = '';
+                }
+                if (senhaInput) {
+                    senhaInput.parentElement.style.display = 'block';
+                    senhaInput.value = '';
+                }
+                // Esconde nome e perfil
+                if (nome) nome.parentElement.style.display = 'none';
+                if (perfil) perfil.parentElement.style.display = 'none';
+                // Esconde redefinir, mostra vincular, esconde spinner
+                botaoRedefinir.style.display = 'none';
+                if (botaoVincular) botaoVincular.style.display = 'inline-block';
+                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+                // Limpa status
+                if (wfmStatus) {
+                    wfmStatus.textContent = '';
+                    wfmStatus.classList.remove('success', 'error');
+                }
+            });
+        }
     }
 
+    // Função para preencher os campos de nome/perfil WFM ao entrar na página de configurações
+    async function preencherCamposWFM() {
+        const usuarioId = sessionStorage.getItem('user_id');
+        if (!usuarioId) return;
+        try {
+            const res = await eel.get_wfm_vinculo_by_user_id(usuarioId)();
+            const nomeInput = document.getElementById('wfm-nome');
+            const perfilInput = document.getElementById('wfm-perfil');
+            const loginInput = document.getElementById('wfm-login');
+            const senhaInput = document.getElementById('wfm-senha');
+            const botaoVincular = document.getElementById('bntvinc');
+            const botaoRedefinir = document.getElementById('bntvinc2');
+            if (res && res.status === 'success' && res.wfm_nome && res.wfm_perfil) {
+                // Preenche e mostra nome/perfil
+                if (nomeInput) {
+                    nomeInput.value = res.wfm_nome || '';
+                    if (nomeInput.parentElement) nomeInput.parentElement.style.display = 'block';
+                }
+                if (perfilInput) {
+                    perfilInput.value = res.wfm_perfil || '';
+                    if (perfilInput.parentElement) perfilInput.parentElement.style.display = 'block';
+                }
+                // Esconde login/senha e botão vincular, mostra redefinir
+                if (loginInput) loginInput.parentElement.style.display = 'none';
+                if (senhaInput) senhaInput.parentElement.style.display = 'none';
+                if (botaoVincular) botaoVincular.style.display = 'none';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'inline-block';
+            } else {
+                // Se não houver vínculo, mostra login/senha e botão vincular, esconde redefinir
+                if (loginInput) loginInput.parentElement.style.display = 'block';
+                if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (botaoVincular) botaoVincular.style.display = 'inline-block';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+                // Esconde nome/perfil
+                if (nomeInput) nomeInput.parentElement.style.display = 'none';
+                if (perfilInput) perfilInput.parentElement.style.display = 'none';
+            }
+        } catch (e) {
+            // opcional: mostrar erro
+        }
+    }
+
+    preencherCamposWFM();
 });
 
 function iniciarTransicaoPagina() {
@@ -666,23 +783,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     console.log('DOMContentLoaded finalizado.');
 });
-
-function iniciarTransicaoPagina() {
-    console.log("[macros.js] Chamada a iniciarTransicaoPagina.");
-    const bodyElement = document.body;
-    if (bodyElement) {
-        bodyElement.style.display = 'block';
-        setTimeout(() => {
-            bodyElement.classList.add('is-visible');
-            console.log("[macros.js] Transição de entrada iniciada para o body.");
-            // Inicializa o carrossel aqui, após o display ser ajustado e um pequeno atraso
-            calculateCarouselMetrics(); // <-- Nota: Esta função precisa estar definida e acessível
-            updateCarouselDisplay(); // <-- Nota: Esta função precisa estar definida e acessível
-        }, 5); // Atraso após display:block antes de adicionar a classe e inicializar carrossel
-    } else {
-        console.error("[macros.js] Elemento body não encontrado.");
-    }
-}
 
 window.deslogar = function () {
     console.log("[macrosite.js] Chamada a deslogar.");
@@ -908,5 +1008,4 @@ function obterParametroDaURL(nome) {
     //console.log("[macros.js] Valor do parâmetro encontrado e decodificado:", decodedValue); // Comentado para reduzir logs
     return decodedValue;
 }
-
 

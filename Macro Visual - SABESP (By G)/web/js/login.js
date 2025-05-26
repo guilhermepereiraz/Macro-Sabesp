@@ -116,12 +116,16 @@ async function verificarLogin() {
         // LOGIN BEM-SUCEDIDO (Regular Login)
         console.log("Login bem-suucedido (Regular). Aguardando animação de sucesso...");
         const identificador = resultadoLogin.identifier; // Pega o identificador do objeto retornado
+        const userId = resultadoLogin.user_id; // novo campo retornado pelo backend
+        sessionStorage.setItem('nomeUsuario', identificador);
+        sessionStorage.setItem('user_id', userId); // <-- ESSA LINHA É O QUE FALTAVA!
 
         await mostrarVerificadoEsumirSpinner(); // Original: Aguarda a animação de sucesso
         console.log("Animação de sucesso completa. Redirecionando para Index...");
         const loginStartTime = Date.now();
         sessionStorage.setItem('sessionStartTime', loginStartTime);
         // Original: Redireciona para index.html usando o identificador
+        sessionStorage.setItem('nomeUsuario', identificador);
         window.location.href = `index.html?identificador=${encodeURIComponent(identificador)}&login_time=${loginStartTime}`;
 
     }
@@ -130,11 +134,13 @@ async function verificarLogin() {
          // LOGIN BEM-SUCEDIDO (Primeiro Login)
          console.log("Login bem-suucedido (Primeiro Login). Aguardando animação de sucesso...");
          const userId = resultadoLogin.identifier; // Pega o ID do usuário do objeto retornado (conforme definido no Python)
+         sessionStorage.setItem('user_id', userId);
 
          await mostrarVerificadoEsumirSpinner(); // Original: Usa a mesma animação de sucesso
          console.log("Animação de sucesso completa. Redirecionando para First Login Page...");
          const loginStartTime = Date.now();
          // Redireciona para firstlogin.html, passando o ID do usuário (ou outro dado necessário)
+         sessionStorage.setItem('nomeUsuario', identificador);
          window.location.href = `firstlogin.html?identificador=${encodeURIComponent(userId)}&login_time=${loginStartTime}`;
 
     }

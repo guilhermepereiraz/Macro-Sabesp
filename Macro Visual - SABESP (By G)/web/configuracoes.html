@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macro JGL - Configurações</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/configuracoes.css">
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="js/botao_fixo.js"></script>
+    <link rel="stylesheet" href="css/botao_fixo.css">
+
 </head>
 
 <body>
@@ -437,7 +441,7 @@
             </section>
 
             <section class="other-settings-section" id="other-settings-section">
-                <h2 id="tito">Outras Configurações</h2>
+                <h2 id="tito">Sincronização de Dados</h2>
                 <div class="config-grid large-cards" id="other-settings-grid">
                     <div class="config-card" data-section="integracoes-sistema"
                         onclick="showSection('integracoes-sistema')" style="cursor:pointer;">
@@ -451,6 +455,8 @@
             <!-- Mantém apenas UMA seção de integrações do sistema, removendo duplicidade -->
             <section id="integracoes-sistema" class="config-detail-section" style="display: none;">
                 <h2 class="section-title" style="text-align: center;">Integrações do Sistema</h2>
+                <div id="mensagem-de-erro"
+                style="color: red; display: none; font-weight: bolder; margin-left: 0.5%; margin-bottom: 1%; text-align: center;"></div>
                 <div class="integrations-container">
                     <div class="integration-card">
                         <h3>Vincular Neta</h3>
@@ -475,11 +481,31 @@
                                 <label for="wfm-login">Login:</label>
                                 <input type="text" id="wfm-login" name="wfm-login" required>
                             </div>
+
                             <div class="form-group">
                                 <label for="wfm-senha">Senha:</label>
                                 <input type="password" id="wfm-senha" name="wfm-senha" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">Vincular WFM</button>
+
+                            <div class="form-group" style="display: none;">
+                                <label for="wfm-nome">Nome:</label>
+                                <input type="text" id="wfm-nome" name="wfm-nome" readonly>
+                            </div>
+
+                            <div class="form-group" style="display: none;">
+                                <label for="wfm-perfil">Perfil:</label>
+                                <input type="text" id="wfm-perfil" name="wfm-perfil" readonly>
+                            </div>
+
+
+                            <div class="spinner-border text-warning" role="status" style="width: 10em; height: 10em; margin-bottom: 20px; margin-top: 20px; display: none;" id="spinervinc">
+                                <span class="sr-only"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="bntvinc">Vincular WFM</button>
+
+                            <button type="submit" class="btn btn-secondaryy" id="bntvinc2"
+                                style="display: none;">Redefinir WFM</button>
                         </form>
                         <p id="wfm-status" class="integration-status" style="display: none;"></p>
                     </div>
@@ -510,12 +536,51 @@
                 </div>
             </div>
 
+            <div id="transp"></div>
+    <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
+        <i class="fas fa-headset icon"></i>
+    </div>
+    <div class="fixed-button-container">
+        <div id="overlayText">
+            <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
+                ajudar?</h1>
+            <hr>
+            <div class="btfixoligue">
+                <a href="#">
+                    <i class="fas fa-robot"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixoligue" style="font-weight: bolder;">Assistente Virtual</h1>
+                    <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
+                </a>
+            </div>
+            <div class="btfixowpp">
+                <a href="#" onclick="mostrarTawkTo(); return false;">
+                    <i class="fas fa-users"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixowpp1" style="font-weight: bolder;">Fale com Nossa Equipe</h1>
+                    <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
 
     </main>
 
-    <script src="script.js"></script>
+    
+    <script type="text/javascript" src="/eel.js"></script>
     <script src="js/configuracoes.js"></script>
     <script src="https://kit.fontawesome.com/your-font-awesome-kit-id.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"
+        integrity="sha384-eMNCOe7tCwlWPjSj1jikR5+ebnQlEV+TnOOvfTmFGMKTmcX69jKnaYiwVP0klHW"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
 </body>
+
 
 </html>

@@ -235,7 +235,7 @@ def adiciona_nao_encontrado_template_hidro(item_value, lock): # Renomeado file_l
         "Status SITIE": "NÃO ENCONTRADO"
     }
     home_dir = os.path.expanduser('~')
-    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro Consulta Gerall')
+    output_dir = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro Consulta Geral')
     now = datetime.now()
     data_formatada = now.strftime("%d_%m_%Y")
     output_file_path = os.path.join(output_dir, f'Erros_Consulta_Geral-{data_formatada}.csv')

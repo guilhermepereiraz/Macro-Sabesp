@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const detailSections = document.querySelectorAll('.config-detail-section');
     const configGrid = document.querySelector('.config-grid');
     const quickSettingsSection = document.querySelector('.quick-settings-section'); // Nova
@@ -37,9 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
         modalTitle.textContent = title;
         modalMessage.textContent = message;
         confirmationModal.style.display = 'flex'; // Usar flex para centralizar
-        
+
         // Limpa listeners antigos para evitar duplicação
-        modalConfirmBtn.onclick = null; 
+        modalConfirmBtn.onclick = null;
         modalCancelBtn.onclick = null;
 
         modalConfirmBtn.onclick = () => {
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const otherSettingsGrid = document.getElementById('other-settings-grid');
 
     // Função para mostrar uma seção específica
-    window.showSection = function(sectionId) {
+    window.showSection = function (sectionId) {
         detailSections.forEach(section => {
             section.style.display = 'none';
         });
@@ -84,13 +84,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (otherSettingsGrid) {
                 otherSettingsGrid.style.display = 'none';
             }
-            
+
             // Atualiza o Breadcrumb
             breadcrumb.style.display = 'flex';
             // Encontra o nome do card que corresponde à seção
-            const cardName = document.querySelector(`.config-card[data-section="${sectionId}"]`) 
-                             ? document.querySelector(`.config-card[data-section="${sectionId}"]`).dataset.cardName
-                             : targetSection.querySelector('.section-title').textContent; // Fallback se não tiver data-card-name
+            const cardName = document.querySelector(`.config-card[data-section="${sectionId}"]`)
+                ? document.querySelector(`.config-card[data-section="${sectionId}"]`).dataset.cardName
+                : targetSection.querySelector('.section-title').textContent; // Fallback se não tiver data-card-name
             currentSectionSpan.textContent = cardName;
             breadcrumbMainLink.style.display = 'inline'; // Garante que "Configurações" esteja visível
             breadcrumb.querySelector('.breadcrumb-separator').style.display = 'inline';
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Função para esconder uma seção e mostrar a grid de cards e sugestões
-    window.hideSection = function(sectionId) {
+    window.hideSection = function (sectionId) {
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.style.display = 'none';
@@ -122,14 +122,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event Listeners para os botões "Acessar" nos cards
     document.querySelectorAll('.config-card .btn-primary').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const sectionId = this.dataset.section;
             window.showSection(sectionId);
         });
     });
 
     // Event Listener para o link "Configurações" no Breadcrumb
-    breadcrumbMainLink.addEventListener('click', function(event) {
+    breadcrumbMainLink.addEventListener('click', function (event) {
         event.preventDefault();
         // Esconde todas as seções de detalhes
         detailSections.forEach(section => {
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Campo de Pesquisa de Configurações ---
     const configSearchInput = document.getElementById('config-search');
-    configSearchInput.addEventListener('keyup', function() {
+    configSearchInput.addEventListener('keyup', function () {
         const searchTerm = this.value.toLowerCase();
         document.querySelectorAll('.config-card').forEach(card => {
             const cardName = card.dataset.cardName.toLowerCase();
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // Lógica para o botão "Editar" / "Salvar" do Perfil (Informações Pessoais)
-    editPerfilInfoBtn.addEventListener('click', function() {
+    editPerfilInfoBtn.addEventListener('click', function () {
         emailInput.readOnly = false;
         telefoneInput.readOnly = false;
         editPerfilInfoBtn.style.display = 'none';
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         emailInput.focus();
     });
 
-    formPerfilInfo.addEventListener('submit', function(event) {
+    formPerfilInfo.addEventListener('submit', function (event) {
         event.preventDefault();
         let isValid = true;
         emailError.textContent = '';
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Lógica para o formulário de Credenciais
-    formPerfilCredenciais.addEventListener('submit', function(event) {
+    formPerfilCredenciais.addEventListener('submit', function (event) {
         event.preventDefault();
 
         let isValid = true;
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Botão "Excluir Conta"
-    deleteAccountBtn.addEventListener('click', function() {
+    deleteAccountBtn.addEventListener('click', function () {
         showConfirmationModal('Excluir Conta', 'Esta ação é irreversível e excluirá todos os seus dados. Deseja continuar?', () => {
             // Lógica para exclusão da conta aqui
             console.log('Conta excluída!');
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Lógica das Abas
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
 
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
     emailNotifToggle.addEventListener('change', toggleFrequenciaNotif);
     toggleFrequenciaNotif();
 
-    formNotificacoes.addEventListener('submit', function(event) {
+    formNotificacoes.addEventListener('submit', function (event) {
         event.preventDefault();
         const selectedNotifTypes = Array.from(document.querySelectorAll('input[name="notif-type"]:checked')).map(cb => cb.value);
 
@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast('Configurações de notificações salvas!', 'success');
     });
 
-    testNotificationBtn.addEventListener('click', function() {
+    testNotificationBtn.addEventListener('click', function () {
         showToast('Uma notificação de teste foi enviada!', 'info');
         // Em um cenário real, você faria uma chamada ao backend para enviar uma notificação de teste.
     });
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
     autenticacaoDoisFatoresToggle.addEventListener('change', toggle2FAConfig);
     toggle2FAConfig();
 
-    formSeguranca.addEventListener('submit', function(event) {
+    formSeguranca.addEventListener('submit', function (event) {
         event.preventDefault();
 
         let isValid = true;
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const formPreferencias = document.getElementById('form-preferencias');
     const resetPreferencesBtn = document.getElementById('reset-preferences-btn'); // Novo
 
-    formPreferencias.addEventListener('submit', function(event) {
+    formPreferencias.addEventListener('submit', function (event) {
         event.preventDefault();
         console.log('Preferências Gerais salvas:', {
             idioma: document.getElementById('idioma').value,
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast('Preferências salvas com sucesso!', 'success');
     });
 
-    resetPreferencesBtn.addEventListener('click', function() {
+    resetPreferencesBtn.addEventListener('click', function () {
         showConfirmationModal('Redefinir Preferências', 'Isso restaurará todas as suas preferências para os valores padrão do sistema. Deseja continuar?', () => {
             // Lógica para redefinir as preferências para os valores padrão
             document.getElementById('idioma').value = 'pt-BR';
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const formGerenciamentoMacros = document.getElementById('form-gerenciamento-macros');
     const enableMacroReviewToggle = document.getElementById('enable-macro-review');
 
-    formGerenciamentoMacros.addEventListener('submit', function(event) {
+    formGerenciamentoMacros.addEventListener('submit', function (event) {
         event.preventDefault();
         console.log('Configurações de Gerenciamento de Macros salvas:', {
             defaultCategory: document.getElementById('macro-default-category').value,
@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Futuras Seções Detalhadas (Exemplos) ---
     const formDadosBackup = document.getElementById('form-dados-backup');
     if (formDadosBackup) { // Verifica se o formulário existe (seção visível)
-        formDadosBackup.addEventListener('submit', function(event) {
+        formDadosBackup.addEventListener('submit', function (event) {
             event.preventDefault();
             console.log('Configurações de Dados e Backup salvas:', {
                 frequency: document.getElementById('backup-frequency').value,
@@ -459,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast('Configurações de dados e backup salvas!', 'success');
         });
         // Event listener para o botão de backup imediato (se houver)
-        formDadosBackup.querySelector('.btn-info').addEventListener('click', function() {
+        formDadosBackup.querySelector('.btn-info').addEventListener('click', function () {
             showToast('Backup iniciado. Você será notificado ao concluir.', 'info');
             // Aqui seria a lógica para iniciar o backup via backend
         });
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para retornar à tela principal de configurações
     // Esta função já deve existir
-    window.hideSection = function(sectionId) {
+    window.hideSection = function (sectionId) {
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.style.display = 'none';
@@ -517,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para o clique no link/card de "Integrações do Sistema"
     // Certifique-se que você tenha um elemento com data-section="integracoes-sistema"
     document.querySelectorAll('[data-section]').forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             const sectionId = this.dataset.section;
             const sectionName = this.textContent; // Ou um atributo data-name se o textContent não for adequado
             if (sectionId === 'integracoes-sistema') {
@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Lógica para o formulário Vincular Neta
     if (formVincularNeta) {
-        formVincularNeta.addEventListener('submit', function(event) {
+        formVincularNeta.addEventListener('submit', function (event) {
             event.preventDefault(); // Impede o envio padrão do formulário
 
             const login = document.getElementById('neta-login').value;
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Lógica para o formulário Vincular WFM
     if (formVincularWFM) {
-        formVincularWFM.addEventListener('submit', function(event) {
+        formVincularWFM.addEventListener('submit', function (event) {
             event.preventDefault(); // Impede o envio padrão do formulário
 
             const login = document.getElementById('wfm-login').value;
@@ -637,4 +637,276 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 });
+
+function iniciarTransicaoPagina() {
+    // Esta função parece estar definida mais de uma vez ou de formas inconsistentes nos seus arquivos.
+    // Mantenha UMA definição correta e acessível.
+    console.log("[index.js] Chamada a iniciarTransicaoPagina.");
+
+    const bodyElement = document.body;
+    if (bodyElement) {
+        bodyElement.style.display = 'block';
+        setTimeout(() => {
+            bodyElement.classList.add('is-visible');
+            console.log("[index.js] Transição de entrada iniciada para o body.");
+        }, 5); // Pequeno atraso após display:block
+    } else {
+        console.error("[index.js] Elemento body não encontrado.");
+    }
+}
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOMContentLoaded disparado. Chamando iniciarTransicaoPagina.');
+    // Chama a função que inicia a transição da página
+    iniciarTransicaoPagina();
+
+    // Se você tiver outras inicializações que precisam do DOM pronto
+    // mas NÃO precisam esperar pela transição ou pelo setTimeout dentro de iniciarTransicaoPagina,
+    // você pode colocá-las aqui fora do setTimeout da transição.
+
+    console.log('DOMContentLoaded finalizado.');
+});
+
+function iniciarTransicaoPagina() {
+    console.log("[macros.js] Chamada a iniciarTransicaoPagina.");
+    const bodyElement = document.body;
+    if (bodyElement) {
+        bodyElement.style.display = 'block';
+        setTimeout(() => {
+            bodyElement.classList.add('is-visible');
+            console.log("[macros.js] Transição de entrada iniciada para o body.");
+            // Inicializa o carrossel aqui, após o display ser ajustado e um pequeno atraso
+            calculateCarouselMetrics(); // <-- Nota: Esta função precisa estar definida e acessível
+            updateCarouselDisplay(); // <-- Nota: Esta função precisa estar definida e acessível
+        }, 5); // Atraso após display:block antes de adicionar a classe e inicializar carrossel
+    } else {
+        console.error("[macros.js] Elemento body não encontrado.");
+    }
+}
+
+window.deslogar = function () {
+    console.log("[macrosite.js] Chamada a deslogar.");
+    sessionStorage.removeItem('nomeUsuario'); // Limpa o nome de usuário da sessão
+    console.log("[macrosite.js] sessionStorage 'nomeUsuario' limpo. Redirecionando para login.html");
+    window.location.href = './login.html'; // Redireciona para a página de login
+};
+
+window.onload = async function () {
+    console.log("[macros.js] window.onload UNIFICADO iniciado.");
+
+    const nomeUsuarioElement = document.getElementById('nome-usuario');
+    let identificadorUsuario = null;
+
+    const identificadorUsuarioDaURL = obterParametroDaURL('identificador');
+    const userIdFromUrl = obterParametroDaURL('user_id');
+    const firstLoginComplete = obterParametroDaURL('first_login_complete');
+
+    console.log("[macros.js] Valor de identificadorUsuarioDaURL:", identificadorUsuarioDaURL);
+    console.log("[macros.js] Valor de userIdFromUrl:", userIdFromUrl);
+    console.log("[macros.js] Valor de firstLoginComplete:", firstLoginComplete);
+    console.log("[macros.js] Elemento nomeUsuarioElement:", nomeUsuarioElement);
+
+    if (identificadorUsuarioDaURL) {
+        identificadorUsuario = identificadorUsuarioDaURL;
+        sessionStorage.setItem('nomeUsuario', identificadorUsuario);
+        console.log("[macros.js] Nome do usuário obtido da URL (identificador) e armazenado em sessionStorage.");
+    } else if (userIdFromUrl && firstLoginComplete === 'true') {
+        console.log("[macros.js] Redirecionado do primeiro login. Obtendo nome do usuário por ID...");
+        try {
+            const resultadoNome = await eel.get_username_by_id(userIdFromUrl)();
+            console.log("[macros.js] Resultado get_username_by_id:", resultadoNome);
+
+            if (resultadoNome && resultadoNome.status === 'success') {
+                identificadorUsuario = resultadoNome.username;
+                sessionStorage.setItem('nomeUsuario', identificadorUsuario);
+                console.log("[macros.js] Nome do usuário obtido por ID e armazenado em sessionStorage.");
+            } else {
+                console.error("[macros.js] Falha ao obter nome do usuário por ID:", resultadoNome);
+            }
+        } catch (error) {
+            console.error("[macros.js] Erro na chamada Eel para get_username_by_id:", error);
+        }
+    } else {
+        identificadorUsuario = sessionStorage.getItem('nomeUsuario');
+        if (identificadorUsuario) {
+            console.log("[macros.js] Nome do usuário obtido do sessionStorage (fallback).");
+        } else {
+            console.log("[macros.js] Nome do usuário não encontrado em URL ou sessionStorage. Usuário pode não estar logado.");
+        }
+    }
+
+    if (identificadorUsuario && nomeUsuarioElement) {
+        nomeUsuarioElement.textContent = identificadorUsuario;
+        console.log("[macros.js] Nome do usuário exibido:", identificadorUsuario);
+    } else if (nomeUsuarioElement) {
+        nomeUsuarioElement.textContent = "Usuário Padrão";
+        console.log("[macros.js] Nome do usuário não atualizado. Identificador nulo ou elemento não encontrado. Exibindo padrão.");
+    }
+
+    if (typeof iniciarTransicaoPagina === 'function') {
+        iniciarTransicaoPagina();
+        console.log("[macros.js] iniciarTransicaoPagina chamada.");
+    } else {
+        console.error("[macros.js] Função iniciarTransicaoPagina não definida.");
+    }
+
+    if (typeof atualizarHorarioAtual === 'function') {
+        atualizarHorarioAtual();
+        console.log("[macros.js] atualizarHorarioAtual chamada.");
+    } else {
+        console.error("[macros.js] Função atualizarHorarioAtual não definida.");
+    }
+
+    if (typeof atualizarHorarioAtual === 'function') {
+        setInterval(atualizarHorarioAtual, 1000);
+        console.log("[macros.js] setInterval para atualizarHorarioAtual configurado.");
+    }
+
+    // --- Lógica do timer logado ---
+    let sessionStartTime = sessionStorage.getItem('sessionStartTime');
+    console.log(`Timer: Tentando obter sessionStartTime do sessionStorage. Valor: ${sessionStartTime}`);
+
+    if (sessionStartTime) {
+        sessionStartTime = parseInt(sessionStartTime, 10);
+        if (!isNaN(sessionStartTime)) {
+            console.log("Timer: sessionStartTime válido obtido do sessionStorage.");
+            if (typeof updateLoggedInTime === 'function') {
+                updateLoggedInTime(sessionStartTime);
+                setInterval(() => {
+                    updateLoggedInTime(sessionStartTime);
+                }, 1000);
+                console.log("Timer: Timer iniciado usando sessionStorage.");
+            } else {
+                console.error("Timer: Função updateLoggedInTime não definida neste escopo.");
+                const loggedInTimeSpan = document.getElementById('logged-in-time');
+                if (loggedInTimeSpan) {
+                    loggedInTimeSpan.innerText = "Erro JS (timer)";
+                }
+            }
+        } else {
+            console.error("Timer: Valor inválido para sessionStartTime no sessionStorage. Limpando...");
+            const loggedInTimeSpan = document.getElementById('logged-in-time');
+            if (loggedInTimeSpan) {
+                loggedInTimeSpan.innerText = "Erro no timer (storage)";
+            }
+            sessionStorage.removeItem('sessionStartTime');
+        }
+    } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        const loginTimeParam = urlParams.get('login_time');
+        console.log(`Timer: sessionStartTime não encontrado no sessionStorage. Tentando obter da URL. Valor: ${loginTimeParam}`);
+
+        if (loginTimeParam) {
+            sessionStartTime = parseInt(loginTimeParam, 10);
+            if (!isNaN(sessionStartTime)) {
+                console.log("Timer: sessionStartTime válido obtido da URL.");
+                sessionStorage.setItem('sessionStartTime', sessionStartTime);
+                console.log("Timer: sessionStartTime salvo em sessionStorage a partir da URL.");
+                if (typeof updateLoggedInTime === 'function') {
+                    updateLoggedInTime(sessionStartTime);
+                    setInterval(() => {
+                        updateLoggedInTime(sessionStartTime);
+                    }, 1000);
+                    console.log("Timer: Timer iniciado usando URL.");
+                } else {
+                    console.error("Timer: Função updateLoggedInTime não definida neste escopo (após obter da URL).");
+                    const loggedInTimeSpan = document.getElementById('logged-in-time');
+                    if (loggedInTimeSpan) {
+                        loggedInTimeSpan.innerText = "Erro JS (timer URL)";
+                    }
+                }
+            } else {
+                console.error("Timer: Parâmetro 'login_time' inválido na URL.");
+                const loggedInTimeSpan = document.getElementById('logged-in-time');
+                if (loggedInTimeSpan) {
+                    loggedInTimeSpan.innerText = "Erro no timer (URL)";
+                }
+            }
+        } else {
+            console.warn("Timer: Parâmetro 'login_time' não encontrado em URL nem sessionStorage. O timer não iniciará.");
+            const loggedInTimeSpan = document.getElementById('logged-in-time');
+            if (loggedInTimeSpan) {
+                loggedInTimeSpan.innerText = "Não iniciado";
+            }
+        }
+    }
+    // --- Fim da lógica do timer logado ---
+
+    console.log("[macros.js] window.onload UNIFICADO finalizado.");
+};
+
+function formatTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    // Usa padStart para adicionar um zero à esquerda se o número for menor que 10
+    const paddedHours = String(hours).padStart(2, '0');
+    const paddedMinutes = String(minutes).padStart(2, '0');
+    const paddedSeconds = String(seconds).padStart(2, '0');
+
+    return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+}
+
+// Função para atualizar o span com o tempo logado
+function updateLoggedInTime(sessionStartTime) {
+    const loggedInTimeSpan = document.getElementById('logged-in-time');
+    if (!loggedInTimeSpan) {
+        console.error("Elemento com ID 'logged-in-time' não encontrado.");
+        return; // Sai da função se o elemento não existir
+    }
+
+    // Calcula o tempo decorrido em milissegundos
+    const now = Date.now();
+    const elapsedMilliseconds = now - sessionStartTime;
+
+    // Calcula o tempo decorrido em segundos (arredondado para baixo)
+    const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+
+    // Formata o tempo e atualiza o span
+    loggedInTimeSpan.innerText = formatTime(elapsedSeconds);
+}
+
+function atualizarHorarioAtual() {
+    const horarioAtualElement = document.getElementById('current-time');
+
+    if (horarioAtualElement) {
+        const agora = new Date();
+        const horas = agora.getHours().toString().padStart(2, '0');
+        const minutos = agora.getMinutes().toString().padStart(2, '0');
+        const segundos = agora.getSeconds().toString().padStart(2, '0');
+        const dia = agora.getDate().toString().padStart(2, '0');
+        const mes = (agora.getMonth() + 1).toString().padStart(2, '0');
+        const ano = agora.getFullYear();
+
+        horarioAtualElement.textContent = `${dia}/${mes}/${ano} - ${horas}:${minutos}:${segundos}`;
+    } else {
+        console.error("[macros.js] Elemento com ID 'current-time' não encontrado no DOM ao atualizar horário.");
+    }
+}
+
+function obterParametroDaURL(nome) {
+    //console.log("[macros.js] Chamada a obterParametroDaURL para o parâmetro:", nome); // Comentado para reduzir logs
+
+    nome = nome.replace(/[\[\]]/g, '\\$&');
+    const regex = new RegExp('[?&]' + nome + '(=([^&#]*)|&|#|$)');
+    const results = regex.exec(window.location.href);
+
+    //console.log("[macros.js] URL atual:", window.location.href); // Comentado para reduzir logs
+    //console.log("[macros.js] Resultados da Regex:", results); // Comentado para reduzir logs
+
+
+    if (!results) {
+        //console.log("[macros.js] Parâmetro não encontrado na URL."); // Comentado para reduzir logs
+        return null;
+    }
+    if (!results[2]) {
+        //console.log("[macros.js] Parâmetro encontrado, mas o valor está vazio."); // Comentado para reduzir logs
+        return '';
+    }
+    const decodedValue = decodeURIComponent(results[2].replace(/\+/g, ' '));
+    //console.log("[macros.js] Valor do parâmetro encontrado e decodificado:", decodedValue); // Comentado para reduzir logs
+    return decodedValue;
+}
+
 

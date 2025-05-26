@@ -1,12 +1,21 @@
 @charset "UTF-8";
 
-body, html {
+body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow-x: hidden; /* Evita scroll horizontal indesejado */
+    overflow-x: hidden;
+    /* Evita scroll horizontal indesejado */
     font-family: Arial, Helvetica, sans-serif;
+    opacity: 0;
+    display: none;
+    transition: opacity 1s ease-in-out;
+}
+
+body.is-visible {
+    opacity: 1;
+    /* Torna-se completamente visível */
 }
 
 .header {
@@ -220,7 +229,7 @@ body, html {
     margin: 20px auto;
     background-color: #f8f8f8;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .page-title {
@@ -249,6 +258,7 @@ body, html {
     color: #007bff;
     transition: color 0.2s;
 }
+
 .breadcrumb-item:hover {
     color: #0056b3;
     text-decoration: underline;
@@ -262,7 +272,8 @@ body, html {
 .breadcrumb-item.current-section {
     font-weight: bold;
     color: #333;
-    pointer-events: none; /* Não clicável */
+    pointer-events: none;
+    /* Não clicável */
 }
 
 /* Campo de pesquisa de configurações */
@@ -276,11 +287,13 @@ body, html {
 
 .search-config-container .form-control {
     width: 100%;
-    padding: 10px 15px 10px 40px; /* Espaço para o ícone */
+    padding: 10px 15px 10px 40px;
+    /* Espaço para o ícone */
     border: 1px solid #ddd;
-    border-radius: 25px; /* Bordas arredondadas */
+    border-radius: 25px;
+    /* Bordas arredondadas */
     font-size: 1em;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .search-config-container .search-icon {
@@ -296,10 +309,11 @@ body, html {
 .quick-settings-section {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     padding: 30px;
     margin-bottom: 40px;
-    border-left: 5px solid #17a2b8; /* Cor secundária de destaque */
+    border-left: 5px solid #17a2b8;
+    /* Cor secundária de destaque */
 }
 
 .quick-settings-section .section-title {
@@ -321,18 +335,19 @@ body, html {
     border-radius: 8px;
     padding: 20px;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     transition: transform 0.2s ease-in-out;
 }
 
 .quick-setting-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 .quick-setting-item .quick-icon {
     font-size: 2em;
-    color: #2983cc; /* Cor do header */
+    color: #2983cc;
+    /* Cor do header */
     margin-bottom: 10px;
 }
 
@@ -364,7 +379,7 @@ body, html {
 .config-card {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     padding: 25px;
     text-align: center;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -376,7 +391,7 @@ body, html {
 
 .config-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .card-icon {
@@ -411,41 +426,52 @@ body, html {
     cursor: pointer;
     border: none;
 }
+
 .btn-primary {
     background-color: #007bff;
     color: white;
 }
+
 .btn-primary:hover {
     background-color: #0056b3;
 }
+
 .btn-success {
     background-color: #28a745;
     color: white;
 }
+
 .btn-success:hover {
     background-color: #218838;
 }
+
 .btn-secondary {
     background-color: #6c757d;
     color: white;
 }
+
 .btn-secondary:hover {
     background-color: #5a6268;
 }
+
 .btn-danger {
     background-color: #dc3545;
     color: white;
 }
+
 .btn-danger:hover {
     background-color: #c82333;
 }
+
 .btn-info {
     background-color: #17a2b8;
     color: white;
 }
+
 .btn-info:hover {
     background-color: #138496;
 }
+
 .btn-xs {
     padding: 4px 8px;
     font-size: 0.75em;
@@ -456,7 +482,7 @@ body, html {
 .config-detail-section {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     padding: 30px;
     margin-top: 20px;
     border-left: 5px solid #007bff;
@@ -475,12 +501,14 @@ body, html {
     margin-bottom: 20px;
     position: relative;
 }
+
 .form-description {
     font-size: 0.9em;
     color: #777;
     margin-top: -15px;
     margin-bottom: 20px;
 }
+
 .form-hint {
     font-size: 0.8em;
     color: #999;
@@ -540,6 +568,7 @@ body, html {
     gap: 10px;
     justify-content: flex-end;
 }
+
 .form-actions .btn {
     padding: 10px 25px;
 }
@@ -560,68 +589,69 @@ body, html {
     padding: 10px 0;
     border-bottom: 1px solid #eee;
 }
+
 .toggle-group:last-of-type {
     border-bottom: none;
 }
 
 .switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 28px;
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
 }
 
 .switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
 }
 
 .slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
 }
 
-input:checked + .slider {
-  background-color: #007bff;
+input:checked+.slider {
+    background-color: #007bff;
 }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #007bff;
+input:focus+.slider {
+    box-shadow: 0 0 1px #007bff;
 }
 
-input:checked + .slider:before {
-  -webkit-transform: translateX(22px);
-  -ms-transform: translateX(22px);
-  transform: translateX(22px);
+input:checked+.slider:before {
+    -webkit-transform: translateX(22px);
+    -ms-transform: translateX(22px);
+    transform: translateX(22px);
 }
 
 /* Rounded sliders */
 .slider.round {
-  border-radius: 28px;
+    border-radius: 28px;
 }
 
 .slider.round:before {
-  border-radius: 50%;
+    border-radius: 50%;
 }
 
 /* Toast Notification */
@@ -638,7 +668,7 @@ input:checked + .slider:before {
     left: 50%;
     bottom: 30px;
     transform: translateX(-50%);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     opacity: 0;
     transition: opacity 0.3s, visibility 0.3s;
 }
@@ -655,6 +685,7 @@ input:checked + .slider:before {
 .toast-message.error {
     background-color: #dc3545;
 }
+
 .toast-message.info {
     background-color: #17a2b8;
 }
@@ -675,7 +706,8 @@ input:checked + .slider:before {
 .tooltip-icon::before {
     content: attr(data-tooltip);
     position: absolute;
-    bottom: 125%; /* Acima do ícone */
+    bottom: 125%;
+    /* Acima do ícone */
     left: 50%;
     transform: translateX(-50%);
     background-color: #333;
@@ -693,7 +725,8 @@ input:checked + .slider:before {
 .tooltip-icon::after {
     content: '';
     position: absolute;
-    bottom: 115%; /* Ponta do tooltip */
+    bottom: 115%;
+    /* Ponta do tooltip */
     left: 50%;
     transform: translateX(-50%) rotate(45deg);
     border: 5px solid transparent;
@@ -718,13 +751,16 @@ input:checked + .slider:before {
     margin-bottom: 30px;
     background-color: #fcfcfc;
 }
+
 .form-fieldset legend {
     font-size: 1.2em;
     font-weight: 600;
     color: #333;
     padding: 0 10px;
-    margin-left: -10px; /* Alinha a legenda com o conteúdo */
-    background-color: #fff; /* Fundo para a legenda se destacar */
+    margin-left: -10px;
+    /* Alinha a legenda com o conteúdo */
+    background-color: #fff;
+    /* Fundo para a legenda se destacar */
     border-radius: 5px;
 }
 
@@ -757,10 +793,13 @@ input:checked + .slider:before {
     background-color: #007bff;
     color: white;
     font-weight: bold;
-    border-bottom: 1px solid #007bff; /* Linha azul destacada */
+    border-bottom: 1px solid #007bff;
+    /* Linha azul destacada */
 }
+
 .tab-button.active:hover {
-    background-color: #007bff; /* Mantém a cor no hover */
+    background-color: #007bff;
+    /* Mantém a cor no hover */
 }
 
 .tab-content {
@@ -774,11 +813,14 @@ input:checked + .slider:before {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 10px;
 }
+
 .checkbox-group-grid label {
     display: flex;
     align-items: center;
-    font-weight: normal; /* Sobrescreve o font-weight 500 do label geral */
+    font-weight: normal;
+    /* Sobrescreve o font-weight 500 do label geral */
 }
+
 .checkbox-group-grid input[type="checkbox"] {
     margin-right: 8px;
 }
@@ -789,6 +831,7 @@ input:checked + .slider:before {
     padding: 0;
     margin: 15px 0;
 }
+
 .session-list li {
     display: flex;
     align-items: center;
@@ -798,17 +841,21 @@ input:checked + .slider:before {
     font-size: 0.95em;
     color: #444;
 }
+
 .session-list li:last-child {
     border-bottom: none;
 }
+
 .session-list li i {
     margin-right: 10px;
     color: #007bff;
 }
+
 .session-list li small {
     color: #888;
     margin-left: 10px;
-    flex-grow: 1; /* Ocupa o espaço entre o texto e o botão */
+    flex-grow: 1;
+    /* Ocupa o espaço entre o texto e o botão */
     text-align: right;
 }
 
@@ -817,14 +864,17 @@ input:checked + .slider:before {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: fixed; /* Fixo na tela */
-    z-index: 1001; /* Acima do toast */
+    position: fixed;
+    /* Fixo na tela */
+    z-index: 1001;
+    /* Acima do toast */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4); /* Fundo semi-transparente */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Fundo semi-transparente */
 }
 
 .modal-content {
@@ -832,18 +882,27 @@ input:checked + .slider:before {
     margin: auto;
     padding: 30px;
     border: 1px solid #888;
-    width: 80%; /* Ou um max-width fixo */
+    width: 80%;
+    /* Ou um max-width fixo */
     max-width: 500px;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     text-align: center;
     position: relative;
-    animation: fadeIn 0.3s ease-out; /* Animação simples */
+    animation: fadeIn 0.3s ease-out;
+    /* Animação simples */
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .close-button {
@@ -855,6 +914,7 @@ input:checked + .slider:before {
     font-weight: bold;
     cursor: pointer;
 }
+
 .close-button:hover,
 .close-button:focus {
     color: #333;
@@ -879,6 +939,7 @@ input:checked + .slider:before {
     justify-content: center;
     gap: 15px;
 }
+
 .modal-buttons .btn {
     min-width: 100px;
 }
@@ -891,30 +952,39 @@ input:checked + .slider:before {
     .config-grid {
         grid-template-columns: 1fr;
     }
+
     .config-card {
         min-height: auto;
     }
+
     .card-actions {
         margin-top: 20px;
     }
+
     .form-actions {
         flex-direction: column;
         gap: 10px;
         align-items: stretch;
     }
+
     .form-actions .btn {
         width: 100%;
     }
+
     .modal-content {
-        width: 95%; /* Maior largura em telas menores */
+        width: 95%;
+        /* Maior largura em telas menores */
     }
 }
 
 .integrations-container {
     display: flex;
-    flex-wrap: wrap; /* Permite que os cards quebrem para a próxima linha em telas menores */
-    gap: 30px; /* Espaçamento entre os cards */
-    justify-content: center; /* Centraliza os cards */
+    flex-wrap: wrap;
+    /* Permite que os cards quebrem para a próxima linha em telas menores */
+    gap: 30px;
+    /* Espaçamento entre os cards */
+    justify-content: center;
+    /* Centraliza os cards */
     margin-top: 20px;
     margin-bottom: 30px;
 }
@@ -924,7 +994,8 @@ input:checked + .slider:before {
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     padding: 30px;
-    width: 380px; /* Largura fixa para os cards */
+    width: 380px;
+    /* Largura fixa para os cards */
     max-width: 100%;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -944,7 +1015,8 @@ input:checked + .slider:before {
 
 .integration-form .form-group {
     margin-bottom: 20px;
-    text-align: left; /* Alinha labels e inputs à esquerda dentro do form-group */
+    text-align: left;
+    /* Alinha labels e inputs à esquerda dentro do form-group */
 }
 
 .integration-form label {
@@ -956,12 +1028,14 @@ input:checked + .slider:before {
 
 .integration-form input[type="text"],
 .integration-form input[type="password"] {
-    width: calc(100% - 20px); /* Ajusta a largura para padding */
+    width: calc(100% - 20px);
+    /* Ajusta a largura para padding */
     padding: 12px 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 1em;
-    box-sizing: border-box; /* Garante que padding e border não aumentem a largura total */
+    box-sizing: border-box;
+    /* Garante que padding e border não aumentem a largura total */
     transition: border-color 0.3s ease;
 }
 
@@ -982,8 +1056,10 @@ input:checked + .slider:before {
     font-size: 1.1em;
     font-weight: bold;
     transition: background-color 0.3s ease, transform 0.1s ease;
-    width: 100%; /* Botão ocupa 100% da largura do card */
-    margin-top: 15px; /* Espaçamento acima do botão */
+    width: 100%;
+    /* Botão ocupa 100% da largura do card */
+    margin-top: 15px;
+    /* Espaçamento acima do botão */
 }
 
 .integration-card .btn-primary:hover {

@@ -10,30 +10,41 @@
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <script type="text/javascript" src="eel.js"></script>
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
-    </head>
+</head>
 
 <body>
     <div id="principal" style="display: flex;">
         <img src="imagens/sabesp_login.png" alt="Imagem de Login">
         <div id="formulario-container">
             <h3 class="login" style="margin-bottom: 10%; margin-top: 5%; font-weight: 700;">Login</h3>
-            <p  id="mensagem-erro" name="erromsg" style="color: red; margin-bottom: -5%;" ></p>
+            <p id="mensagem-erro" name="erromsg" style="color: red; margin-bottom: -5%;"></p>
             <form id="login-form">
-                <div>
-                    <label for="email"></label>
+                <div class="form-field">
                     <input type="email" id="email" name="email" placeholder="E-mail" required>
                 </div>
-                <div>
-                    <label for="password"></label>
+                <div class="form-field">
                     <input type="password" id="password" name="password" class="inputsn" placeholder="Senha" required>
                 </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="input11" name="saveLogin" style="margin-top: 2%;">
-                    <label for="input1" class="label1">Salvar Login</label>
-                </div>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="input22" name="agreeTerms" style="margin-top: 0.1%;">
-                    <label for="input2" class="label2" style="margin-top: -1%; margin-left: -8%;">Eu concordo com os termos da licença</label>
+                <div class="login-options-row">
+                    <div class="slide-switch-container">
+                        <label class="slide-switch">
+                            <input type="checkbox" id="slide-save-1" name="slide-save-1">
+                            <span class="slide-slider"></span>
+                        </label>
+                        <span class="slide-label">Salvar Login</span>
+                    </div>
+                    <div class="login-options-row">
+                        <div class="slide-switch-container">
+                            <label class="slide-switch">
+                                <input type="checkbox" id="slide-save-1" name="slide-save-1">
+                                <span class="slide-slider"></span>
+                            </label>
+                            <span class="slide-label">Eu concordo com os <span
+                                    style="color:#2b8adf;text-decoration:underline; margin-left: 2px;">termos da
+                                    licenças</span></span>
+                        </div>
+                        </label>
+                    </div>
                 </div>
                 <button type="button" onclick="verificarLogin()">Entrar</button>
             </form>
@@ -68,17 +79,18 @@
     <div id="cadastro" style="display: none;">
         <img src="imagens/sabesp_login.png" alt="Imagem de Login" id="imgcad">
         <div id="formulario-container-cadastro">
-            <h3 class="login2" style="margin-bottom: 10%; margin-top: 5%; font-weight: 700;">Solicitação de Cadastro</h3>
+            <h3 class="login2" style="margin-bottom: 10%; margin-top: 5%; font-weight: 700;">Solicitação de Cadastro
+            </h3>
             <p id="mensagem-4" style="color: red;"></p>
             <p id="mensagem-5" style="color: green;"></p>
             <form id="login-form2">
                 <div>
                     <input type="text" id="cargo" name="cargo" placeholder="Cargo" list="listadecargo">
-                    
+
                     <datalist id="listadecargo">
-                      <option value="Técnico"></option>
-                      <option value="Gerencial"></option>
-                      <option value="Diretoria"></option>
+                        <option value="Técnico"></option>
+                        <option value="Gerencial"></option>
+                        <option value="Diretoria"></option>
                     </datalist>
                 </div>
                 <div>
@@ -91,31 +103,35 @@
                 </div>
                 <div>
                     <label for="matricula"></label>
-                    <input type="text" id="matricula" name="matricula" class="inputsn2" placeholder="Matricula" required>
+                    <input type="text" id="matricula" name="matricula" class="inputsn2" placeholder="Matricula"
+                        required>
                 </div>
+
                 <div class="checkbox-container">
                     <input type="checkbox" id="input222" name="agreeTerms">
-                    <label for="input2" class="label2">Eu concordo com os termos da licença</label>
+                    <label for="input2" class="label2" style="margin-left: -25%;">Eu concordo com os termos da
+                        licença</label>
+                    <button type="button" onclick="verificarLogindasd()">Solicitar</button>
                 </div>
-                <button type="button" onclick="verificarLogindasd()">Solicitar</button>
-            </form>
-            <p class="cadstro">Possui uma conta?<a href="#" onclick="mostrarLogin()"> Faça seu login agora</a></p>
+
+                <p class="cadstro">Possui uma conta?<a href="#" onclick="mostrarLogin()"> Faça seu login</a></p>
         </div>
     </div>
 
     <div id="carregandoprocessando" style="display: none;">
         <div id="formulario-container-crep">
-            <h3 class="verificandocredp" id="tituloprinc" style="font-weight: bolder;">Validando Dados e Criando Solicitação...</h3>
+            <h3 class="verificandocredp" id="tituloprinc" style="font-weight: bolder;">Validando Dados e Criando
+                Solicitação...</h3>
             <div class="spinner-border text-primary" role="status"
                 style="width: 7em; height: 7em; text-align: center; margin-top: 8%;" id="spinerproc">
                 <span class="visually-hidden"></span>
-                
+
             </div>
-           <img src="imagens/icone-de-tique-ronde-verte.png" alt="Ícone de verificação verde" id="verificado2"
+            <img src="imagens/icone-de-tique-ronde-verte.png" alt="Ícone de verificação verde" id="verificado2"
                 style="display: none; width: 20%; margin-top: 5%; margin-bottom: 5%;">
-                <img src="imagens/icone-de-incorreto.png" alt="Ícone de verificação errado" id="nao-verificado2"
+            <img src="imagens/icone-de-incorreto.png" alt="Ícone de verificação errado" id="nao-verificado2"
                 style="display: none; width: 25%; margin-top: 5%; margin-bottom: 5%;">
-                <p id="mensagem-3" style="color: red; margin-bottom: -5%;"></p>
+            <p id="mensagem-3" style="color: red; margin-bottom: -5%;"></p>
         </div>
     </div>
 

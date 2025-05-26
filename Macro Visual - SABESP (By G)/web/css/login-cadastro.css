@@ -9,13 +9,14 @@ body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bolder;
-    overflow: hidden; /
+    overflow: hidden;/
 }
 
 /* LOGIN */
 
 #principal {
-    opacity: 1; /* Começa totalmente visível */
+    opacity: 1;
+    /* Começa totalmente visível */
     display: flex;
     background-color: white;
     box-shadow: 2px 2px 8px rgba(99, 99, 99, 0.596);
@@ -26,7 +27,8 @@ body {
 }
 
 #principal.fade-out {
-    opacity: 0; /* Fica totalmente invisível */
+    opacity: 0;
+    /* Fica totalmente invisível */
 }
 
 img {
@@ -48,11 +50,7 @@ img {
     margin-bottom: 2rem;
 }
 
-#formulario-container form div {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
+
 
 #formulario-container label {
     font-weight: bold;
@@ -69,7 +67,8 @@ button {
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
-    box-sizing: border-box;;
+    box-sizing: border-box;
+    ;
 }
 
 #formulario-container button {
@@ -89,33 +88,19 @@ button {
     margin-top: 1rem;
 }
 
-.label1{
-    margin-left: -14em;
-    margin-top: 2em;
-}
-
-#input11 {
-    position: absolute;
-    margin-left: -20.5em;
-    margin-top: 2.2em;
-}
 
 .checkbox-container {
     display: flex;
     align-items: center;
     margin-left: 0;
+    margin-bottom: 1em;
 }
 
-.label2{
-    margin-left: -1em;
+.label2 {
+    margin-left: -20%;
     margin-top: 1em;
 }
 
-#input22 {
-    position: absolute;
-    margin-left: -20.5em;
-    margin-top: 1em;
-}
 
 .checkbox-container input {
     margin-right: 0.5rem;
@@ -124,12 +109,13 @@ button {
 .cadstro {
     font-size: 1rem;
     text-align: center;
+    margin-left: 8%;
     margin-top: 2rem;
 }
 
 .cadstro a {
     text-decoration: none;
-    color: rgb(3, 111, 252);
+    color: 2b8adf;
     transition: all 0.3s ease;
 }
 
@@ -138,13 +124,17 @@ button {
     color: blue;
 }
 
-#principal, #principal2 {
+#principal,
+#principal2 {
     /* ... outros estilos ... */
-    transition: opacity 0.5s ease-in-out; /* Adiciona a transição de opacidade */
+    transition: opacity 0.5s ease-in-out;
+    /* Adiciona a transição de opacidade */
 }
 
-#principal.show, #principal2.show {
-    opacity: 1; /* Define opacidade 1 para exibir a div com fade-in */
+#principal.show,
+#principal2.show {
+    opacity: 1;
+    /* Define opacidade 1 para exibir a div com fade-in */
 }
 
 h3 {
@@ -161,7 +151,8 @@ h3 {
     }
 
     img {
-        display: none; /* Oculta a imagem em telas menores */
+        display: none;
+        /* Oculta a imagem em telas menores */
     }
 
     #formulario-container {
@@ -181,11 +172,13 @@ h3 {
     /* Ajuste para inputs e botões em telas menores */
     #formulario-container input,
     #formulario-container button {
-        width: calc(100% - 2rem); /* Reduz a largura para compensar o padding */
+        width: calc(100% - 2rem);
+        /* Reduz a largura para compensar o padding */
     }
 }
 
 @media (max-width: 480px) {
+
     #formulario-container input,
     #formulario-container button {
         padding: 0.8rem;
@@ -202,7 +195,8 @@ h3 {
     }
 
     /* Oculta a imagem em telas de celular */
-    #principal img { /* Aumenta a especificidade da regra */
+    #principal img {
+        /* Aumenta a especificidade da regra */
         display: none !important;
     }
 
@@ -213,6 +207,7 @@ h3 {
 
 /* Ajuste para telas ainda menores */
 @media (max-width: 320px) {
+
     #formulario-container input,
     #formulario-container button {
         padding: 0.6rem;
@@ -298,7 +293,7 @@ h3 {
 /* CADASTRO */
 
 #cadastro {
-    opacity: 0; 
+    opacity: 0;
     background-color: white;
     box-shadow: 2px 2px 8px rgba(99, 99, 99, 0.596);
     max-width: 1100px;
@@ -308,7 +303,8 @@ h3 {
 }
 
 #cadastro.fade-in {
-    opacity: 1; /* Fica totalmente visível */
+    opacity: 1;
+    /* Fica totalmente visível */
 }
 
 #imgcad {
@@ -317,7 +313,7 @@ h3 {
     object-fit: cover;
 }
 
-#formulario-container-cadastro{
+#formulario-container-cadastro {
     width: 50%;
     padding: 2rem;
     display: flex;
@@ -351,7 +347,8 @@ button {
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
-    box-sizing: border-box;;
+    box-sizing: border-box;
+    ;
 }
 
 #formulario-container-cadastro button {
@@ -372,31 +369,20 @@ button {
     margin-top: 1rem;
 }
 
-.label1{
-    margin-left: -14em;
-    margin-top: 2em;
-}
-
-#input11 {
-    position: absolute;
-    margin-left: -20.5em;
-    margin-top: 2.1em;
-}
 
 .checkbox-container {
     display: flex;
-    align-items: center;
     margin-left: 0;
 }
 
-.label2{
+.label2 {
     margin-left: -1em;
     margin-top: 1em;
 }
 
 #input222 {
     position: absolute;
-    margin-left: -20.5em;
+    margin-left: -27em;
     margin-top: 1.3em;
 }
 
@@ -421,13 +407,16 @@ button {
     color: blue;
 }
 
-#principal, #cadastro {
+#principal,
+#cadastro {
     /* ... outros estilos ... */
-    transition: opacity 0.5s ease-in-out; /* Adiciona a transição de opacidade */
+    transition: opacity 0.5s ease-in-out;
 }
 
-#principal.show, #cadastro.show {
-    opacity: 1; /* Define opacidade 1 para exibir a div com fade-in */
+#principal.show,
+#cadastro.show {
+    opacity: 1;
+    /* Define opacidade 1 para exibir a div com fade-in */
 }
 
 h3 {
@@ -444,7 +433,8 @@ h3 {
     }
 
     img {
-        display: none; /* Oculta a imagem em telas menores */
+        display: none;
+        /* Oculta a imagem em telas menores */
     }
 
     #formulario-container-cadastro {
@@ -464,11 +454,13 @@ h3 {
     /* Ajuste para inputs e botões em telas menores */
     #formulario-container-cadastro input,
     #formulario-container-cadastro button {
-        width: calc(100% - 2rem); /* Reduz a largura para compensar o padding */
+        width: calc(100% - 2rem);
+        /* Reduz a largura para compensar o padding */
     }
 }
 
 @media (max-width: 480px) {
+
     #formulario-container-cadastro input,
     #formulario-container-cadastro button {
         padding: 0.8rem;
@@ -485,7 +477,8 @@ h3 {
     }
 
     /* Oculta a imagem em telas de celular */
-    #cadastro img { /* Aumenta a especificidade da regra */
+    #cadastro img {
+        /* Aumenta a especificidade da regra */
         display: none !important;
     }
 
@@ -496,6 +489,7 @@ h3 {
 
 /* Ajuste para telas ainda menores */
 @media (max-width: 320px) {
+
     #formulario-container-cadastro input,
     #formulario-container-cadastro button {
         padding: 0.6rem;
@@ -542,3 +536,150 @@ h3 {
     font-size: 1.5em;
 }
 
+/* Campos do formulário em coluna */
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Linha para opções de login (switch + termos) */
+.login-options-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2%;
+    flex-wrap: wrap;
+}
+
+/* Switch moderno */
+.slide-switch-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.slide-label {
+    margin-left: 14px;
+    font-size: 1em;
+    color: #424242;
+    font-weight: 800;
+}
+
+.slide-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 28px;
+}
+
+.slide-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slide-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: background-color 0.4s;
+    border-radius: 28px;
+}
+
+.slide-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: transform 0.4s;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.slide-switch input:checked+.slide-slider {
+    background-color: #118806;
+}
+
+.slide-switch input:checked+.slide-slider:before {
+    transform: translateX(20px);
+}
+
+/* Checkbox moderno */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+    margin-bottom: 0;
+}
+
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1em;
+    user-select: none;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkmark {
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 4px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    position: relative;
+}
+
+.custom-checkbox input:checked~.checkmark {
+    background-color: #2b8adf;
+    border-color: #2b8adf;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.custom-checkbox input:checked~.checkmark:after {
+    display: block;
+}
+
+.custom-checkbox .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+/* Responsividade para opções de login */
+@media (max-width: 600px) {
+    .login-options-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}

@@ -10,8 +10,12 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 import tkinter as tk
+import base64
+import os
 from Consulta_GeraL_Final import iniciar_macro_consulta_geral
 from VinculoWFM import login
+from VinculoNETA import login_neta
+
 
 # Detecta o tamanho da tela
 root = tk.Tk()
@@ -485,6 +489,47 @@ def vincular_wfm(usuario_id, wfm_login, wfm_senha):
 
 
 @eel.expose
+def vincular_neta(usuario_id, neta_login, neta_senha):
+    logging.info(f"[vincular_neta] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={neta_login}")
+    # Chama Selenium para obter nome e perfil
+    resultado = login_neta(neta_login, neta_senha)
+    logging.info(f"[vincular_neta] Resultado do Selenium: {resultado}")
+    # Se não conseguiu extrair nome ou perfil, considera erro de autenticação
+    if not resultado or not resultado.get('nome') or not resultado.get('perfil'):
+        logging.error("[vincular_neta] Falha ao autenticar no NETA. Login ou senha inválidos, ou erro na extração.")
+        return {"status": "error", "message": "Falha ao autenticar no NETA. Verifique login e senha."}
+
+    neta_nome = resultado.get('nome', '')
+    neta_perfil = resultado.get('perfil', '')
+    logging.info(f"[vincular_wfm] Nome extraído: {neta_nome} | Perfil extraído: {neta_perfil}")
+
+    connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+    try:
+        with connection.cursor() as cursor:
+            sql_check = "SELECT id FROM tb_vinculo_neta WHERE usuario_id = %s"
+            cursor.execute(sql_check, (usuario_id,))
+            vinculo = cursor.fetchone()
+            logging.info(f"[vincular_neta] Já existe vínculo? {vinculo}")
+            if vinculo:
+                sql_update = "UPDATE tb_vinculo_neta SET neta_login=%s, neta_senha=%s, neta_nome=%s, neta_perfil=%s, data_vinculo=NOW() WHERE usuario_id=%s"
+                cursor.execute(sql_update, (neta_login, neta_senha, neta_nome, neta_perfil, usuario_id))
+                logging.info(f"[vincular_neta] Vínculo atualizado para usuario_id={usuario_id}")
+            else:
+                sql_insert = "INSERT INTO tb_vinculo_neta (usuario_id, neta_login, neta_senha, neta_nome, neta_perfil) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(sql_insert, (usuario_id, neta_login, neta_senha, neta_nome, neta_perfil))
+                logging.info(f"[vincular_neta] Vínculo criado para usuario_id={usuario_id}")
+            connection.commit()
+            logging.info(f"[vincular_neta] Commit realizado para usuario_id={usuario_id}")
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"[vincular_neta] Erro ao salvar vínculo WFM: {e}")
+        return {"status": "error", "message": str(e)}
+    finally:
+        connection.close()
+        logging.info(f"[vincular_neta] Conexão com o banco fechada para usuario_id={usuario_id}")
+
+
+@eel.expose
 def get_wfm_vinculo_by_user_id(user_id):
     """
     Retorna o nome, perfil, login e senha WFM vinculados ao usuário, se existir na tabela tb_vinculo_wfm.
@@ -507,6 +552,32 @@ def get_wfm_vinculo_by_user_id(user_id):
                 return {"status": "not_found"}
     except Exception as e:
         logging.error(f"Erro ao buscar vínculo WFM: {e}")
+        return {"status": "error", "message": str(e)}
+    
+
+@eel.expose
+def get_neta_vinculo_by_user_id(user_id):
+    """
+    Retorna o nome, perfil, login e senha WFM vinculados ao usuário, se existir na tabela tb_vinculo_wfm.
+    """
+    try:
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            sql = "SELECT neta_nome, neta_perfil, neta_login, neta_senha FROM tb_vinculo_neta WHERE usuario_id = %s"
+            cursor.execute(sql, (user_id,))
+            vinculo = cursor.fetchone()
+            if vinculo:
+                return {
+                    "status": "success",
+                    "neta_nome": vinculo.get("neta_nome", ""),
+                    "neta_perfil": vinculo.get("neta_perfil", ""),
+                    "neta_login": vinculo.get("neta_login", ""),
+                    "neta_senha": vinculo.get("neta_senha", "")
+                }
+            else:
+                return {"status": "not_found"}
+    except Exception as e:
+        logging.error(f"Erro ao buscar vínculo NETA: {e}")
         return {"status": "error", "message": str(e)}
 
 
@@ -595,23 +666,112 @@ def salvar_nova_senha(senha_atual, nova_senha):
 
 
 @eel.expose
-def atualizar_ultimo_login():
+def atualizar_ultimo_login(user_id=None):
     """
     Atualiza o campo ultimo_login para o usuário atual no banco de dados.
+    Se user_id não for passado, não faz nada e retorna erro.
     """
     try:
+        if not user_id:
+            return {"status": "erro", "message": "ID do usuário não informado para atualizar o ultimo_login."}
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
-            # Atualiza o campo ultimo_login para o usuário atual
             sql_update_last_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
-            user_id = eel.session.get('user_id')  # Obtém o ID do usuário da sessão
             cursor.execute(sql_update_last_login, (user_id,))
             connection.commit()
             logging.info(f"Campo ultimo_login atualizado para o usuário ID: {user_id}")
             return {"status": "sucesso"}
     except Exception as e:
         logging.error(f"Erro ao atualizar o campo ultimo_login: {e}")
-        return {"status": "erro", "message": "Erro ao atualizar o campo ultimo_login."}
+        return {"status": "erro", "message": f"Erro ao atualizar o campo ultimo_login: {e}"}
+    
+@eel.expose
+def upload_profile_picture(user_id, base64_image_data, file_extension):
+    """
+    Recebe dados de imagem em Base64, salva no servidor e atualiza o URL no banco de dados.
+    """
+    logging.info(f"Recebida solicitação de upload de foto de perfil para user_id: {user_id}")
+    
+    # Define o diretório onde as imagens serão salvas
+    # Certifique-se de que este diretório exista e seja acessível pelo seu servidor web
+    upload_dir = 'web/imagens/perfis'
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+        logging.info(f"Diretório de upload criado: {upload_dir}")
+
+    try:
+        # Decodifica a imagem Base64
+        # Remove o prefixo de dados (ex: "data:image/png;base64,")
+        header, encoded_data = base64_image_data.split(',', 1)
+        image_data = base64.b64decode(encoded_data)
+
+        # Gera um nome de arquivo único
+        file_name = f"profile_{user_id}_{os.urandom(4).hex()}.{file_extension}"
+        file_path = os.path.join(upload_dir, file_name)
+        
+        # Salva a imagem no diretório
+        with open(file_path, 'wb') as f:
+            f.write(image_data)
+        
+        # Converte o caminho do arquivo para uma URL relativa para o frontend
+        # Assumindo que 'web' é a raiz do seu servidor web
+        profile_picture_url = f"/imagens/perfis/{file_name}"
+        logging.info(f"Foto de perfil salva em: {file_path}")
+        logging.info(f"URL da foto de perfil: {profile_picture_url}")
+
+        # Atualiza o banco de dados com a URL da foto de perfil
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        try:
+            with connection.cursor() as cursor:
+                sql_update = "UPDATE tb_usuarios SET foto_perfil_url = %s WHERE id = %s"
+                cursor.execute(sql_update, (profile_picture_url, user_id))
+                connection.commit()
+            logging.info(f"URL da foto de perfil atualizada no banco de dados para user_id: {user_id}")
+            return {"status": "success", "message": "Foto de perfil enviada e salva com sucesso!", "url": profile_picture_url}
+        except Exception as db_e:
+            logging.error(f"Erro ao atualizar o banco de dados com a URL da foto de perfil: {db_e}")
+            # Se a atualização do DB falhar, tente remover o arquivo salvo para evitar lixo
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                logging.warning(f"Arquivo {file_path} removido devido a erro no DB.")
+            return {"status": "error", "message": f"Erro ao salvar a URL da foto de perfil no banco de dados: {db_e}"}
+        finally:
+            if connection:
+                connection.close()
+
+    except Exception as e:
+        logging.error(f"Erro no upload_profile_picture: {e}")
+        logging.exception("Detalhes do erro no upload_profile_picture:")
+        return {"status": "error", "message": f"Erro ao processar a imagem: {e}"}
+
+@eel.expose
+def get_user_profile_data(user_id):
+    """
+    Busca os dados de perfil de um usuário (nome, email, cargo, foto_perfil_url) no banco de dados.
+    """
+    logging.info(f"Buscando dados de perfil para user_id: {user_id}")
+    connection = None
+    try:
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            # Seleciona as colunas desejadas da tabela tb_usuarios
+            sql = "SELECT nome, email, cargo, foto_perfil_url, matricula FROM tb_usuarios WHERE id = %s"
+            cursor.execute(sql, (user_id,))
+            user_data = cursor.fetchone()
+
+            if user_data:
+                logging.info(f"Dados de perfil encontrados para user_id: {user_id}")
+                return {"status": "success", "data": user_data}
+            else:
+                logging.warning(f"Nenhum dado de perfil encontrado para user_id: {user_id}")
+                return {"status": "not_found", "message": "Usuário não encontrado."}
+    except Exception as e:
+        logging.error(f"Erro ao buscar dados de perfil no banco de dados: {e}")
+        return {"status": "error", "message": f"Erro ao buscar dados de perfil: {e}"}
+    finally:
+        if connection:
+            connection.close()
+
 
 
 def close_callback(page, sockets):

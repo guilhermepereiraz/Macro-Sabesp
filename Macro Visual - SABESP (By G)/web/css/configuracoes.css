@@ -451,6 +451,22 @@ body.is-visible {
     background-color: #df1a0c;
 }
 
+#bntneta{
+    background-color: #d3382d;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#bntneta:hover {
+    background-color: #df1a0c;
+}
+
+
 .btn-success {
     background-color: #28a745;
     color: white;
@@ -1110,4 +1126,134 @@ input:checked+.slider:before {
 #integracoes-sistema .form-actions {
     margin-top: 40px;
     text-align: center;
+}
+
+/* Novos estilos para a seção de Perfil do Usuário */
+.profile-main-content {
+    display: flex;
+    flex-wrap: wrap; /* Permite que o conteúdo quebre em telas menores */
+    gap: 30px; /* Espaço entre a barra lateral e o formulário */
+    margin-top: 20px;
+}
+
+.profile-sidebar {
+    flex: 0 0 200px; /* Largura fixa para a barra lateral */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.profile-picture {
+    width: 120px; /* Defina um tamanho fixo para a div */
+    height: 120px;
+    border-radius: 50%; /* Torna a div circular */
+    overflow: hidden; /* Garante que a imagem seja cortada para o círculo */
+    background-color: #e0e0e0; /* Cor de fundo enquanto a imagem carrega ou se não houver imagem */
+    display: flex; /* Para centralizar o ícone ou a imagem */
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #2983cc; /* Borda opcional para destacar */
+    flex-shrink: 0; /* Evita que a div encolha em layouts flex */
+}
+
+.profile-picture i {
+    font-size: 4em; /* Tamanho do ícone */
+    color: #888; /* Cor do ícone */
+}
+
+
+.profile-picture img {
+    width: 100%; /* Faz a imagem preencher a largura da div */
+    height: 100%; /* Faz a imagem preencher a altura da div */
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorção, cortando se necessário */
+    border-radius: 50%; /* Aplica a borda circular à imagem também, para melhor recorte */
+}
+
+.profile-username {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0;
+}
+
+.profile-form-container {
+    flex-grow: 1; /* Ocupa o espaço restante */
+    min-width: 300px; /* Garante que não fique muito pequeno */
+}
+
+#perfil .form-group input[type="text"],
+#perfil .form-group input[type="email"],
+#perfil .form-group input[type="tel"],
+#perfil .form-group input[type="password"],
+#perfil .form-group input[type="number"],
+#perfil .form-group select {
+    width: 100%; /* Faz com que os inputs ocupem a largura total */
+    /* Remova ou ajuste max-width se houver um */
+}
+
+/* Garante que inputs readonly também ocupem 100% */
+#perfil .form-group input[readonly] {
+    width: 100%;
+}
+
+/* Estilos para a área de upload de foto de perfil */
+.profile-upload-area {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-upload-area .btn {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 5px;
+}
+
+.upload-status-message {
+    font-size: 0.85em;
+    margin-top: 5px;
+    text-align: center;
+    width: 100%;
+}
+
+.upload-status-message.success {
+    color: #28a745; /* Verde para sucesso */
+}
+
+.upload-status-message.error {
+    color: #dc3545; /* Vermelho para erro */
+}
+
+/* Ajustes para o input de arquivo oculto */
+#profile-picture-upload {
+    /* O input de arquivo é escondido e acionado pelo botão */
+    visibility: hidden;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+}
+
+
+
+/* Media query para telas menores */
+@media (max-width: 768px) {
+    .profile-main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-sidebar {
+        flex: none; /* Remove a largura fixa */
+        width: 100%; /* Ocupa a largura total */
+        margin-bottom: 20px;
+    }
 }

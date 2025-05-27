@@ -34,7 +34,7 @@
                         <li><a href="#">Sugestão</a></li>
                         <li><a href="#" style="text-decoration: underline; color: rgb(12, 38, 53);">Configurações</a>
                         </li>
-                        <li><a href="#">Sobre</a></li>
+                        <li><a href="sobre.html">Sobre</a></li>
                     </ul>
                 </nav>
                 <span style="margin-left: 10%;"></span>
@@ -102,7 +102,7 @@
         </div>
 
         <div class="config-grid">
-            <div class="config-card" data-card-name="Perfil do Usuário">
+            <div class="config-card" data-card-name="Perfil do Usuário" data-section="perfil">
                 <div class="card-icon"><i class="fas fa-user"></i></div>
                 <h2 class="card-title">Perfil do Usuário</h2>
                 <p class="card-description">Gerencie suas informações pessoais e credenciais.</p>
@@ -111,7 +111,7 @@
                 </div>
             </div>
 
-            <div class="config-card" data-card-name="Notificações">
+            <div class="config-card" data-card-name="Notificações" data-section="notificacoes">
                 <div class="card-icon"><i class="fas fa-bell"></i></div>
                 <h2 class="card-title">Notificações</h2>
                 <p class="card-description">Configure como você recebe alertas e atualizações.</p>
@@ -120,7 +120,7 @@
                 </div>
             </div>
 
-            <div class="config-card" data-card-name="Segurança e Privacidade">
+            <div class="config-card" data-card-name="Segurança e Privacidade" data-section="seguranca">
                 <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
                 <h2 class="card-title">Segurança e Privacidade</h2>
                 <p class="card-description">Definições de segurança, senhas e acesso.</p>
@@ -129,7 +129,7 @@
                 </div>
             </div>
 
-            <div class="config-card" data-card-name="Preferências Gerais">
+            <div class="config-card" data-card-name="Preferências Gerais" data-section="preferencias">
                 <div class="card-icon"><i class="fas fa-cogs"></i></div>
                 <h2 class="card-title">Preferências Gerais</h2>
                 <p class="card-description">Ajustes gerais da interface e comportamento do sistema.</p>
@@ -138,7 +138,7 @@
                 </div>
             </div>
 
-            <div class="config-card admin-only" data-card-name="Gerenciamento de Macros" style="display: none;">
+            <div class="config-card admin-only" data-card-name="Gerenciamento de Macros" data-section="gerenciamento-macros" style="display: none;">
                 <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
                 <h2 class="card-title">Gerenciamento de Macros</h2>
                 <p class="card-description">Ajustes avançados para criação e moderação de macros.</p>
@@ -147,7 +147,7 @@
                 </div>
             </div>
 
-            <div class="config-card" data-card-name="Dados e Backup" style="display: none;">
+            <div class="config-card" data-card-name="Dados e Backup" data-section="dados-backup" style="display: none;">
                 <div class="card-icon"><i class="fas fa-database"></i></div>
                 <h2 class="card-title">Dados e Backup</h2>
                 <p class="card-description">Gerencie seus dados e opções de backup.</p>
@@ -156,76 +156,103 @@
                 </div>
             </div>
 
-
+            <div class="config-card" data-card-name="Integrações de Sistema" data-section="integracoes-sistema">
+                <div class="card-icon"><i class="fas fa-link"></i></div>
+                <h3 class="card-title">Integrações de Sistema</h3>
+                <p class="card-description">Gerencie as conexões com sistemas externos (WFM, NETA, etc.).</p>
+                <div class="card-actions">
+                    <button class="btn btn-primary" data-section="integracoes-sistema">Acessar</button>
+                </div>
+            </div>
         </div>
+
         <div id="config-sections-container">
             <section id="perfil" class="config-detail-section" style="display: none;">
                 <h2 class="section-title">Perfil do Usuário</h2>
-                <div class="tabs">
-                    <button class="tab-button active" data-tab="info-pessoal">Informações Pessoais</button>
-                    <button class="tab-button" data-tab="credenciais">Credenciais de Login</button>
-                </div>
+                <div class="profile-main-content">
+                    <div class="profile-sidebar">
+                        <div class="profile-picture">
+                            <i class="fas fa-user-circle" id="profile-icon" style="display: none;"></i>
+                            <img src="" alt="Foto de Perfil do Usuário" id="profile-img" style="display: none;">
+                        </div>
+                        <p class="profile-username" id="profile-display-name">Nome do Usuário</p>
+                        <div class="profile-upload-area">
+                            <input type="file" id="profile-picture-upload" accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-secondary btn-sm" id="upload-picture-btn">Carregar Foto</button>
+                            <p id="upload-status-message" class="upload-status-message" style="display: none;"></p>
+                        </div>
+                    </div>
+                    <div class="profile-form-container">
+                        <div class="tabs">
+                            <button class="tab-button active" data-tab="info-pessoal">Informações Pessoais</button>
+                            <button class="tab-button" data-tab="credenciais-tab">Credenciais</button>
+                        </div>
 
-                <div id="info-pessoal" class="tab-content active">
-                    <form id="form-perfil-info">
-                        <div class="form-group">
-                            <label for="nome">Nome Completo:</label>
-                            <input type="text" id="nome" name="nome" value="Administrador" readonly>
+                        <div id="info-pessoal" class="tab-content active">
+                            <form id="form-perfil-info">
+                                <div class="form-group">
+                                    <label for="nome">Nome Completo:</label>
+                                    <input type="text" id="nome" name="nome" value="Administrador" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">E-mail:</label>
+                                    <input type="email" id="email" name="email" value="admin@macrojgl.com" readonly>
+                                    <span class="error-message" id="email-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cargo">Cargo</label>
+                                    <input type="text" id="cargo" name="cargo" value="Técnico" readonly>
+                                    <span class="error-message"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="matricula">Matricula:</label>
+                                    <input type="text" id="matricula" name="matricula" value="(XX) XXXXX-XXXX" readonly>
+                                    <span class="error-message" id="telefone-error"></span>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success" id="save-perfil-info"
+                                        style="display: none;">Salvar Alterações</button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label for="email">E-mail:</label>
-                            <input type="email" id="email" name="email" value="admin@macrojgl.com">
-                            <span class="error-message" id="email-error"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="telefone">Telefone:</label>
-                            <input type="tel" id="telefone" name="telefone" value="(XX) XXXXX-XXXX">
-                            <span class="error-message" id="telefone-error"></span>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" id="edit-perfil-info">Editar</button>
-                            <button type="submit" class="btn btn-success" id="save-perfil-info"
-                                style="display: none;">Salvar Alterações</button>
-                            <button type="button" class="btn btn-danger" id="delete-account-btn"
-                                style="margin-left: auto;">Excluir Conta</button>
-                        </div>
-                    </form>
-                </div>
 
-                <div id="credenciais" class="tab-content" style="display: none;">
-                    <form id="form-perfil-credenciais">
-                        <p class="form-description">Gerencie sua senha e métodos de autenticação.</p>
-                        <div class="form-group">
-                            <label for="perfil-senha-atual">Senha Atual:</label>
-                            <input type="password" id="perfil-senha-atual" name="senha-atual">
-                            <span class="error-message" id="perfil-senha-atual-error"></span>
+                        <div id="credenciais-tab" class="tab-content" style="display: none;">
+                            <form id="form-perfil-credenciais">
+                                <p class="form-description">Gerencie sua senha e métodos de autenticação.</p>
+                                <div class="form-group">
+                                    <label for="perfil-senha-atual">Senha Atual:</label>
+                                    <input type="password" id="perfil-senha-atual" name="senha-atual">
+                                    <span class="error-message" id="perfil-senha-atual-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="perfil-nova-senha">Nova Senha:</label>
+                                    <input type="password" id="perfil-nova-senha" name="nova-senha">
+                                    <span class="error-message" id="perfil-nova-senha-error"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="perfil-confirmar-senha">Confirmar Nova Senha:</label>
+                                    <input type="password" id="perfil-confirmar-senha" name="confirmar-senha">
+                                    <span class="error-message" id="perfil-confirmar-senha-error"></span>
+                                </div>
+                                <div class="form-group toggle-group">
+                                    <label for="perfil-autenticacao-dois-fatores">Habilitar autenticação de dois fatores</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="perfil-autenticacao-dois-fatores"
+                                            name="autenticacao-dois-fatores">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success">Atualizar Credenciais</button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label for="perfil-nova-senha">Nova Senha:</label>
-                            <input type="password" id="perfil-nova-senha" name="nova-senha">
-                            <span class="error-message" id="perfil-nova-senha-error"></span>
+
+                        <div class="form-actions" style="justify-content: flex-start; margin-top: 20px;">
+                            <button type="button" class="btn btn-secondary" onclick="hideSection('perfil')">Voltar à Visão
+                                Geral</button>
                         </div>
-                        <div class="form-group">
-                            <label for="perfil-confirmar-senha">Confirmar Nova Senha:</label>
-                            <input type="password" id="perfil-confirmar-senha" name="confirmar-senha">
-                            <span class="error-message" id="perfil-confirmar-senha-error"></span>
-                        </div>
-                        <div class="form-group toggle-group">
-                            <label for="perfil-autenticacao-dois-fatores">Habilitar autenticação de dois fatores</label>
-                            <label class="switch">
-                                <input type="checkbox" id="perfil-autenticacao-dois-fatores"
-                                    name="autenticacao-dois-fatores">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">Atualizar Credenciais</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="form-actions" style="justify-content: flex-start; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary" onclick="hideSection('perfil')">Voltar à Visão
-                        Geral</button>
+                    </div>
                 </div>
             </section>
 
@@ -392,7 +419,7 @@
                 </form>
             </section>
 
-            <section id="gerenciamento-macros" class="config-detail-section">
+            <section id="gerenciamento-macros" class="config-detail-section" style="display: none;">
                 <h2 class="section-title">Configurações Gerais de Macro</h2>
                 <form id="form-gerenciamento-macros">
                     <p class="form-description">Ajuste as configurações gerais de execução e gerenciamento de macros no
@@ -440,19 +467,32 @@
                 </form>
             </section>
 
-            <section class="other-settings-section" id="other-settings-section">
-                <h2 id="tito">Sincronização de Dados</h2>
-                <div class="config-grid large-cards" id="other-settings-grid">
-                    <div class="config-card" data-section="integracoes-sistema"
-                        onclick="showSection('integracoes-sistema')" style="cursor:pointer;">
-                        <div class="card-icon"><i class="fas fa-link"></i></div>
-                        <h3>Integrações de Sistema</h3>
-                        <p>Gerencie as conexões com sistemas externos (WFM, NETA, etc.).</p>
+            <section id="dados-backup" class="config-detail-section" style="display: none;">
+                <h2 class="section-title">Dados e Backup</h2>
+                <form id="form-dados-backup">
+                    <p class="form-description">Gerencie suas opções de dados e backup.</p>
+                    <div class="form-group">
+                        <label for="backup-frequency">Frequência de Backup:</label>
+                        <select id="backup-frequency" name="backup-frequency">
+                            <option value="diario">Diário</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensal">Mensal</option>
+                        </select>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="backup-location">Local de Backup:</label>
+                        <input type="text" id="backup-location" name="backup-location"
+                            placeholder="Caminho do diretório ou URL">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Salvar Configurações</button>
+                        <button type="button" class="btn btn-info">Fazer Backup Agora</button>
+                        <button type="button" class="btn btn-secondary"
+                            onclick="hideSection('dados-backup')">Voltar</button>
+                    </div>
+                </form>
             </section>
 
-            <!-- Mantém apenas UMA seção de integrações do sistema, removendo duplicidade -->
             <section id="integracoes-sistema" class="config-detail-section" style="display: none;">
                 <h2 class="section-title" style="text-align: center;">Integrações do Sistema</h2>
                 <div id="mensagem-de-erro"
@@ -469,7 +509,26 @@
                                 <label for="neta-senha">Senha:</label>
                                 <input type="password" id="neta-senha" name="neta-senha" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">Vincular Neta</button>
+
+                            
+                            <div class="form-group" style="display: none;">
+                                <label for="neta-nome">Nome:</label>
+                                <input type="text" id="neta-nome" name="neta-nome" readonly>
+                            </div>
+
+                            <div class="form-group" style="display: none;">
+                                <label for="neta-perfil">Perfil:</label>
+                                <input type="text" id="neta-perfil" name="neta-perfil" readonly>
+                            </div>
+
+                            <div class="spinner-border text-warning" role="status" style="width: 10em; height: 10em; margin-bottom: 30px; margin-top: 50px; display: none; margin-left: 1%;" id="spinervincnt">
+                                <span class="sr-only"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="bntvincneta">Vincular Neta</button>
+
+                            <button type="submit" class="btn btn-secondaryy" id="bntneta"
+                                style="display: none;">Redefinir NETA</button>
                         </form>
                         <p id="neta-status" class="integration-status" style="display: none;"></p>
                     </div>
@@ -498,7 +557,7 @@
                             </div>
 
 
-                            <div class="spinner-border text-warning" role="status" style="width: 10em; height: 10em; margin-bottom: 20px; margin-top: 20px; display: none;" id="spinervinc">
+                            <div class="spinner-border text-warning" role="status" style="width: 10em; height: 10em; margin-bottom: 30px; margin-top: 50px; display: none;" id="spinervinc">
                                 <span class="sr-only"></span>
                             </div>
 
@@ -515,72 +574,65 @@
                         onclick="hideSection('integracoes-sistema')">Voltar</button>
                 </div>
             </section>
+        </div>
 
-            <div class="detail-sections-container">
+        <div id="toast-notification" class="toast-message" style="display: none;">
+            <p id="toast-text"></p>
+        </div>
 
-
-            </div>
-            <div id="toast-notification" class="toast-message" style="display: none;">
-                <p id="toast-text"></p>
-            </div>
-
-            <div id="confirmation-modal" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
-                    <h2 id="modal-title">Confirmar Ação</h2>
-                    <p id="modal-message">Você tem certeza que deseja realizar esta ação?</p>
-                    <div class="modal-buttons">
-                        <button id="modal-confirm-btn" class="btn btn-danger">Confirmar</button>
-                        <button id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
-                    </div>
+        <div id="confirmation-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2 id="modal-title">Confirmar Ação</h2>
+                <p id="modal-message">Você tem certeza que deseja realizar esta ação?</p>
+                <div class="modal-buttons">
+                    <button id="modal-confirm-btn" class="btn btn-danger">Confirmar</button>
+                    <button id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
                 </div>
             </div>
+        </div>
 
-            <div id="transp"></div>
-    <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
-        <i class="fas fa-headset icon"></i>
-    </div>
-    <div class="fixed-button-container">
-        <div id="overlayText">
-            <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
-                ajudar?</h1>
-            <hr>
-            <div class="btfixoligue">
-                <a href="#">
-                    <i class="fas fa-robot"
-                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
-                    <h1 class="fixoligue" style="font-weight: bolder;">Assistente Virtual</h1>
-                    <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
-                </a>
-            </div>
-            <div class="btfixowpp">
-                <a href="#" onclick="mostrarTawkTo(); return false;">
-                    <i class="fas fa-users"
-                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
-                    <h1 class="fixowpp1" style="font-weight: bolder;">Fale com Nossa Equipe</h1>
-                    <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
-                </a>
+        <div id="transp"></div>
+        <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
+            <i class="fas fa-headset icon"></i>
+        </div>
+        <div class="fixed-button-container">
+            <div id="overlayText">
+                <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
+                    ajudar?</h1>
+                <hr>
+                <div class="btfixoligue">
+                    <a href="#">
+                        <i class="fas fa-robot"
+                            style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                        <h1 class="fixoligue" style="font-weight: bolder;">Assistente Virtual</h1>
+                        <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
+                    </a>
+                </div>
+                <div class="btfixowpp">
+                    <a href="#" onclick="mostrarTawkTo(); return false;">
+                        <i class="fas fa-users"
+                            style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                        <h1 class="fixowpp1" style="font-weight: bolder;">Fale com Nossa Equipe</h1>
+                        <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-
-
     </main>
 
-    
     <script type="text/javascript" src="/eel.js"></script>
     <script src="js/configuracoes.js"></script>
     <script src="https://kit.fontawesome.com/your-font-awesome-kit-id.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        xintegrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"
-        integrity="sha384-eMNCOe7tCwlWPjSj1jikR5+ebnQlEV+TnOOvfTmFGMKTmcX69jKnaYiwVP0klHW"
+        xintegrity="sha384-eMNCOe7tCwlWPjSj1jikR5+ebnQlEV+TnOOvfTmFGMKTmcX69jKnaYiwVP0klHW"
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        xintegrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
 </body>
-
 
 </html>

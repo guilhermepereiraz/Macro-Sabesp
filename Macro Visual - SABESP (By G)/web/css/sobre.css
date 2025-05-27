@@ -1,0 +1,124 @@
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    opacity: 0;
+    display: none;
+    transition: opacity 1s ease-in-out;
+}
+
+body.is-visible {
+    opacity: 1;
+    /* Torna-se completamente visível */
+}
+
+
+
+
+/* Estilos para o botão de "Voltar" */
+.back-to-main-btn {
+    position: absolute; /* Posiciona o botão de forma absoluta */
+    top: 20px; /* Distância do topo */
+    left: 20px; /* Distância da esquerda */
+    background-color: #007bff; /* Cor do botão */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    z-index: 10; /* Garante que o botão fique acima de outros elementos */
+}
+
+.back-to-main-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px); /* Pequeno efeito de elevação no hover */
+}
+
+.back-to-main-btn i {
+    font-size: 1.1em;
+}
+
+
+.sobre-container {
+    padding: 20px;
+    display: flex;
+    justify-content: center; /* Centraliza o card na horizontal */
+    align-items: flex-start; /* Alinha o card ao topo */
+    min-height: calc(100vh - 120px); /* Altura mínima para o conteúdo, considerando a nav-bar */
+    background-color: #f8f9fa; /* Um fundo suave para a área de conteúdo */
+}
+
+
+
+/* Estilos para o card de informações "Sobre" */
+.sobre-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 800px; /* Largura máxima para o conteúdo do card */
+    width: 100%;
+    text-align: left; /* Alinha o texto à esquerda dentro do card */
+    margin-top: 20px; /* Margem superior para separar da nav-bar */
+    margin-bottom: 20px;
+}
+
+.sobre-card h2 {
+    font-size: 2.2em;
+    color: #007bff; /* Cor primária para o título principal */
+    margin-bottom: 25px;
+    text-align: center; /* Centraliza o título */
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+}
+
+.sobre-card h3 {
+    font-size: 1.5em;
+    color: #007bff;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #e0e0e0; /* Linha tracejada suave */
+    padding-bottom: 5px;
+}
+
+.sobre-card p {
+    font-size: 1.05em;
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.sobre-card strong {
+    color: #333;
+}
+
+.sobre-card ul {
+    list-style: disc; /* Bolinhas para a lista */
+    margin-left: 30px;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.sobre-card ul li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.copyright-text {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.85em;
+    color: #888;
+}
+
+/* Ajustes para a barra de navegação para esta página específica */
+/* Assegura que o item "Sobre" na nav-bar fique com o estilo ativo */
+.top-nav .nav-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid #fff;
+}

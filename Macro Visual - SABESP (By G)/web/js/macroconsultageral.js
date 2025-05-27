@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     iniciarTransicaoPagina();
     console.log('[macroconsultageral.js] DOMContentLoaded finalizado.');
 
+    preencherCampos_NETA();
+
     // Código da animação anime.js
     var textWrapper = document.querySelector('.ml7 .letters');
     if (textWrapper) {
@@ -929,3 +931,49 @@ async function viewResultsFolder() {
         }
     }
 }
+
+async function preencherCampos_NETA() {
+    const usuarioId = sessionStorage.getItem('user_id');
+    if (!usuarioId) return;
+    try {
+        // Corrigido: chama o endpoint correto para NETA
+        const res = await eel.get_neta_vinculo_by_user_id(usuarioId)();
+        const loginInput = document.getElementById('neta-login');
+        const senhaInput = document.getElementById('neta-password'); // Corrigido o id para 'neta-senha'
+        if (res && res.status === 'success' && res.neta_login && res.neta_senha) {
+            // Preenche login e senha reais e desabilita os campos
+            if (loginInput) {
+                loginInput.value = res.neta_login || '';
+                loginInput.readOnly = true;
+                loginInput.parentElement.style.display = 'block';
+                loginInput.style.backgroundColor = 'rgb(230, 228, 228)';
+            }
+            if (senhaInput) {
+                senhaInput.value = res.neta_senha || '';
+                senhaInput.readOnly = true;
+                senhaInput.parentElement.style.display = 'block';
+                senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';
+            }
+        } else {
+            // Se não houver vínculo, limpa e habilita os campos
+            if (loginInput) {
+                loginInput.value = '';
+                loginInput.readOnly = false;
+                loginInput.parentElement.style.display = 'block';
+            }
+            if (senhaInput) {
+                senhaInput.value = '';
+                senhaInput.readOnly = false;
+                senhaInput.parentElement.style.display = 'block';
+            }
+        }
+    } catch (e) {
+        // opcional: mostrar erro
+        console.error('Erro ao preencher campos NETA:', e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    preencherCampos_NETA();
+    // ...outros códigos do DOMContentLoaded...
+});

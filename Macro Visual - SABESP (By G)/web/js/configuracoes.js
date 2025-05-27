@@ -96,6 +96,11 @@ document.addEventListener('DOMContentLoaded', function () {
             breadcrumb.querySelector('.breadcrumb-separator').style.display = 'inline';
 
             targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // NOVO: Se a seção de perfil for exibida, carregue os dados do usuário
+            if (sectionId === 'perfil') {
+                loadUserProfileData();
+            }
         }
     };
 
@@ -168,9 +173,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const nomeInput = document.getElementById('nome');
     const emailInput = document.getElementById('email');
-    const telefoneInput = document.getElementById('telefone');
+    const matriculaInput = document.getElementById('matricula'); // Corrigido para matricula
+    const cargoInput = document.getElementById('cargo'); // Adicionado para o campo cargo
     const emailError = document.getElementById('email-error');
-    const telefoneError = document.getElementById('telefone-error');
+    const telefoneError = document.getElementById('telefone-error'); // Mantido, mas o ID do input é 'matricula' no HTML
 
     const formPerfilCredenciais = document.getElementById('form-perfil-credenciais');
     const perfilSenhaAtualInput = document.getElementById('perfil-senha-atual');
@@ -182,30 +188,45 @@ document.addEventListener('DOMContentLoaded', function () {
     const perfilNovaSenhaError = document.getElementById('perfil-nova-senha-error');
     const perfilConfirmarSenhaError = document.getElementById('perfil-confirmar-senha-error');
 
+    // Novo elemento para exibir o nome do usuário na seção de perfil
+    const profileDisplayName = document.getElementById('profile-display-name');
+
+    // Elementos para upload de foto de perfil
+    const profilePictureUploadInput = document.getElementById('profile-picture-upload');
+    const uploadPictureBtn = document.getElementById('upload-picture-btn');
+    const uploadStatusMessage = document.getElementById('upload-status-message');
+    const profilePictureIcon = document.getElementById('profile-icon'); // O ícone Font Awesome
+    const profilePictureImg = document.getElementById('profile-img'); // Se você usar uma tag <img>
+
 
     // Lógica para o botão "Editar" / "Salvar" do Perfil (Informações Pessoais)
-    editPerfilInfoBtn.addEventListener('click', function () {
-        emailInput.readOnly = false;
-        telefoneInput.readOnly = false;
-        editPerfilInfoBtn.style.display = 'none';
-        savePerfilInfoBtn.style.display = 'inline-block';
-        emailInput.focus();
-    });
+    // Se você não tem um botão "Editar" visível, esta lógica pode ser removida ou adaptada
+    if (editPerfilInfoBtn) { // Verifica se o botão existe antes de adicionar o listener
+        editPerfilInfoBtn.addEventListener('click', function () {
+            emailInput.readOnly = false;
+            matriculaInput.readOnly = false; // Usando matriculaInput
+            cargoInput.readOnly = false; // Habilitando edição do cargo
+            editPerfilInfoBtn.style.display = 'none';
+            savePerfilInfoBtn.style.display = 'inline-block';
+            emailInput.focus();
+        });
+    }
 
     formPerfilInfo.addEventListener('submit', function (event) {
         event.preventDefault();
         let isValid = true;
         emailError.textContent = '';
-        telefoneError.textContent = '';
+        telefoneError.textContent = ''; // Usado para matricula-error no HTML
 
         if (!emailInput.value.includes('@') || !emailInput.value.includes('.')) {
             emailError.textContent = 'E-mail inválido.';
             isValid = false;
         }
 
-        const telefoneRegex = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/;
-        if (!telefoneRegex.test(telefoneInput.value) && telefoneInput.value !== '') { // Permite telefone vazio
-            telefoneError.textContent = 'Telefone inválido (ex: (XX) XXXXX-XXXX).';
+        // Validação da matrícula (adaptado de telefone)
+        const matriculaRegex = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/; // Exemplo, ajuste conforme o formato real da matrícula
+        if (!matriculaRegex.test(matriculaInput.value) && matriculaInput.value !== '') {
+            telefoneError.textContent = 'Matrícula inválida (ex: (XX) XXXXX-XXXX).';
             isValid = false;
         }
 
@@ -213,11 +234,15 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Dados do perfil salvos:', {
                 nome: nomeInput.value,
                 email: emailInput.value,
-                telefone: telefoneInput.value
+                cargo: cargoInput.value, // Salvando o cargo
+                matricula: matriculaInput.value // Salvando a matrícula
             });
             emailInput.readOnly = true;
-            telefoneInput.readOnly = true;
-            editPerfilInfoBtn.style.display = 'inline-block';
+            matriculaInput.readOnly = true;
+            cargoInput.readOnly = true; // Tornando cargo readonly novamente
+            if (editPerfilInfoBtn) { // Verifica se o botão existe
+                editPerfilInfoBtn.style.display = 'inline-block';
+            }
             savePerfilInfoBtn.style.display = 'none';
             showToast('Informações pessoais atualizadas com sucesso!', 'success');
         } else {
@@ -266,14 +291,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Botão "Excluir Conta"
-    deleteAccountBtn.addEventListener('click', function () {
-        showConfirmationModal('Excluir Conta', 'Esta ação é irreversível e excluirá todos os seus dados. Deseja continuar?', () => {
-            // Lógica para exclusão da conta aqui
-            console.log('Conta excluída!');
-            showToast('Sua conta foi excluída com sucesso.', 'info');
-            // Redirecionar para página de login ou confirmação
+    if (deleteAccountBtn) { // Verifica se o botão existe
+        deleteAccountBtn.addEventListener('click', function () {
+            showConfirmationModal('Excluir Conta', 'Esta ação é irreversível e excluirá todos os seus dados. Deseja continuar?', () => {
+                // Lógica para exclusão da conta aqui
+                console.log('Conta excluída!');
+                showToast('Sua conta foi excluída com sucesso.', 'info');
+                // Redirecionar para página de login ou confirmação
+            });
         });
-    });
+    }
 
 
     // Lógica das Abas
@@ -415,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Preferências Gerais salvas:', {
             idioma: document.getElementById('idioma').value,
             tema: document.getElementById('tema').value,
-            enableAnimations: document.getElementById('enable-animations').checked
+            // enableAnimations: document.getElementById('enable-animations').checked // Removido, pois não há input com esse ID no HTML
         });
         showToast('Preferências salvas com sucesso!', 'success');
     });
@@ -425,7 +452,9 @@ document.addEventListener('DOMContentLoaded', function () {
             // Lógica para redefinir as preferências para os valores padrão
             document.getElementById('idioma').value = 'pt-BR';
             document.getElementById('tema').value = 'claro';
-            document.getElementById('enable-animations').checked = true;
+            // if (document.getElementById('enable-animations')) { // Verifica se existe antes de tentar acessar
+            //     document.getElementById('enable-animations').checked = true;
+            // }
             console.log('Preferências redefinidas para o padrão.');
             showToast('Preferências redefinidas para o padrão.', 'info');
         });
@@ -508,6 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (otherSettingsGrid) {
             otherSettingsGrid.style.display = 'block'; // Corrigido para 'block' para garantir exibição correta
+            const tiloerro = document.getElementById('tito').style.display = 'none'; // Corrigido para 'block' para garantir exibição correta
         }
         breadcrumb.style.display = 'none';
         currentSectionSpan.textContent = '';
@@ -530,57 +560,88 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Lógica para o formulário Vincular Neta
     if (formVincularNeta) {
-        formVincularNeta.addEventListener('submit', function (event) {
-            event.preventDefault(); // Impede o envio padrão do formulário
-
+        formVincularNeta.addEventListener('submit', async function (event) {
+            event.preventDefault();
             const login = document.getElementById('neta-login').value;
             const senha = document.getElementById('neta-senha').value;
-
-
-            // Simulação de chamada API ou lógica de vinculação
-            console.log('Tentando vincular Neta com:', { login, senha });
-
-            // Exibir mensagem de status
-            netaStatus.style.display = 'block';
-            netaStatus.classList.remove('success', 'error');
-
-            if (login && senha) {
-
-                // Aqui você faria a chamada real para o backend
-                // Por exemplo: fetch('/api/vincular-neta', { method: 'POST', body: JSON.stringify({ login, senha }) })
-                // .then(response => response.json())
-                // .then(data => {
-                //     if (data.success) {
-                //         netaStatus.textContent = 'Neta vinculada com sucesso!';
-                //         netaStatus.classList.add('success');
-                //         showToast('Neta vinculada com sucesso!', 'success');
-                //     } else {
-                //         netaStatus.textContent = 'Erro ao vincular Neta: ' + (data.message || 'Credenciais inválidas.');
-                //         netaStatus.classList.add('error');
-                //         showToast('Erro ao vincular Neta.', 'error');
-                //     }
-                // })
-                // .catch(error => {
-                //     netaStatus.textContent = 'Erro de conexão ao vincular Neta.';
-                //     netaStatus.classList.add('error');
-                //     showToast('Erro de rede ao vincular Neta.', 'error');
-                // });
-
-                // Simulação de sucesso após um pequeno atraso
-                setTimeout(() => {
-                    netaStatus.textContent = 'Neta vinculada com sucesso!';
-                    netaStatus.classList.add('success');
-                    showToast('Neta vinculada com sucesso!', 'success');
-                    // Opcional: Limpar campos após sucesso
-                    // document.getElementById('neta-login').value = '';
-                    // document.getElementById('neta-senha').value = '';
-                }, 1000);
-
-            } else {
-                netaStatus.textContent = 'Por favor, preencha login e senha para Neta.';
-                netaStatus.classList.add('error');
-                showToast('Preencha os campos para Neta.', 'error');
+            const nome = document.getElementById('neta-nome');
+            const perfil = document.getElementById('neta-perfil');
+            const botaoVincular = document.getElementById('bntvincneta');
+            const botaoRedefinir = document.getElementById('bntneta');
+            const spinnerVinculo = document.getElementById('spinervincnt');
+            const loginInput = document.getElementById('neta-login');
+            const senhaInput = document.getElementById('neta-senha');
+            const mensagemErroDiv = document.getElementById('mensagem-de-erro');
+            // Pega o user_id já salvo na sessionStorage
+            const usuarioId = sessionStorage.getItem('user_id');
+            if (!usuarioId) {
+                alert('ID do usuário não encontrado. Faça login novamente.');
+                return;
             }
+            // Esconde mensagem de erro antes de tentar
+            if (mensagemErroDiv) {
+                mensagemErroDiv.style.display = 'none';
+                mensagemErroDiv.textContent = '';
+            }
+            // Mostra apenas título, botão e spinner
+            if (loginInput) loginInput.parentElement.style.display = 'none';
+            if (senhaInput) senhaInput.parentElement.style.display = 'none';
+            if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+            if (botaoVincular) botaoVincular.style.display = 'inline-block';
+            if (spinnerVinculo) spinnerVinculo.style.display = 'inline-block';
+            // Chama o backend para vincular
+            let resultadoVinculo = null;
+            try {
+                resultadoVinculo = await eel.vincular_neta(usuarioId, login, senha)();
+            } catch (e) {
+                if (mensagemErroDiv) {
+                    mensagemErroDiv.textContent = 'Erro de comunicação com o backend.';
+                    mensagemErroDiv.style.display = 'block';
+                }
+                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+                if (loginInput) loginInput.parentElement.style.display = 'block';
+                if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (botaoVincular) botaoVincular.style.display = 'inline-block';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+                return;
+            }
+            // Se o backend retornar erro, mostra na div
+            if (!resultadoVinculo || resultadoVinculo.status !== 'success') {
+                if (mensagemErroDiv) {
+                    mensagemErroDiv.textContent = resultadoVinculo && resultadoVinculo.message ? resultadoVinculo.message : 'Erro ao vincular Neta. Verifique login e senha.';
+                    mensagemErroDiv.style.display = 'block';
+                }
+                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+                if (loginInput) loginInput.parentElement.style.display = 'block';
+                if (loginInput) loginInput.value = '';
+                if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (senhaInput) senhaInput.value = '';
+                if (botaoVincular) botaoVincular.style.display = 'inline-block';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+                return;
+            }
+            // Simula processamento de 7 segundos (mantém sua lógica)
+            setTimeout(async () => {
+                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+                if (botaoVincular) botaoVincular.style.display = 'none';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'inline-block';
+                // Após o vínculo, busca e preenche os campos atualizados do backend
+                if (typeof preencherCamposNeta === 'function') {
+                    await preencherCamposNeta();
+                }
+                // Garante visibilidade dos campos
+                if (nome) {
+                    nome.parentElement.style.display = 'block';
+                    nome.style.display = 'block';
+                }
+                if (perfil) {
+                    perfil.parentElement.style.display = 'block';
+                    perfil.style.display = 'block';
+                }
+                netaStatus.textContent = 'Neta vinculada com sucesso!';
+                netaStatus.classList.add('success');
+                showToast('Neta vinculada com sucesso!', 'success');
+            }, 7000);
         });
     }
 
@@ -627,9 +688,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (spinnerVinculo) spinnerVinculo.style.display = 'none';
                 // Mostra novamente os campos de login e senha para o usuário tentar de novo
                 if (loginInput) loginInput.parentElement.style.display = 'block';
-                if (loginInput) loginInput.value = '';
                 if (senhaInput) senhaInput.parentElement.style.display = 'block';
-                if (senhaInput) senhaInput.value = '';
                 if (botaoVincular) botaoVincular.style.display = 'inline-block';
                 if (botaoRedefinir) botaoRedefinir.style.display = 'none';
                 return;
@@ -644,8 +703,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Mostra novamente os campos de login e senha para o usuário tentar de novo
                 if (loginInput) loginInput.parentElement.style.display = 'block';
                 if (loginInput) loginInput.value = '';
-                if (senhaInput) senhaInput.value = '';
                 if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (senhaInput) senhaInput.value = '';
                 if (botaoVincular) botaoVincular.style.display = 'inline-block';
                 if (botaoRedefinir) botaoRedefinir.style.display = 'none';
                 return;
@@ -706,9 +765,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     wfmStatus.textContent = '';
                     wfmStatus.classList.remove('success', 'error');
                 }
-            });
+                
+            });      
         }
     }
+
+    
 
     // Função para preencher os campos de nome/perfil WFM ao entrar na página de configurações
     async function preencherCamposWFM() {
@@ -753,7 +815,307 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     preencherCamposWFM();
+
+    // Função para preencher os campos de nome/perfil Neta ao entrar na página de configurações
+    async function preencherCamposNeta() {
+        const usuarioId = sessionStorage.getItem('user_id');
+        if (!usuarioId) return;
+        try {
+            const res = await eel.get_neta_vinculo_by_user_id(usuarioId)();
+            const nomeInput = document.getElementById('neta-nome');
+            const perfilInput = document.getElementById('neta-perfil');
+            const loginInput = document.getElementById('neta-login');
+            const senhaInput = document.getElementById('neta-senha');
+            const botaoVincular = document.getElementById('bntvincneta');
+            const botaoRedefinir = document.getElementById('bntneta');
+            if (res && res.status === 'success' && res.neta_nome && res.neta_perfil) {
+                // Preenche e mostra nome/perfil
+                if (nomeInput) {
+                    nomeInput.value = res.neta_nome || '';
+                    if (nomeInput.parentElement) nomeInput.parentElement.style.display = 'block';
+                }
+                if (perfilInput) {
+                    perfilInput.value = res.neta_perfil || '';
+                    if (perfilInput.parentElement) perfilInput.parentElement.style.display = 'block';
+                }
+                // Esconde login/senha e botão vincular, mostra redefinir
+                if (loginInput) loginInput.parentElement.style.display = 'none';
+                if (senhaInput) senhaInput.parentElement.style.display = 'none';
+                if (botaoVincular) botaoVincular.style.display = 'none';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'inline-block';
+            } else {
+                // Se não houver vínculo, mostra login/senha e botão vincular, esconde redefinir
+                if (loginInput) loginInput.parentElement.style.display = 'block';
+                if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (botaoVincular) botaoVincular.style.display = 'inline-block';
+                if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+                // Esconde nome/perfil
+                if (nomeInput) nomeInput.parentElement.style.display = 'none';
+                if (perfilInput) perfilInput.parentElement.style.display = 'none';
+            }
+        } catch (e) {
+            // opcional: mostrar erro
+        }
+    }
+
+    // Lógica para o botão Redefinir Neta
+    const botaoRedefinirNeta = document.getElementById('bntneta');
+    if (botaoRedefinirNeta) {
+        botaoRedefinirNeta.addEventListener('click', function(event) {
+            event.preventDefault();
+            const loginInput = document.getElementById('neta-login');
+            const senhaInput = document.getElementById('neta-senha');
+            const botaoVincular = document.getElementById('bntvincneta');
+            const spinnerVinculo = document.getElementById('spinervincnt');
+            const nome = document.getElementById('neta-nome');
+            const perfil = document.getElementById('neta-perfil');
+            // Mostra login e senha novamente
+            if (loginInput) {
+                loginInput.parentElement.style.display = 'block';
+                loginInput.value = '';
+            }
+            if (senhaInput) {
+                senhaInput.parentElement.style.display = 'block';
+                senhaInput.value = '';
+            }
+            // Esconde nome e perfil
+            if (nome) nome.parentElement.style.display = 'none';
+            if (perfil) perfil.parentElement.style.display = 'none';
+            // Esconde redefinir, mostra vincular, esconde spinner
+            botaoRedefinirNeta.style.display = 'none';
+            if (botaoVincular) botaoVincular.style.display = 'inline-block';
+            if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+            // Limpa status
+            if (netaStatus) {
+                netaStatus.textContent = '';
+                netaStatus.classList.remove('success', 'error');
+            }
+        });
+    }
+
+    preencherCamposNeta();
+
+    // --- Lógica de Upload de Foto de Perfil ---
+    // Adiciona listener para o clique no botão "Carregar Foto"
+    if (uploadPictureBtn) {
+        uploadPictureBtn.addEventListener('click', () => {
+            profilePictureUploadInput.click(); // Simula o clique no input de arquivo oculto
+        });
+    }
+
+    // Adiciona listener para quando um arquivo é selecionado no input
+    if (profilePictureUploadInput) {
+        profilePictureUploadInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                uploadStatusMessage.textContent = 'Nenhuma imagem selecionada.';
+                uploadStatusMessage.className = 'upload-status-message error';
+                uploadStatusMessage.style.display = 'block';
+                return;
+            }
+
+            // Validação básica do tipo de arquivo
+            if (!file.type.startsWith('image/')) {
+                uploadStatusMessage.textContent = 'Por favor, selecione um arquivo de imagem (JPEG, PNG, GIF, etc.).';
+                uploadStatusMessage.className = 'upload-status-message error';
+                uploadStatusMessage.style.display = 'block';
+                return;
+            }
+
+            // Validação básica do tamanho do arquivo (ex: máximo de 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5 MB
+            if (file.size > maxSize) {
+                uploadStatusMessage.textContent = 'A imagem é muito grande. Tamanho máximo: 5MB.';
+                uploadStatusMessage.className = 'upload-status-message error';
+                uploadStatusMessage.style.display = 'block';
+                return;
+            }
+
+            uploadStatusMessage.textContent = 'Carregando imagem...';
+            uploadStatusMessage.className = 'upload-status-message'; // Remove classes de sucesso/erro
+            uploadStatusMessage.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file); // Lê o arquivo como uma URL de dados (Base64)
+
+            reader.onload = async () => {
+                const base64Image = reader.result; // String Base64 da imagem
+                const fileExtension = file.name.split('.').pop(); // Obtém a extensão do arquivo
+                const userId = sessionStorage.getItem('user_id'); // Obtém o ID do usuário logado
+
+                if (!userId) {
+                    uploadStatusMessage.textContent = 'Erro: ID do usuário não encontrado. Faça login novamente.';
+                    uploadStatusMessage.className = 'upload-status-message error';
+                    return;
+                }
+
+                try {
+                    // Chama a função Eel para enviar a imagem para o backend
+                    const response = await eel.upload_profile_picture(userId, base64Image, fileExtension)();
+
+                    if (response.status === 'success') {
+                        uploadStatusMessage.textContent = response.message;
+                        uploadStatusMessage.className = 'upload-status-message success';
+                        // Atualiza a imagem de perfil no frontend
+                        if (profilePictureImg) { // Se estiver usando <img>
+                            profilePictureImg.src = response.url;
+                            profilePictureImg.style.display = 'block'; // Garante que a imagem esteja visível
+                            if (profilePictureIcon) profilePictureIcon.style.display = 'none'; // Esconde o ícone
+                        } else if (profilePictureIcon) { // Fallback para background-image na div
+                            const profilePictureDiv = document.querySelector('.profile-picture');
+                            if (profilePictureDiv) {
+                                profilePictureDiv.style.backgroundImage = `url(${response.url})`;
+                                profilePictureDiv.style.backgroundSize = 'cover';
+                                profilePictureDiv.style.backgroundPosition = 'center';
+                                profilePictureDiv.style.backgroundRepeat = 'no-repeat';
+                                if (profilePictureIcon) profilePictureIcon.style.display = 'none';
+                            }
+                        }
+                        showToast('Foto de perfil atualizada!', 'success');
+                    } else {
+                        uploadStatusMessage.textContent = response.message;
+                        uploadStatusMessage.className = 'upload-status-message error';
+                        showToast('Erro ao atualizar foto de perfil.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erro na chamada Eel para upload_profile_picture:', error);
+                    uploadStatusMessage.textContent = 'Erro de comunicação com o servidor ao carregar a foto.';
+                    uploadStatusMessage.className = 'upload-status-message error';
+                    showToast('Erro de rede.', 'error');
+                }
+            };
+
+            reader.onerror = () => {
+                uploadStatusMessage.textContent = 'Erro ao ler o arquivo de imagem.';
+                uploadStatusMessage.className = 'upload-status-message error';
+            };
+        });
+    }
+
+    // Função para carregar a foto de perfil do usuário ao carregar a página
+    async function loadProfilePicture() {
+        const userId = sessionStorage.getItem('user_id');
+        if (!userId) {
+            // Se não houver userId, garante que o ícone padrão esteja visível
+            if (profilePictureImg) profilePictureImg.style.display = 'none';
+            if (profilePictureIcon) profilePictureIcon.style.display = 'block';
+            document.querySelector('.profile-picture').style.backgroundImage = 'none';
+            return;
+        }
+
+        try {
+            // Chama a função Eel para buscar a URL da foto de perfil do banco de dados
+            const res = await eel.get_profile_picture_url_from_db(userId)();
+            
+            if (res && res.status === 'success' && res.url) {
+                // Se houver uma URL de foto de perfil
+                if (profilePictureImg) { // Se a tag <img> existe no HTML
+                    profilePictureImg.src = res.url;
+                    profilePictureImg.style.display = 'block'; // Mostra a imagem
+                    if (profilePictureIcon) profilePictureIcon.style.display = 'none'; // Esconde o ícone
+                } else {
+                    // Fallback: se por algum motivo a <img> não estiver presente,
+                    // tenta usar o background-image na div pai e esconde o ícone.
+                    const profilePictureDiv = document.querySelector('.profile-picture');
+                    if (profilePictureDiv) {
+                        profilePictureDiv.style.backgroundImage = `url(${res.url})`;
+                        profilePictureDiv.style.backgroundSize = 'cover';
+                        profilePictureDiv.style.backgroundPosition = 'center';
+                        profilePictureDiv.style.backgroundRepeat = 'no-repeat';
+                        if (profilePictureIcon) profilePictureIcon.style.display = 'none';
+                    }
+                }
+            } else {
+                // Se não houver URL ou status não for sucesso, garante que o ícone esteja visível e a imagem escondida
+                if (profilePictureImg) profilePictureImg.style.display = 'none';
+                if (profilePictureIcon) profilePictureIcon.style.display = 'block'; // Mostra o ícone padrão
+                document.querySelector('.profile-picture').style.backgroundImage = 'none'; // Remove qualquer background-image
+            }
+        } catch (e) {
+            console.error('Erro ao carregar foto de perfil:', e);
+            // Em caso de erro, garante que o ícone padrão esteja visível
+            if (profilePictureImg) profilePictureImg.style.display = 'none';
+            if (profilePictureIcon) profilePictureIcon.style.display = 'block';
+            document.querySelector('.profile-picture').style.backgroundImage = 'none';
+        }
+    }
+
+    // Função para carregar os dados completos do perfil do usuário
+    async function loadUserProfileData() {
+        const userId = sessionStorage.getItem('user_id');
+        if (!userId) {
+            console.warn("loadUserProfileData: User ID não encontrado na sessionStorage.");
+            return;
+        }
+
+        try {
+            const response = await eel.get_user_profile_data(userId)();
+            if (response.status === 'success' && response.data) {
+                const userData = response.data;
+                
+                // Preenche os campos de input
+                if (nomeInput) nomeInput.value = userData.nome || '';
+                if (emailInput) emailInput.value = userData.email || '';
+                if (cargoInput) cargoInput.value = userData.cargo || '';
+                // Assumindo que 'matricula' é um campo que também viria do backend,
+                // se não for, você pode remover ou adaptar.
+                // Se a matrícula não estiver no banco, você pode preencher com algo padrão ou vazio.
+                if (matriculaInput) matriculaInput.value = userData.matricula || ''; 
+
+                // Atualiza o nome de exibição no sidebar do perfil
+                if (profileDisplayName) profileDisplayName.textContent = userData.nome || 'Nome do Usuário';
+
+                // Carrega a foto de perfil
+                if (userData.foto_perfil_url) {
+                    if (profilePictureImg) {
+                        profilePictureImg.src = userData.foto_perfil_url;
+                        profilePictureImg.style.display = 'block';
+                        if (profilePictureIcon) profilePictureIcon.style.display = 'none';
+                    } else { // Fallback para background-image
+                        const profilePictureDiv = document.querySelector('.profile-picture');
+                        if (profilePictureDiv) {
+                            profilePictureDiv.style.backgroundImage = `url(${userData.foto_perfil_url})`;
+                            profilePictureDiv.style.backgroundSize = 'cover';
+                            profilePictureDiv.style.backgroundPosition = 'center';
+                            profilePictureDiv.style.backgroundRepeat = 'no-repeat';
+                            if (profilePictureIcon) profilePictureIcon.style.display = 'none';
+                        }
+                    }
+                } else {
+                    // Se não houver foto_perfil_url, exibe o ícone padrão
+                    if (profilePictureImg) profilePictureImg.style.display = 'none';
+                    if (profilePictureIcon) profilePictureIcon.style.display = 'block';
+                    document.querySelector('.profile-picture').style.backgroundImage = 'none';
+                }
+
+                showToast('Dados do perfil carregados com sucesso!', 'info');
+
+            } else {
+                console.error("loadUserProfileData: Falha ao carregar dados do usuário:", response.message);
+                showToast('Erro ao carregar dados do perfil.', 'error');
+                // Opcional: Limpar campos ou definir valores padrão em caso de falha
+                if (nomeInput) nomeInput.value = 'N/A';
+                if (emailInput) emailInput.value = 'N/A';
+                if (cargoInput) cargoInput.value = 'N/A';
+                if (matriculaInput) matriculaInput.value = 'N/A';
+                if (profileDisplayName) profileDisplayName.textContent = 'Usuário Desconhecido';
+                if (profilePictureImg) profilePictureImg.style.display = 'none';
+                if (profilePictureIcon) profilePictureIcon.style.display = 'block';
+                document.querySelector('.profile-picture').style.backgroundImage = 'none';
+            }
+        } catch (error) {
+            console.error('loadUserProfileData: Erro na chamada Eel para get_user_profile_data:', error);
+            showToast('Erro de comunicação com o servidor ao carregar perfil.', 'error');
+        }
+    }
+
+    // Chama a função para carregar a foto de perfil ao carregar a página
+    // Esta chamada pode ser removida se loadUserProfileData já carregar a foto.
+    // loadProfilePicture(); 
+
 });
+
+
 
 function iniciarTransicaoPagina() {
     // Esta função parece estar definida mais de uma vez ou de formas inconsistentes nos seus arquivos.
@@ -787,6 +1149,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 window.deslogar = function () {
     console.log("[macrosite.js] Chamada a deslogar.");
     sessionStorage.removeItem('nomeUsuario'); // Limpa o nome de usuário da sessão
+    sessionStorage.removeItem('user_id'); // NOVO: Limpa também o user_id
     console.log("[macrosite.js] sessionStorage 'nomeUsuario' limpo. Redirecionando para login.html");
     window.location.href = './login.html'; // Redireciona para a página de login
 };
@@ -795,6 +1158,9 @@ window.onload = async function () {
     console.log("[macros.js] window.onload UNIFICADO iniciado.");
 
     const nomeUsuarioElement = document.getElementById('nome-usuario');
+    // Novo elemento para exibir o nome do usuário na seção de perfil
+    const profileDisplayName = document.getElementById('profile-display-name');
+
     let identificadorUsuario = null;
 
     const identificadorUsuarioDaURL = obterParametroDaURL('identificador');
@@ -809,6 +1175,10 @@ window.onload = async function () {
     if (identificadorUsuarioDaURL) {
         identificadorUsuario = identificadorUsuarioDaURL;
         sessionStorage.setItem('nomeUsuario', identificadorUsuario);
+        // NOVO: Armazena o userId também se vier da URL (assumindo que 'identificador' é o nome)
+        // Se 'identificador' for o nome e não o ID, você precisará ajustar como o ID é obtido ou salvo.
+        // Por enquanto, assumimos que 'identificador' pode ser o nome para exibição.
+        // O user_id real deve vir do login.
         console.log("[macros.js] Nome do usuário obtido da URL (identificador) e armazenado em sessionStorage.");
     } else if (userIdFromUrl && firstLoginComplete === 'true') {
         console.log("[macros.js] Redirecionado do primeiro login. Obtendo nome do usuário por ID...");
@@ -819,6 +1189,7 @@ window.onload = async function () {
             if (resultadoNome && resultadoNome.status === 'success') {
                 identificadorUsuario = resultadoNome.username;
                 sessionStorage.setItem('nomeUsuario', identificadorUsuario);
+                sessionStorage.setItem('user_id', userIdFromUrl); // NOVO: Salva o user_id na sessionStorage
                 console.log("[macros.js] Nome do usuário obtido por ID e armazenado em sessionStorage.");
             } else {
                 console.error("[macros.js] Falha ao obter nome do usuário por ID:", resultadoNome);
@@ -828,18 +1199,29 @@ window.onload = async function () {
         }
     } else {
         identificadorUsuario = sessionStorage.getItem('nomeUsuario');
+        // Tenta obter o userId da sessionStorage também
+        const storedUserId = sessionStorage.getItem('user_id');
         if (identificadorUsuario) {
             console.log("[macros.js] Nome do usuário obtido do sessionStorage (fallback).");
+        }
+        if (storedUserId) {
+            console.log("[macros.js] User ID obtido do sessionStorage (fallback).");
         } else {
-            console.log("[macros.js] Nome do usuário não encontrado em URL ou sessionStorage. Usuário pode não estar logado.");
+            console.log("[macros.js] Nome do usuário ou User ID não encontrado em URL ou sessionStorage. Usuário pode não estar logado.");
         }
     }
 
     if (identificadorUsuario && nomeUsuarioElement) {
         nomeUsuarioElement.textContent = identificadorUsuario;
+        if (profileDisplayName) {
+            profileDisplayName.textContent = identificadorUsuario; // Atualiza o novo display de nome de perfil
+        }
         console.log("[macros.js] Nome do usuário exibido:", identificadorUsuario);
     } else if (nomeUsuarioElement) {
         nomeUsuarioElement.textContent = "Usuário Padrão";
+        if (profileDisplayName) {
+            profileDisplayName.textContent = "Usuário Padrão"; // Atualiza o novo display de nome de perfil
+        }
         console.log("[macros.js] Nome do usuário não atualizado. Identificador nulo ou elemento não encontrado. Exibindo padrão.");
     }
 
@@ -1008,4 +1390,3 @@ function obterParametroDaURL(nome) {
     //console.log("[macros.js] Valor do parâmetro encontrado e decodificado:", decodedValue); // Comentado para reduzir logs
     return decodedValue;
 }
-

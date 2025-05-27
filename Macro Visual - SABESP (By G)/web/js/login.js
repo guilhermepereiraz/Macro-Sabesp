@@ -77,7 +77,6 @@ async function verificarLogin() {
     const password = document.getElementById('password').value;
     const mensagemErroElement = document.getElementById('mensagem-erro');
     const principalDiv = document.getElementById('principal');
-    // Corrigido o ID para 'carregandocerto' para coincidir com o HTML
     const carregandoCertoDiv = document.getElementById('carregandocerto');
     const carregandoErradoDiv = document.getElementById('carregandoerrado');
 
@@ -85,23 +84,15 @@ async function verificarLogin() {
 
     principalDiv.style.display = 'none';
     carregandoErradoDiv.style.display = 'none';
-    // Garante que a div de sucesso esteja oculta antes de resetar e mostrar
-    // Corrigido o ID para 'carregandocerto'
     carregandoCertoDiv.style.display = 'none';
 
-
-    // --- NOVO: Resetar estado da div de sucesso antes de mostrá-la ---
-    // Corrigido o ID para 'carregandocerto'
     const spinnerCerto = document.querySelector('#carregandocerto .spinner-border');
     const imagemVerificado = document.getElementById('verificado');
     if (spinnerCerto) spinnerCerto.style.display = 'block'; // Define o spinner de sucesso como visível
     if (imagemVerificado) imagemVerificado.style.display = 'none'; // Define a imagem de sucesso como oculta
-    // --------------------------------------------------------------
 
     // Mostra a div de sucesso (estado de carregamento/spinner)
-    // Corrigido o ID para 'carregandocerto'
     carregandoCertoDiv.style.display = 'flex';
-
 
     // Chama a função Python - agora retorna um objeto { status: '...', identifier: '...' }
     const resultadoLogin = await eel.verificar_credenciais(email, password)();
@@ -110,8 +101,6 @@ async function verificarLogin() {
 
 
     // --- Adaptação da lógica baseada no 'status' retornado ---
-
-    // Verifica se o resultado existe e se o status é 'success' (Login Regular Bem-Sucedido)
     if (resultadoLogin && resultadoLogin.status === 'success') {
         // LOGIN BEM-SUCEDIDO (Regular Login)
         console.log("Login bem-suucedido (Regular). Aguardando animação de sucesso...");
@@ -128,30 +117,17 @@ async function verificarLogin() {
         sessionStorage.setItem('nomeUsuario', identificador);
         window.location.href = `index.html?identificador=${encodeURIComponent(identificador)}&login_time=${loginStartTime}`;
 
-    }
-    // Verifica se o resultado existe e se o status é 'first_login' (Primeiro Login Bem-Sucedido)
-    else if (resultadoLogin && resultadoLogin.status === 'first_login') {
-         // LOGIN BEM-SUCEDIDO (Primeiro Login)
-         console.log("Login bem-suucedido (Primeiro Login). Aguardando animação de sucesso...");
-         const userId = resultadoLogin.identifier; // Pega o ID do usuário do objeto retornado (conforme definido no Python)
-         sessionStorage.setItem('user_id', userId);
-
-         await mostrarVerificadoEsumirSpinner(); // Original: Usa a mesma animação de sucesso
-         console.log("Animação de sucesso completa. Redirecionando para First Login Page...");
-         const loginStartTime = Date.now();
-         // Redireciona para firstlogin.html, passando o ID do usuário (ou outro dado necessário)
-         sessionStorage.setItem('nomeUsuario', identificador);
-         window.location.href = `firstlogin.html?identificador=${encodeURIComponent(userId)}&login_time=${loginStartTime}`;
-
-    }
-    // Se o status não for 'success' nem 'first_login', trata como falha
-    else {
+    } else if (resultadoLogin && resultadoLogin.status === 'first_login') {
+        // Primeiro login: redireciona para firstlogin.html com o user_id
+        const userId = resultadoLogin.identifier;
+        window.location.href = `firstlogin.html?identificador=${encodeURIComponent(userId)}&first_login_complete=true`;
+        return;
+    } else {
         // LOGIN FALHOU (Senha incorreta, usuário não encontrado, erro DB, erro interno, etc.)
         console.log("Login falhou. Status:", resultadoLogin ? resultadoLogin.status : 'unknown'); // Loga o status da falha
         console.log("Exibindo tela de erro...");
 
         // Original: Oculta a div de sucesso (estado de carregamento)
-        // Corrigido o ID para 'carregandocerto'
         carregandoCertoDiv.style.display = 'none';
 
         // Original: Resetar estado da div de erro antes de mostrá-la

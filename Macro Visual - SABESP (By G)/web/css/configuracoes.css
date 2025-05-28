@@ -1198,7 +1198,7 @@ input:checked+.slider:before {
 
 /* Garante que inputs readonly também ocupem 100% */
 #perfil .form-group input[readonly] {
-    width: 100%;
+    width: 130%;
 }
 
 /* Estilos para a área de upload de foto de perfil */
@@ -1242,18 +1242,78 @@ input:checked+.slider:before {
     clip: rect(0,0,0,0);
 }
 
+/* Estilo para o contêiner dos campos que devem ficar lado a lado em pares */
+.form-pair-row {
+    display: flex; /* Ativa o flexbox */
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha em telas menores */
+    gap: 180px; /* Espaço entre os itens (horizontal e vertical) */
+    margin-bottom: 15px; /* Espaço abaixo de cada par de campos */
+}
 
+/* Estilo para cada grupo de formulário dentro do contêiner flex de pares */
+.form-pair-row .form-group {
+    flex: 1; /* Faz com que cada form-group tente ocupar uma parte igual do espaço */
+    min-width: 250px; /* Largura mínima para evitar que os campos fiquem muito estreitos */
+    max-width: calc(50% - 10px); /* Garante no máximo 2 campos por linha (50% - metade do gap) */
 
-/* Media query para telas menores */
+    /* Importante: Redefine margin-bottom para 0 para que o 'gap' gerencie o espaçamento */
+    margin-bottom: 0;
+}
+
+/* Garante que os inputs dentro de .form-group preencham a largura disponível */
+.form-pair-row .form-group input[type="text"],
+.form-pair-row .form-group input[type="email"] {
+    width: 100%; /* Faz o input preencher a largura do seu .form-group pai */
+    box-sizing: border-box; /* Inclui padding e border na largura total */
+}
+
+/* Estilo específico para campos readonly (seus "Não Vinculado") */
+.form-pair-row .form-group input[readonly] {
+    background-color: #e9ecef; /* Um cinza claro para indicar que não é editável */
+    color: #495057; /* Cor do texto mais escura */
+    cursor: not-allowed; /* Ícone de "proibido" no cursor */
+    border-color: #ced4da; /* Borda um pouco mais discreta */
+}
+
+/* Media query para telas menores: faz com que os pares quebrem para uma única coluna */
 @media (max-width: 768px) {
-    .profile-main-content {
-        flex-direction: column;
-        align-items: center;
+    .form-pair-row {
+        flex-direction: column; /* Empilha os itens verticalmente */
+        gap: 0; /* Remove o gap horizontal quando em coluna única */
     }
 
-    .profile-sidebar {
-        flex: none; /* Remove a largura fixa */
-        width: 100%; /* Ocupa a largura total */
-        margin-bottom: 20px;
+    .form-pair-row .form-group {
+        max-width: 100%; /* Ocupa a largura total */
+        margin-bottom: 15px; /* Adiciona margem entre os campos novamente */
     }
+}
+
+/* Novo estilo para o contêiner do botão "Salvar Alterações" no perfil */
+.form-actions.profile-save-actions {
+    justify-content: center; /* Centraliza o botão horizontalmente */
+    margin-top: 30px; /* Aumenta o espaço acima do botão */
+    /* Se você quiser que o botão ocupe toda a largura disponível, adicione: */
+    /* display: block; */
+    /* width: 100%; */
+}
+
+.form-actions.profile-save-actions .btn {
+    /* Define uma largura máxima para o botão para que ele não fique muito grande */
+    max-width: 300px;
+    width: 100%; /* Faz o botão ocupar a largura máxima definida */
+}
+
+/* Novo estilo para o contêiner do botão "Voltar à Visão Geral" */
+.form-actions.profile-back-button-actions {
+    margin-top: 40px; /* Aumenta o espaço acima do botão */
+    text-align: center; /* Centraliza o botão horizontalmente */
+    /* Se você quiser que o botão ocupe toda a largura disponível, adicione: */
+    /* display: block; */
+    /* width: 100%; */
+}
+
+/* Opcional: Para dar mais espaço para o botão, você pode definir uma largura máxima */
+.form-actions.profile-back-button-actions .btn {
+    max-width: 250px; /* Largura máxima para o botão */
+    width: 100%; /* Ocupa 100% da largura disponível até o max-width */
 }

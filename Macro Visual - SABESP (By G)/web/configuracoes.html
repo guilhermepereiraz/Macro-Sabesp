@@ -31,8 +31,8 @@
                         </li>
                         <li><a href="#">Consultas</a></li>
                         <li><a href="#">Ajuda</a></li>
-                        <li><a href="#">Sugestão</a></li>
-                        <li><a href="#" style="text-decoration: underline; color: rgb(12, 38, 53);">Configurações</a>
+                        <li><a href="sugestao.html">Sugestão</a></li>
+                        <li><a href="configuracoes.html" style="text-decoration: underline; color: rgb(12, 38, 53);">Configurações</a>
                         </li>
                         <li><a href="sobre.html">Sobre</a></li>
                     </ul>
@@ -182,34 +182,48 @@
                             <p id="upload-status-message" class="upload-status-message" style="display: none;"></p>
                         </div>
                     </div>
-                    <div class="profile-form-container">
-                        <div class="tabs">
-                            <button class="tab-button active" data-tab="info-pessoal">Informações Pessoais</button>
-                            <button class="tab-button" data-tab="credenciais-tab">Credenciais</button>
-                        </div>
-
-                        <div id="info-pessoal" class="tab-content active">
+                    
+                    <div id="info-pessoal" class="tab-content active">
                             <form id="form-perfil-info">
-                                <div class="form-group">
-                                    <label for="nome">Nome Completo:</label>
-                                    <input type="text" id="nome" name="nome" value="Administrador" readonly>
+                                <div class="form-pair-row">
+                                    <div class="form-group">
+                                        <label for="nome">Nome Completo:</label>
+                                        <input type="text" id="nome" name="nome" value="Administrador" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="vinculowfm">Vinculo WFM:</label>
+                                        <input type="text" id="vinculowfm" name="vinculowfm" value="Não Vinculado" readonly>
+                                        <span class="error-message" id="vinculoowfm-error"></span>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="email">E-mail:</label>
-                                    <input type="email" id="email" name="email" value="admin@macrojgl.com" readonly>
-                                    <span class="error-message" id="email-error"></span>
+
+                                <div class="form-pair-row">
+                                    <div class="form-group">
+                                        <label for="email">E-mail:</label>
+                                        <input type="email" id="email" name="email" value="admin@macrojgl.com" readonly>
+                                        <span class="error-message" id="email-error"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="vinculoneta">Vinculo NETA:</label>
+                                        <input type="text" id="vinculoneta" name="vinculoneta" value="Não Vinculado" readonly>
+                                        <span class="error-message" id="vinculooneta-error"></span>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="cargo">Cargo</label>
-                                    <input type="text" id="cargo" name="cargo" value="Técnico" readonly>
-                                    <span class="error-message"></span>
+
+                                <div class="form-pair-row">
+                                    <div class="form-group">
+                                        <label for="cargo">Cargo</label>
+                                        <input type="text" id="cargo" name="cargo" value="Técnico" readonly>
+                                        <span class="error-message"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="matricula">Matricula:</label>
+                                        <input type="text" id="matricula" name="matricula" value="(XX) XXXXX-XXXX" readonly>
+                                        <span class="error-message" id="telefone-error"></span>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="matricula">Matricula:</label>
-                                    <input type="text" id="matricula" name="matricula" value="(XX) XXXXX-XXXX" readonly>
-                                    <span class="error-message" id="telefone-error"></span>
-                                </div>
-                                <div class="form-actions">
+
+                                <div class="form-actions profile-save-actions">
                                     <button type="submit" class="btn btn-success" id="save-perfil-info"
                                         style="display: none;">Salvar Alterações</button>
                                 </div>
@@ -247,12 +261,11 @@
                                 </div>
                             </form>
                         </div>
-
-                        <div class="form-actions" style="justify-content: flex-start; margin-top: 20px;">
-                            <button type="button" class="btn btn-secondary" onclick="hideSection('perfil')">Voltar à Visão
-                                Geral</button>
-                        </div>
-                    </div>
+                    </div> 
+                </div> 
+                <div class="form-actions profile-back-button-actions" style="display: none;">
+                    <button type="button" class="btn btn-secondary" onclick="hideSection('perfil')">Voltar à Visão
+                        Geral</button>
                 </div>
             </section>
 

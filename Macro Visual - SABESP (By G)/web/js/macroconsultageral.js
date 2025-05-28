@@ -82,8 +82,8 @@ window.onload = function () {
     const processarBotao = document.getElementById('processar'); // Botão "Iniciar" no HTML tem ID="processar"
     const novoProcessamentoButton = document.querySelector('#macrosite-completion-summary button');
     const inputArquivo = document.getElementById('arquivo-csv');
-    const loginInput = document.getElementById('site-login');
-    const senhaInput = document.getElementById('site-password');
+    const loginInput = document.getElementById('neta-login');
+    const senhaInput = document.getElementById('neta-password');
     const identificadorInput = document.getElementById('identificador'); // Verificar se este ID existe no HTML
     const mensagemErroDiv = document.getElementById('macrosite-error-message');
     const mensagemConclusaoDiv = document.getElementById('macrosite-completion-summary');
@@ -320,9 +320,31 @@ window.onload = function () {
                             tipoPesquisa,
                             nomeUsuario // Adiciona o nome do usuário como último parâmetro
                         )().then(response => {
+                            // --- NOVO TRATAMENTO DE ERRO DE LOGIN ---
+                            if (response && response.status === 'error' && response.message && response.message.toLowerCase().includes('login')) {
+                                // Esconde status de processamento
+                                if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'none';
+                                // Mostra novamente o formulário de login
+                                if (divprocesso) divprocesso.style.display = 'block';
+                                // Mostra mensagem de erro
+                                if (mensagemErroDiv) {
+                                    mensagemErroDiv.textContent = response.message;
+                                    mensagemErroDiv.style.display = 'block';
+                                }
+                                // Opcional: limpa campos de senha
+                                if (senhaInput) senhaInput.value = '';
+                                return;
+                            }
                             // ... resto do código de tratamento da resposta ...
                         }).catch(error => {
                             console.error("Erro ao iniciar macro:", error);
+                            // Em caso de erro inesperado, volta para o formulário
+                            if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'none';
+                            if (divprocesso) divprocesso.style.display = 'block';
+                            if (mensagemErroDiv) {
+                                mensagemErroDiv.textContent = 'Erro ao iniciar macro. Tente novamente.';
+                                mensagemErroDiv.style.display = 'block';
+                            }
                         });
                     } else {
                         console.error("Objeto 'eel' não definido. Certifique-se de que o backend Python está rodando e o eel.js está incluído corretamente.");
@@ -884,11 +906,21 @@ function startNewMacro() {
     const divprocessamento = document.getElementById("macrosite-completion-status")
     const divcomecar = document.getElementById("macrosite-form")
     const divpreview = document.getElementById("site-preview")
+    const loginneta = document.getElementById("neta-login");
+    const senhaneta = document.getElementById("neta-password");
+    const tipoaquivocsvexcel = document.getElementById("csvOption");
+    const tipoaquivohidropde = document.getElementById("pdeOption");
+    const selecionaraquivo = document.getElementById("arquivo-csv");
 
-    if(divprocessamento && divcomecar && divpreview){
+    if(divprocessamento && divcomecar && divpreview && loginneta && senhaneta && tipoaquivocsvexcel && tipoaquivohidropde && selecionaraquivo) {
         divprocessamento.style.display = "none";
         divcomecar.style.display = "block";
         divpreview.style.display = "block";
+        loginneta.value = '';
+        senhaneta.value = '';
+        tipoaquivocsvexcel.checked = true; // Reseta para CSV
+        tipoaquivohidropde.checked = true;
+        selecionaraquivo.value = ''; // Limpa o nome do arquivo selecionado
     }
 }
 
@@ -947,12 +979,14 @@ async function preencherCampos_NETA() {
                 loginInput.readOnly = true;
                 loginInput.parentElement.style.display = 'block';
                 loginInput.style.backgroundColor = 'rgb(230, 228, 228)';
+                loginInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }
             if (senhaInput) {
                 senhaInput.value = res.neta_senha || '';
                 senhaInput.readOnly = true;
                 senhaInput.parentElement.style.display = 'block';
                 senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';
+                senhaInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }
         } else {
             // Se não houver vínculo, limpa e habilita os campos

@@ -1,9 +1,9 @@
 import eel
 from MacroSITE import iniciar_macro
 import sys
-import pymysql # USANDO PyMySQL
-import logging # Para o logging
-import traceback # Para capturar o traceback
+import pymysql
+import logging
+import traceback
 import hashlib
 import pymysql.cursors
 import random
@@ -15,23 +15,18 @@ import os
 from Consulta_GeraL_Final import iniciar_macro_consulta_geral
 from VinculoWFM import login
 from VinculoNETA import login_neta
+import threading
+from datetime import datetime # Importar datetime para tempo_inicial_global
 
-
-# Detecta o tamanho da tela
 root = tk.Tk()
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 root.destroy()
 
-# --- Configuração de Logging ---
 log_format = '%(asctime)s - %(levelname)s - %(threadName)s - %(message)s'
-# log_file = 'main_log.txt' # Nome do arquivo de log para o main.py
-
 logging.basicConfig(level=logging.INFO,
                     format=log_format,
-                    # filename=log_file, # <-- Descomente para logar para arquivo na pasta dist
                     filemode='w',
-                    # force=True # Pode ser útil para reconfigurar o logging em ambientes complexos
                     )
 
 console_handler = logging.StreamHandler(sys.stdout)
@@ -40,14 +35,13 @@ formatter = logging.Formatter(log_format)
 console_handler.setFormatter(formatter)
 if not any(isinstance(handler, logging.StreamHandler) for handler in logging.getLogger('').handlers):
     logging.getLogger('').addHandler(console_handler)
-# --- Fim da Configuração de Logging ---
 
 logging.info("--- main.py Iniciado ---")
 
 DB_CONFIG = {
     'host': '10.51.109.123',
-    'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
-    'password': 'SB28@sabesp', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'user': 'root',
+    'password': 'SB28@sabesp',
     'database': 'pendlist'
 }
 
@@ -58,42 +52,25 @@ EMAIL_CONFIG = {
     'porta_smtp': 587
 }
 
-
 eel.init('web') 
 
 @eel.expose
 def enviar_email_cadastro_automatico(dados_cadastro, destinatario_fixo):
-    """
-    Recebe os dados do formulário de cadastro do Javascript e envia DOIS emails automáticos:
-    1. Para o destinatário fixo com detalhes.
-    2. Para o email do usuário com confirmação.
-
-    Args:
-        dados_cadastro (dict): Um dicionário com os dados do formulário (cargo, nome, emailUsuario, matricula, concordoTermos).
-        destinatario_fixo (str): O endereço de email fixo para onde enviar os detalhes.
-
-    Returns:
-        dict: Um dicionário com 'sucesso' (bool), 'mensagem' (str) e 'numeroChamado' (int/str).
-    """
     logging.info(f"Recebida solicitação de envio de dois emails automáticos.")
     logging.info(f"Dados do formulário: {dados_cadastro}")
     logging.info(f"Destinatário fixo para detalhes: {destinatario_fixo}")
     logging.info(f"Email do usuário para confirmação: {dados_cadastro.get('emailUsuario', 'Não informado')}")
 
-
     remetente_email = EMAIL_CONFIG['remetente_email']
     remetente_senha = EMAIL_CONFIG['remetente_senha']
 
-    erros = [] # Lista para registrar erros de envio (se houver)
-    numero_chamado_gerado = None # Inicializa o número do chamado
+    erros = []
+    numero_chamado_gerado = None
 
     try:
-        # Opcional: Gerar um número de chamado real aqui (ou obter de onde for gerado)
-        # Este número será usado em ambos os emails.
         numero_chamado_gerado = "JLG" + str(random.randint(10000, 99999))
         logging.info(f"Número de chamado gerado: {numero_chamado_gerado}")
 
-        # --- ENVIO PARA O DESTINATÁRIO FIXO (DETALHES) ---
         logging.info(f"Preparando email de detalhes para {destinatario_fixo}")
         assunto_detalhes = f"Nova Solicitação de Cadastro - Chamado #{numero_chamado_gerado}"
         corpo_detalhes = f"""Prezado(a) Responsável pelo Cadastro,
@@ -115,18 +92,14 @@ Atenciosamente,
 
 Sistema de Cadastro Automático
 """
-        # Bloco try/except para o primeiro email (detalhes)
         try:
-            # Cria e envia a mensagem de detalhes
             msg_detalhes = MIMEText(corpo_detalhes)
             msg_detalhes['Subject'] = assunto_detalhes
             msg_detalhes['From'] = remetente_email
             msg_detalhes['To'] = destinatario_fixo
 
-            # Conecta, loga e envia
             server = smtplib.SMTP(EMAIL_CONFIG['servidor_smtp'], EMAIL_CONFIG['porta_smtp'])
-            server.starttls() # Inicia TLS para porta 587
-            # server = smtplib.SMTP_SSL(EMAIL_CONFIG['servidor_smtp'], 465) # Use esta linha para SSL (porta 465)
+            server.starttls()
             server.login(remetente_email, remetente_senha)
             server.sendmail(remetente_email, destinatario_fixo, msg_detalhes.as_string())
             server.quit()
@@ -136,10 +109,8 @@ Sistema de Cadastro Automático
             logging.error(f"Falha ao enviar email de detalhes para {destinatario_fixo}: {e}")
             erros.append(f"Falha ao enviar email de detalhes: {e}")
 
-
-        # --- ENVIO PARA O USUÁRIO (CONFIRMAÇÃO) ---
         email_usuario = dados_cadastro.get('emailUsuario')
-        if email_usuario: # Verifica se o email do usuário foi fornecido
+        if email_usuario:
             logging.info(f"Preparando email de confirmação para {email_usuario}")
             assunto_confirmacao = f"Confirmação de Solicitação de Cadastro - Chamado #{numero_chamado_gerado}"
             corpo_confirmacao = f"""Prezado(a) {dados_cadastro.get('nome', 'Usuário(a)')},
@@ -156,21 +127,16 @@ Atenciosamente,
 
 Equipe de Cadastro [Sabesp|Macro JGL]
 """
-            # Bloco try/except para o segundo email (confirmação para o usuário)
             try:
-                # Cria e envia a mensagem de confirmação
                 msg_confirmacao = MIMEText(corpo_confirmacao)
                 msg_confirmacao['Subject'] = assunto_confirmacao
-                msg_confirmacao['From'] = remetente_email # O remetente continua sendo o mesmo
-                msg_confirmacao['To'] = email_usuario # O destinatário é o email do usuário
+                msg_confirmacao['From'] = remetente_email
+                msg_confirmacao['To'] = email_usuario
 
-                # É uma boa prática fechar a conexão anterior antes de abrir uma nova,
-                # ou reutilizar a conexão se possível. Aqui estamos abrindo uma nova para clareza.
                 server = smtplib.SMTP(EMAIL_CONFIG['servidor_smtp'], EMAIL_CONFIG['porta_smtp'])
-                server.starttls() # Inicia TLS para porta 587
-                # server = smtplib.SMTP_SSL(EMAIL_CONFIG['servidor_smtp'], 465) # Use esta linha para SSL (porta 465)
+                server.starttls()
                 server.login(remetente_email, remetente_senha)
-                server.sendmail(remetente_email, email_usuario, msg_confirmacao.as_string()) # Envia para o usuário
+                server.sendmail(remetente_email, email_usuario, msg_confirmacao.as_string())
                 server.quit()
                 logging.info(f"Email de confirmação enviado com sucesso para o usuário {email_usuario}")
 
@@ -181,28 +147,91 @@ Equipe de Cadastro [Sabesp|Macro JGL]
             logging.warning("Email do usuário não fornecido nos dados. Não foi possível enviar email de confirmação para o usuário.")
             erros.append("Email do usuário não fornecido para envio de confirmação.")
 
-
-        # --- RESULTADO FINAL RETORNADO PARA O JAVASCRIPT ---
         if not erros:
-            # Tudo OK se nenhum erro foi registrado
             mensagem_final = 'Solicitação processada e emails enviados com sucesso.'
             sucesso_geral = True
         else:
-            # Houve erros em um ou ambos os envios de email
             mensagem_final = 'Solicitação processada, mas houve erros no envio de emails: ' + '; '.join(erros)
-            sucesso_geral = False # Considera como falha geral se qualquer envio de email falhar
+            sucesso_geral = False
 
         return {'sucesso': sucesso_geral, 'mensagem': mensagem_final, 'numeroChamado': numero_chamado_gerado}
 
     except Exception as e:
-        # Este bloco captura erros que ocorrem ANTES OU FORA das tentativas individuais de envio,
-        # por exemplo, na geração do numero_chamado_gerado ou outros erros inesperados.
         logging.error(f"Erro inesperado na função enviar_email_cadastro_automatico: {e}")
         logging.exception("Detalhes do erro inesperado na função enviar_email_cadastro_automatico:")
-        # Retorna erro para o JavaScript
-        return {'sucesso': False, 'mensagem': f'Erro interno ao processar solicitação: {e}', 'numeroChamado': numero_chamado_gerado} # Retorna número gerado se disponível
-# <<< FIM DA FUNÇÃO PARA ENVIAR DOIS EMAILS AUTOMÁTICOS >>>
+        return {'sucesso': False, 'mensagem': f'Erro interno ao processar solicitação: {e}', 'numeroChamado': numero_chamado_gerado}
 
+
+@eel.expose
+def enviar_email_sugestao(dados_sugestao, destinatario_fixo):
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from email.mime.base import MIMEBase
+    from email import encoders
+    import base64
+    logging.info(f"Recebida solicitação de envio de sugestão.")
+    logging.info(f"Dados da sugestão: {dados_sugestao}")
+    logging.info(f"Destinatário fixo: {destinatario_fixo}")
+
+    remetente_email = EMAIL_CONFIG['remetente_email']
+    remetente_senha = EMAIL_CONFIG['remetente_senha']
+
+    try:
+        corpo = (
+            f"Nova sugestão recebida pelo sistema Macro JGL.\n\n"
+            f"Tipo de Sugestão: {dados_sugestao.get('tipo', 'Não informado')}\n"
+            f"Nome: {dados_sugestao.get('nome', 'Não informado')}\n"
+            f"E-mail: {dados_sugestao.get('email', 'Não informado')}\n"
+            f"Prioridade: {dados_sugestao.get('prioridade', 'Não informado')}\n"
+            f"Data de Envio: {dados_sugestao.get('data_envio', '')}\n\n"
+            
+            # Detalhes específicos da aba 'nova-macro'
+            f"--- Detalhes da Nova Macro ---\n"
+            f"Título da Sugestão: {dados_sugestao.get('titulo_sugestao', 'N/A')}\n"
+            f"Objetivo da Macro: {dados_sugestao.get('descricao_sugestao', 'N/A')}\n"
+            f"Ambiente/Software: {dados_sugestao.get('ambiente_software', 'N/A')}\n"
+            f"Processo Atual: {dados_sugestao.get('processo_atual', 'N/A')}\n"
+            f"Processo Desejado: {dados_sugestao.get('processo_desejado', 'N/A')}\n\n"
+
+            # Detalhes específicos da aba 'melhoria'
+            f"--- Detalhes da Melhoria ---\n"
+            f"Macro Existente: {dados_sugestao.get('macro_existente', 'N/A')}\n"
+            f"Descrição da Melhoria: {dados_sugestao.get('descricao_melhoria', 'N/A')}\n"
+        )
+
+        msg = MIMEMultipart()
+        msg['From'] = remetente_email
+        msg['To'] = destinatario_fixo
+        msg['Subject'] = f"Sugestão - {dados_sugestao.get('tipo', 'Macro JGL')}"
+        msg.attach(MIMEText(corpo, 'plain'))
+
+        anexos = dados_sugestao.get('anexos', [])
+        for anexo in anexos:
+            nome_arquivo = anexo.get('nome')
+            conteudo_base64 = anexo.get('conteudo_base64')
+            if nome_arquivo and conteudo_base64:
+                try:
+                    header, encoded = conteudo_base64.split(',', 1) if ',' in conteudo_base64 else ('', conteudo_base64)
+                    file_data = base64.b64decode(encoded)
+                    part = MIMEBase('application', 'octet-stream')
+                    part.set_payload(file_data)
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', f'attachment; filename="{nome_arquivo}"')
+                    msg.attach(part)
+                except Exception as e:
+                    logging.error(f"Erro ao anexar arquivo {nome_arquivo}: {e}")
+
+        server = smtplib.SMTP(EMAIL_CONFIG['servidor_smtp'], EMAIL_CONFIG['porta_smtp'])
+        server.starttls()
+        server.login(remetente_email, remetente_senha)
+        server.sendmail(remetente_email, destinatario_fixo, msg.as_string())
+        server.quit()
+        logging.info(f"Sugestão enviada com sucesso para {destinatario_fixo}")
+        return {'sucesso': True, 'mensagem': 'Sugestão enviada com sucesso!'}
+    except Exception as e:
+        logging.error(f"Erro ao enviar sugestão: {e}")
+        logging.exception("Detalhes do erro ao enviar sugestão:")
+        return {'sucesso': False, 'mensagem': f'Erro ao enviar sugestão: {e}'}
 
 @eel.expose
 def get_username_by_id(user_id):
@@ -212,13 +241,11 @@ def get_username_by_id(user_id):
     try:
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         cursor = connection.cursor()
-        # Seleciona a coluna 'nome'
         sql = "SELECT nome FROM tb_usuarios WHERE id = %s"
         cursor.execute(sql, (user_id,))
-        usuario = cursor.fetchone() # Pega a primeira linha
+        usuario = cursor.fetchone()
 
         if usuario:
-            # Retorna o valor da coluna 'nome'
             logging.info(f"Nome '{usuario.get('nome')}' encontrado para o ID: {user_id}")
             return {"status": "success", "username": usuario.get('nome')}
         else:
@@ -239,131 +266,89 @@ def get_username_by_id(user_id):
         if connection:
             connection.close()
 
-# >>> FIM DA NOVA FUNÇÃO <<<
-
 @eel.expose
-def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha): # Recebe os 3 argumentos do JS
+def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha):
     connection = None
     cursor = None
     logging.info(f"Tentativa de alterar senha para o usuário ID: {user_id}")
-    print("--> Função alterar_senha_primeiro_login chamada no Python!") # Adicionado print para depuração
+    print("--> Função alterar_senha_primeiro_login chamada no Python!")
 
     try:
-        # Adicionado print antes da conexão (identado 4 espaços)
         print("--> Tentando conectar ao banco de dados...")
-        # Conexão com o banco (identado 4 espaços)
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
-        print("--> Conexão com o banco bem-sucedida.") # Adicionado print após conexão (identado 4 espaços)
-        # Criação do cursor (identado 4 espaços)
+        print("--> Conexão com o banco bem-sucedida.")
         cursor = connection.cursor()
-        print("--> Cursor criado.") # Adicionado print após cursor (identado 4 espaços)
+        print("--> Cursor criado.")
 
-        # --- Opcional: Verificação da Senha Atual (se seu fluxo exigir) ---
-        # Adicionado print antes da primeira query (identado 4 espaços)
         print(f"--> Executando query para verificar senha atual para user_id: {user_id}")
-        # Query de seleção (identado 4 espaços)
         sql_check_password = "SELECT senha FROM tb_usuarios WHERE id = %s"
         cursor.execute(sql_check_password, (user_id,))
-        print("--> Query de verificação de senha executada.") # Adicionado print após query (identado 4 espaços)
-        # Fetch one row (identado 4 espaços)
+        print("--> Query de verificação de senha executada.")
         user_data = cursor.fetchone()
-        print(f"--> Dados do usuário obtidos: {user_data}") # Adicionado print com dados (identado 4 espaços)
+        print(f"--> Dados do usuário obtidos: {user_data}")
 
-        # ATENÇÃO: Comparação de senha em texto puro é INSEGURA! Use HASHES!
-        # Início do bloco if (alinhado com try, identado 4 espaços)
-        if user_data and user_data.get('senha') == senha_atual: # Verificação INSEGURA em texto puro
-            # Código dentro do if (identado 8 espaços)
-            print("--> Senha atual corresponde.") # Adicionado print
+        if user_data and user_data.get('senha') == senha_atual:
+            print("--> Senha atual corresponde.")
             logging.info(f"Senha atual verificada para o usuário ID: {user_id}")
 
-            # --- Atualizar a Senha ---
-            # ATENÇÃO: Armazenamento de senha em texto puro é INSEGURO! Use HASHES!
-            # Código dentro do if (indentado 8 espaços)
             print(f"--> Executando query para atualizar senha para user_id: {user_id}")
             sql_update_password = "UPDATE tb_usuarios SET senha = %s WHERE id = %s"
             cursor.execute(sql_update_password, (nova_senha, user_id))
-            print("--> Query de atualização de senha executada.") # Adicionado print
+            print("--> Query de atualização de senha executada.")
 
-
-            # --- ADICIONAR: Atualizar ultimo_login APÓS alteração de senha ---
             print(f"--> Atualizando ultimo_login para o usuário ID: {user_id}")
             sql_update_last_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
             cursor.execute(sql_update_last_login, (user_id,))
             print("--> Query de atualização de ultimo_login executada.")
-            # --- FIM DA ADIÇÃO ---
-
 
             connection.commit()
-            print("--> Commit realizado.") # Adicionado print
+            print("--> Commit realizado.")
             logging.info(f"Senha e ultimo_login atualizados com sucesso para o usuário ID: {user_id}")
 
-            # Opcional: Limpar um flag de "primeiro login" se você tiver um campo dedicado para isso
+            print("--> Retornando status 'success'")
+            return {"status": "success"}
 
-            print("--> Retornando status 'success'") # Adicionado print antes do return (identado 8 espaços)
-            return {"status": "success"} # Indica sucesso
-
-        # Início do bloco else (alinhado com o if, indentado 4 espaços)
         else:
-            # Código dentro do else (indentado 8 espaços)
-            print("--> Senha atual não corresponde ou usuário não encontrado.") # Adicionado print
+            print("--> Senha atual não corresponde ou usuário não encontrado.")
             logging.warning(f"Falha ao alterar senha para o usuário ID: {user_id}. Senha atual incorreta.")
-            print("--> Retornando status 'incorrect_current_password'") # Adicionado print antes do return (identado 8 espaços)
-            return {"status": "incorrect_current_password"} # Indica que a senha atual não coincide
+            print("--> Retornando status 'incorrect_current_password'")
+            return {"status": "incorrect_current_password"}
 
-    # Início do bloco except pymysql.Error (alinhado com o try, indentado 4 espaços)
     except pymysql.Error as e:
-        # Código dentro do except (indentado 8 espaços)
-        print(f"--> Capturado Erro PyMySQL: {e}") # Adicionado print no except
+        print(f"--> Capturado Erro PyMySQL: {e}")
         logging.error(f"Erro do banco de dados durante alteração de senha: {e}")
         logging.exception("Detalhes do erro do banco de dados durante alteração de senha:")
-        # Início do bloco if dentro do except (identado 12 espaços)
         if connection:
-            # Código dentro do if (indentado 16 espaços)
             connection.rollback()
-            print("--> Rollback realizado.") # Adicionado print
-        # Código dentro do except (indentado 8 espaços)
-        print("--> Retornando status 'db_error'") # Adicionado print antes do return
-        return {"status": "db_error"} # Indica erro no banco
+            print("--> Rollback realizado.")
+        print("--> Retornando status 'db_error'")
+        return {"status": "db_error"}
 
-    # Início do bloco except Exception (alinhado com o try, indentado 4 espaços)
     except Exception as e:
-        # Código dentro do except (indentado 8 espaços)
-        print(f"--> Capturado Erro Geral: {e}") # Adicionado print no except
+        print(f"--> Capturado Erro Geral: {e}")
         logging.error(f"Ocorreu um erro INESPERADO (alterar_senha_primeiro_login): Tipo={type(e)}, Mensagem='{e}'")
         logging.exception("Detalhes do erro INESPERADO durante alteração de senha:")
-        # Início do bloco if dentro do except (indentado 12 espaços)
         if connection:
-            # Código dentro do if (indentado 16 espaços)
             connection.rollback()
-            print("--> Rollback realizado.") # Adicionado print
-        # Código dentro do except (indentado 8 espaços)
-        print("--> Retornando status 'internal_error'") # Adicionado print antes do return
-        return {"status": "internal_error"} # Indica erro interno inesperado
+            print("--> Rollback realizado.")
+        print("--> Retornando status 'internal_error'")
+        return {"status": "internal_error"}
 
-    # Início do bloco finally (alinhado com o try, indentado 4 espaços)
     finally:
-        # Código dentro do finally (indentado 8 espaços)
-        print("--> Bloco finally sendo executado.") # Adicionado print no finally
-        # Início do bloco if dentro do finally (identado 12 espaços)
+        print("--> Bloco finally sendo executado.")
         if cursor:
-            # Código dentro do if (indentado 16 espaços)
-            print("--> Fechando cursor.") # Adicionado print
+            print("--> Fechando cursor.")
             cursor.close()
-        # Início do bloco if dentro do finally (indentado 12 espaços)
         if connection:
-            # Código dentro do if (indentado 16 espaços)
-            print("--> Fechando conexão.") # Adicionado print
+            print("--> Fechando conexão.")
             connection.close()
             logging.info("Conexão com o banco de dados fechada (alterar_senha_primeiro_login).")
 
-    # Esta é a linha cuja identação estava incorreta na versão anterior.
-    # Ela deve estar alinhada com try, except, finally (identado 4 espaços, igual ao início do bloco try)
     print("--> Fim da função alterar_senha_primeiro_login.")
 
 
 @eel.expose
 def verificar_credenciais(email, senha_texto_claro):
-
     connection = None
     cursor = None
 
@@ -377,7 +362,6 @@ def verificar_credenciais(email, senha_texto_claro):
 
             cursor = connection.cursor()
 
-            # Seleciona id, nome, email, senha, e ultimo_login
             sql = "SELECT id, nome, email, senha, ultimo_login FROM tb_usuarios WHERE email = %s"
             cursor.execute(sql, (email,))
 
@@ -386,34 +370,23 @@ def verificar_credenciais(email, senha_texto_claro):
             if usuario:
                 stored_senha_no_banco = usuario.get('senha')
 
-                # --- Lógica de Verificação de Senha EM TEXTO PURO (INSEGURO) ---
                 if senha_texto_claro == stored_senha_no_banco:
                     logging.info(f"Login bem-sucedido (texto claro) para: {email}")
 
-                    # Verifica o valor de ultimo_login ANTES de atualizar
                     ultimo_login_anterior = usuario.get('ultimo_login')
                     logging.info(f"Valor de ultimo_login anterior para {email}: {ultimo_login_anterior}")
 
-
-                    # Retorna um valor diferente com base na verificação ANTERIOR do ultimo_login
-                    # Se ultimo_login_anterior for None, é o primeiro login
                     if ultimo_login_anterior is None:
                         logging.info(f"Primeiro login detectado para: {email}")
-                        # *** NÃO ATUALIZA ultimo_login AQUI PARA O PRIMEIRO LOGIN ***
-                        # Retorna status 'first_login' e o ID do usuário
                         return {"status": "first_login", "identifier": usuario.get('id')}
                     else:
-                        # Se ultimo_login_anterior NÃO for None, é um login subsequente
                         logging.info(f"Login subsequente detectado para: {email}")
 
-                        # --- ATUALIZAÇÃO DO CAMPO ultimo_login SOMENTE PARA LOGIN SUBSEQUENTE ---
                         sql_update_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
                         cursor.execute(sql_update_login, (usuario.get('id'),))
                         connection.commit()
                         logging.info(f"Campo ultimo_login atualizado para o usuário ID: {usuario.get('id')}")
-                        # ----------------------------------------------------
-
-                        # Retorna status 'success' e o nome do usuário
+                        
                         return {"status": "success", "identifier": usuario.get('nome'), "user_id": usuario.get('id')}
 
                 else:
@@ -446,14 +419,11 @@ def verificar_credenciais(email, senha_texto_claro):
             logging.info("Conexão com o banco de dados para login fechada.")
 
 
-
 @eel.expose
 def vincular_wfm(usuario_id, wfm_login, wfm_senha):
     logging.info(f"[vincular_wfm] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={wfm_login}")
-    # Chama Selenium para obter nome e perfil
     resultado = login(wfm_login, wfm_senha)
     logging.info(f"[vincular_wfm] Resultado do Selenium: {resultado}")
-    # Se não conseguiu extrair nome ou perfil, considera erro de autenticação
     if not resultado or not resultado.get('nome') or not resultado.get('perfil'):
         logging.error("[vincular_wfm] Falha ao autenticar no WFM. Login ou senha inválidos, ou erro na extração.")
         return {"status": "error", "message": "Falha ao autenticar no WFM. Verifique login e senha."}
@@ -491,10 +461,8 @@ def vincular_wfm(usuario_id, wfm_login, wfm_senha):
 @eel.expose
 def vincular_neta(usuario_id, neta_login, neta_senha):
     logging.info(f"[vincular_neta] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={neta_login}")
-    # Chama Selenium para obter nome e perfil
     resultado = login_neta(neta_login, neta_senha)
     logging.info(f"[vincular_neta] Resultado do Selenium: {resultado}")
-    # Se não conseguiu extrair nome ou perfil, considera erro de autenticação
     if not resultado or not resultado.get('nome') or not resultado.get('perfil'):
         logging.error("[vincular_neta] Falha ao autenticar no NETA. Login ou senha inválidos, ou erro na extração.")
         return {"status": "error", "message": "Falha ao autenticar no NETA. Verifique login e senha."}
@@ -531,9 +499,6 @@ def vincular_neta(usuario_id, neta_login, neta_senha):
 
 @eel.expose
 def get_wfm_vinculo_by_user_id(user_id):
-    """
-    Retorna o nome, perfil, login e senha WFM vinculados ao usuário, se existir na tabela tb_vinculo_wfm.
-    """
     try:
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
@@ -557,9 +522,6 @@ def get_wfm_vinculo_by_user_id(user_id):
 
 @eel.expose
 def get_neta_vinculo_by_user_id(user_id):
-    """
-    Retorna o nome, perfil, login e senha WFM vinculados ao usuário, se existir na tabela tb_vinculo_wfm.
-    """
     try:
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
@@ -580,19 +542,13 @@ def get_neta_vinculo_by_user_id(user_id):
         logging.error(f"Erro ao buscar vínculo NETA: {e}")
         return {"status": "error", "message": str(e)}
 
-
         
 @eel.expose
 def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario):
-    """
-    Função exposta ao Eel para iniciar a macro principal (Macro SITE).
-    Agora chama a nova função `iniciar_macro` do MacroSITE.py.
-    """
     logging.info(f"Chamada para iniciar macro para usuário da aplicação '{identificador_usuario}'")
     logging.info(f"Credenciais passadas para a macro (login site): {login_usuario}, {'*' * len(senha_usuario)}")
     logging.info(f"Nome do arquivo: {nome_arquivo}, Tipo: {tipo_arquivo}")
 
-    # Chama a nova função iniciar_macro do MacroSITE.py
     from MacroSITE import iniciar_macro
 
     try:
@@ -604,7 +560,6 @@ def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, 
         logging.error(f"Erro ao iniciar a macro: {e}")
         logging.exception("Detalhes do erro ao iniciar a macro:")
         return {"status": "erro", "message": "Erro ao iniciar a macro."}
-
 
 
 @eel.expose
@@ -622,7 +577,6 @@ def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_
             logging.error(f"Tipo de pesquisa inválido: {tipo_pesquisa}")
             return {"status": "erro", "message": "Tipo de pesquisa deve ser 'pde' ou 'hidro'"}
             
-        # Passa o nome_usuario como identificador
         return iniciar_macro_consulta_geral(
             conteudo_base64, 
             login_usuario, 
@@ -640,13 +594,9 @@ def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_
 
 @eel.expose
 def salvar_nova_senha(senha_atual, nova_senha):
-    """
-    Atualiza a senha do usuário no banco de dados.
-    """
     try:
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
-            # Verifica se a senha atual está correta
             sql_check_password = "SELECT id FROM tb_usuarios WHERE senha = %s"
             cursor.execute(sql_check_password, (senha_atual,))
             usuario = cursor.fetchone()
@@ -654,7 +604,6 @@ def salvar_nova_senha(senha_atual, nova_senha):
             if not usuario:
                 return {"status": "erro", "message": "Senha atual incorreta."}
 
-            # Atualiza a senha no banco de dados
             sql_update_password = "UPDATE tb_usuarios SET senha = %s WHERE id = %s"
             cursor.execute(sql_update_password, (nova_senha, usuario['id']))
             connection.commit()
@@ -667,10 +616,6 @@ def salvar_nova_senha(senha_atual, nova_senha):
 
 @eel.expose
 def atualizar_ultimo_login(user_id=None):
-    """
-    Atualiza o campo ultimo_login para o usuário atual no banco de dados.
-    Se user_id não for passado, não faz nada e retorna erro.
-    """
     try:
         if not user_id:
             return {"status": "erro", "message": "ID do usuário não informado para atualizar o ultimo_login."}
@@ -687,39 +632,27 @@ def atualizar_ultimo_login(user_id=None):
     
 @eel.expose
 def upload_profile_picture(user_id, base64_image_data, file_extension):
-    """
-    Recebe dados de imagem em Base64, salva no servidor e atualiza o URL no banco de dados.
-    """
     logging.info(f"Recebida solicitação de upload de foto de perfil para user_id: {user_id}")
     
-    # Define o diretório onde as imagens serão salvas
-    # Certifique-se de que este diretório exista e seja acessível pelo seu servidor web
     upload_dir = 'web/imagens/perfis'
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         logging.info(f"Diretório de upload criado: {upload_dir}")
 
     try:
-        # Decodifica a imagem Base64
-        # Remove o prefixo de dados (ex: "data:image/png;base64,")
         header, encoded_data = base64_image_data.split(',', 1)
         image_data = base64.b64decode(encoded_data)
 
-        # Gera um nome de arquivo único
         file_name = f"profile_{user_id}_{os.urandom(4).hex()}.{file_extension}"
         file_path = os.path.join(upload_dir, file_name)
         
-        # Salva a imagem no diretório
         with open(file_path, 'wb') as f:
             f.write(image_data)
         
-        # Converte o caminho do arquivo para uma URL relativa para o frontend
-        # Assumindo que 'web' é a raiz do seu servidor web
         profile_picture_url = f"/imagens/perfis/{file_name}"
         logging.info(f"Foto de perfil salva em: {file_path}")
         logging.info(f"URL da foto de perfil: {profile_picture_url}")
 
-        # Atualiza o banco de dados com a URL da foto de perfil
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         try:
             with connection.cursor() as cursor:
@@ -730,7 +663,6 @@ def upload_profile_picture(user_id, base64_image_data, file_extension):
             return {"status": "success", "message": "Foto de perfil enviada e salva com sucesso!", "url": profile_picture_url}
         except Exception as db_e:
             logging.error(f"Erro ao atualizar o banco de dados com a URL da foto de perfil: {db_e}")
-            # Se a atualização do DB falhar, tente remover o arquivo salvo para evitar lixo
             if os.path.exists(file_path):
                 os.remove(file_path)
                 logging.warning(f"Arquivo {file_path} removido devido a erro no DB.")
@@ -746,25 +678,33 @@ def upload_profile_picture(user_id, base64_image_data, file_extension):
 
 @eel.expose
 def get_user_profile_data(user_id):
-    """
-    Busca os dados de perfil de um usuário (nome, email, cargo, foto_perfil_url) no banco de dados.
-    """
-    logging.info(f"Buscando dados de perfil para user_id: {user_id}")
+    logging.info(f"Buscando dados de perfil completos para user_id: {user_id}")
     connection = None
     try:
         connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
-            # Seleciona as colunas desejadas da tabela tb_usuarios
-            sql = "SELECT nome, email, cargo, foto_perfil_url, matricula FROM tb_usuarios WHERE id = %s"
-            cursor.execute(sql, (user_id,))
+            sql_user = "SELECT nome, email, cargo, foto_perfil_url, matricula FROM tb_usuarios WHERE id = %s"
+            cursor.execute(sql_user, (user_id,))
             user_data = cursor.fetchone()
 
-            if user_data:
-                logging.info(f"Dados de perfil encontrados para user_id: {user_id}")
-                return {"status": "success", "data": user_data}
-            else:
+            if not user_data:
                 logging.warning(f"Nenhum dado de perfil encontrado para user_id: {user_id}")
                 return {"status": "not_found", "message": "Usuário não encontrado."}
+
+            sql_neta = "SELECT neta_nome, neta_perfil FROM tb_vinculo_neta WHERE usuario_id = %s"
+            cursor.execute(sql_neta, (user_id,))
+            neta_data = cursor.fetchone()
+            user_data['neta_nome'] = neta_data['neta_nome'] if neta_data else "Não Vinculado"
+            user_data['neta_perfil'] = neta_data['neta_perfil'] if neta_data else "Não Vinculado"
+
+            sql_wfm = "SELECT wfm_nome, wfm_perfil FROM tb_vinculo_wfm WHERE usuario_id = %s"
+            cursor.execute(sql_wfm, (user_id,))
+            wfm_data = cursor.fetchone()
+            user_data['wfm_nome'] = wfm_data['wfm_nome'] if wfm_data else "Não Vinculado"
+            user_data['wfm_perfil'] = wfm_data['wfm_perfil'] if wfm_data else "Não Vinculado"
+
+            logging.info(f"Dados de perfil completos encontrados para user_id: {user_id}")
+            return {"status": "success", "data": user_data}
     except Exception as e:
         logging.error(f"Erro ao buscar dados de perfil no banco de dados: {e}")
         return {"status": "error", "message": f"Erro ao buscar dados de perfil: {e}"}
@@ -772,41 +712,33 @@ def get_user_profile_data(user_id):
         if connection:
             connection.close()
 
-
-
 def close_callback(page, sockets):
     logging.info(f"Conexão websocket fechada para a página: {page}. Sockets restantes: {len(sockets)}")
 
-    # Verifica se a página relevante para a macro ainda está aberta
     if page == "macroSITE.html" and not sockets:
         logging.info("Última conexão websocket fechada para macroSITE.html. Sinalizando para parar a macro e encerrando processo Python.")
         try:
             from MacroSITE import parar_macro_event
-            parar_macro_event.set()  # Sinaliza o evento de parada global
+            parar_macro_event.set()
         except Exception as e:
             logging.error(f"Erro ao sinalizar parada da macro: {e}")
     else:
         logging.info("Conexões WebSocket ainda ativas ou página irrelevante para a macro.")
 
+try:
+    logging.info("--- Iniciando Aplicação Eel ---")
+    eel.start('login.html', mode='chrome', size=(screen_width, screen_height), close_callback=close_callback)
 
-try: # 0 espaços
-    logging.info("--- Iniciando Aplicação Eel ---") # 4 espaços
-    # Altere o modo para 'chrome' para abrir no navegador padrão em uma nova aba
-    eel.start('login.html', mode='chrome', size=(screen_width, screen_height), close_callback=close_callback) # 4 espaços
+    logging.info("Chamada eel.start retornou.")
 
-    # Esta linha só será atingida se eel.start não for 'blocking=True' (comportamento padrão)
-    logging.info("Chamada eel.start retornou.") # 4 espaços
+except EnvironmentError as e:
+    logging.error(f"Erro de ambiente ao iniciar EEL: {e}")
+    logging.exception("Detalhes do erro de ambiente ao iniciar EEL:")
+    sys.exit(1)
 
-except EnvironmentError as e: # 0 espaços
-    # Captura erros relacionados ao ambiente, como navegador não encontrado pelo Eel
-    logging.error(f"Erro de ambiente ao iniciar EEL: {e}") # 4 espaços
-    logging.exception("Detalhes do erro de ambiente ao iniciar EEL:") # 4 espaços
-    sys.exit(1) # Sair com código de erro se houver EnvironmentError (4 espaços)
+except Exception as e:
+    logging.error(f"Erro geral ao iniciar EEL: {e}")
+    logging.exception("Detalhes do erro geral ao iniciar EEL:")
+    sys.exit(1)
 
-except Exception as e: # 0 espaços
-    # Captura outros erros inesperados durante a inicialização do Eel
-    logging.error(f"Erro geral ao iniciar EEL: {e}") # 4 espaços
-    logging.exception("Detalhes do erro geral ao iniciar EEL:") # 4 espaços
-    sys.exit(1) # Sair com código de erro se houver outro erro na inicialização (4 espaços)
-
-logging.info("--- Saindo da Aplicação ---") # 0 espaços
+logging.info("--- Saindo da Aplicação ---")

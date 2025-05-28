@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro JGL - Sugestões de Macros</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/sugestao.css">
+    <link rel="stylesheet" href="css/botao_fixo.css">
+    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+</head>
+<body>
+     <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-block">
+                    <img src="imagens/logo-sabesp-1024.png" alt="Logo Macro JGL"> <div class="logo-text">Macro JGL</div>
+                </div>
+                <span style="margin-left: 24%;"></span>
+
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="macros.html">Macros</a></li>
+                        <li><a href="#">Consultas</a></li>
+                        <li><a href="#">Ajuda</a></li>
+                        <li><a href="sugestao.html" style="text-decoration: underline; color: rgb(12, 38, 53);">Sugestão</a></li>
+                        <li><a href="configuracoes.html">Configurações</a></li>
+                        <li><a href="sobre.html">Sobre</a></li>
+                    </ul>
+                </nav>
+                <span style="margin-left: 10%;"></span>
+                <div class="user-actions-group">
+                    <div class="user-info">
+                        <div class="user-status-block">
+                            <i class="fas fa-user icon-user"></i>
+                            <div class="user-status-text">
+                                <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do Usuário</span>
+                                <span style="margin-top: 1px;">Usuário ativo</span>
+                            </div>
+                        </div>
+                        <div class="user-time-block">
+                            <i class="fas fa-clock icon-clock"></i>
+                            <div class="time-info-text">
+                                <span id="current-time" style="font-size: 1.2em; font-weight: 600;">Horario Atual</span>
+                                <span id="logged-in-time" style="margin-top: 1px;">Horario Logado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="logout-button-styled" style="width: 100px; height: 40px; margin-left: 35px;"
+                        onclick="deslogar()" id="deslog">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+        <main class="main-content-area">
+            <div class="sugestao-container">
+                <div class="sugestao-card">
+                    <h2>Sugestões de Macro</h2>
+
+                    <div class="suggestion-tabs">
+                        <button class="tab-button active" data-type="nova-macro">Sugerir Nova Macro</button>
+                        <button class="tab-button" data-type="melhoria">Sugerir Melhoria</button>
+                    </div>
+
+                    <p class="description-text">Tem uma ideia para otimizar um processo? Sugira uma nova macro ou uma melhoria para uma existente. Quanto mais detalhes, melhor! Inclua informações sobre os sistemas envolvidos, etapas e, se possível, anexe arquivos.</p>
+
+                    <form id="sugestao-form" enctype="multipart/form-data">
+
+                        <div id="nova-macro-content" class="tab-content active">
+                            <div class="form-group">
+                                <label for="titulo-sugestao">Título da Sugestão:</label>
+                                <input type="text" id="titulo-sugestao" name="titulo-sugestao" placeholder="Ex: Macro para automação de relatório X">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="descricao-sugestao">Objetivo da Macro (Descrição Detalhada):</label>
+                                <textarea id="descricao-sugestao" name="descricao-sugestao" rows="8" placeholder="Descreva o que a macro deve alcançar, o problema que ela resolve e o valor que ela agrega."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ambiente-software">Ambiente/Software Envolvido:</label>
+                                <input type="text" id="ambiente-software" name="ambiente-software" placeholder="Ex: SAP, Excel, Sistema Interno XYZ, Navegador Web">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="processo-atual">Processo Atual (Etapas):</label>
+                                <textarea id="processo-atual" name="processo-atual" rows="6" placeholder="Descreva passo a passo como o processo é feito manualmente hoje."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="processo-desejado">Processo Desejado (Etapas da Macro):</label>
+                                <textarea id="processo-desejado" name="processo-desejado" rows="6" placeholder="Descreva como você imagina que a macro executaria o processo."></textarea>
+                            </div>
+                        </div>
+
+                        <div id="melhoria-content" class="tab-content">
+                            <div class="form-group">
+                                <label for="macro-existente">Macro Existente para Melhoria:</label>
+                                <select id="macro-existente" name="macro-existente">
+                                    <option value="">Selecione uma macro existente...</option>
+                                    <option value="macro1">Macro Consulta Geral</option>
+                                    <option value="macro2">Macro SITE</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="descricao-melhoria">Descrição da Melhoria Sugerida:</label>
+                                <textarea id="descricao-melhoria" name="descricao-melhoria" rows="8" placeholder="Descreva qual a melhoria desejada, por que ela é importante e quais os benefícios esperados."></textarea>
+                            </div>
+                            </div>
+
+                        <div class="form-group">
+                            <label for="prioridade-sugestao">Prioridade Sugerida:</label>
+                            <select id="prioridade-sugestao">
+                                <option value="baixa">Baixa</option>
+                                <option value="media" selected>Média</option>
+                                <option value="alta">Alta</option>
+                                <option value="critica">Crítica</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="anexo-sugestao">Anexar Arquivos (Imagens, PDFs, etc.):</label>
+                            <input type="file" id="anexo-sugestao" name="anexo-sugestao" multiple accept="image/*, .pdf, .docx, .xlsx">
+                            <small>Max: 5MB por arquivo. Formatos suportados: JPG, PNG, PDF, DOCX, XLSX.</small>
+                            <div id="file-list" class="file-list"></div> </div>
+
+                        <div class="form-group">
+                            <label for="seu-nome-area">Nome:</label>
+                            <input type="text" id="seu-nome-area" name="seu-nome-area" placeholder="Nome">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email-remetente-sugestao">E-mail:</label>
+                            <input type="email" id="email-remetente-sugestao" name="email-remetente-sugestao" placeholder="seuemail@exemplo.com" required>
+                        </div>
+
+                        <button type="submit" class="submit-sugestao-btn">
+                            <i class="fas fa-paper-plane"></i> Enviar Sugestão
+                        </button>
+                    </form>
+
+                    <div id="feedback-message" class="feedback-message" style="display: none;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+        <div id="transp"></div>
+    <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
+        <i class="fas fa-headset icon"></i>
+    </div>
+    <div class="fixed-button-container">
+        <div id="overlayText">
+            <h1 style="font-size: 1.5em; text-align: center; font-weight: bolder; color: #2b8adf;">Ei! Como posso te
+                ajudar?</h1>
+            <hr>
+            <div class="btfixoligue">
+                <a href="#">
+                    <i class="fas fa-robot"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixoligue">Assistente Virtual</h1>
+                    <p class="fixoligue2">Clique para conversar com o suporte virtual.</p>
+                </a>
+            </div>
+            <div class="btfixowpp">
+                <a href="#" onclick="mostrarTawkTo(); return false;">
+                    <i class="fas fa-users"
+                        style="position: absolute; font-size: 2.5em; margin-top: 4%; margin-left: 4%;"></i>
+                    <h1 class="fixowpp1">Fale com Nossa Equipe</h1>
+                    <p class="fixowpp2">Clique para iniciar uma conversa com um atendente</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="js/sugestao.js"></script>
+    <script type="text/javascript" src="js/botao_fixo.js"></script>
+</body>
+</html>

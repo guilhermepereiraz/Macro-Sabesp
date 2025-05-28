@@ -16,12 +16,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalCancelBtn = document.getElementById('modal-cancel-btn');
     const closeModalBtn = confirmationModal.querySelector('.close-button');
 
+    // Referência ao botão "Voltar à Visão Geral"
+    const backToOverviewButtonContainer = document.querySelector('.form-actions.profile-back-button-actions');
+
 
     // Inicialmente esconde todas as seções de detalhes e o breadcrumb
     detailSections.forEach(section => {
         section.style.display = 'none';
     });
     breadcrumb.style.display = 'none';
+    // Garante que o botão "Voltar à Visão Geral" esteja oculto no carregamento
+    if (backToOverviewButtonContainer) {
+        backToOverviewButtonContainer.style.display = 'none';
+        // Adiciona event listener para garantir que ao clicar, o botão seja ocultado imediatamente
+        const backBtn = backToOverviewButtonContainer.querySelector('button');
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                backToOverviewButtonContainer.style.display = 'none';
+            });
+        }
+    }
+
 
     // Função para exibir toast notification
     function showToast(message, type = 'success') {
@@ -71,37 +86,22 @@ document.addEventListener('DOMContentLoaded', function () {
         detailSections.forEach(section => {
             section.style.display = 'none';
         });
-
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.style.display = 'block';
-            if (configGrid) {
-                configGrid.style.display = 'none';
-            }
-            if (quickSettingsSection) {
-                quickSettingsSection.style.display = 'none';
-            }
-            if (otherSettingsGrid) {
-                otherSettingsGrid.style.display = 'none';
-            }
-
-            // Atualiza o Breadcrumb
-            breadcrumb.style.display = 'flex';
-            // Encontra o nome do card que corresponde à seção
-            const cardName = document.querySelector(`.config-card[data-section="${sectionId}"]`)
-                ? document.querySelector(`.config-card[data-section="${sectionId}"]`).dataset.cardName
-                : targetSection.querySelector('.section-title').textContent; // Fallback se não tiver data-card-name
-            currentSectionSpan.textContent = cardName;
-            breadcrumbMainLink.style.display = 'inline'; // Garante que "Configurações" esteja visível
-            breadcrumb.querySelector('.breadcrumb-separator').style.display = 'inline';
-
-            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // NOVO: Se a seção de perfil for exibida, carregue os dados do usuário
-            if (sectionId === 'perfil') {
-                loadUserProfileData();
+            // Exibe o botão "Voltar à Visão Geral" apenas na seção de perfil
+            if (sectionId === 'perfil' && backToOverviewButtonContainer) {
+                backToOverviewButtonContainer.style.display = 'flex';
+                loadUserProfileData(); // Atualiza os campos ao abrir o perfil
+            } else if (backToOverviewButtonContainer) {
+                backToOverviewButtonContainer.style.display = 'none';
             }
         }
+        if (configGrid) configGrid.style.display = 'none';
+        if (quickSettingsSection) quickSettingsSection.style.display = 'none';
+        if (otherSettingsGrid) otherSettingsGrid.style.display = 'none';
+        breadcrumb.style.display = 'block';
+        currentSectionSpan.textContent = targetSection ? targetSection.querySelector('.section-title')?.textContent || '' : '';
     };
 
     // Função para esconder uma seção e mostrar a grid de cards e sugestões
@@ -114,15 +114,17 @@ document.addEventListener('DOMContentLoaded', function () {
             configGrid.style.display = 'grid';
         }
         if (quickSettingsSection) {
-            quickSettingsSection.style.display = 'block'; // Mostra novamente a seção de sugestões
+            quickSettingsSection.style.display = 'block';
         }
         if (otherSettingsGrid) {
-            otherSettingsGrid.style.display = 'block'; // Corrigido para 'block' para garantir exibição correta
-            const tiloerro = document.getElementById('tito').style.display = 'none'; // Corrigido para 'block' para garantir exibição correta
+            otherSettingsGrid.style.display = 'block';
         }
-        // Esconde o breadcrumb ou volta para o estado inicial
         breadcrumb.style.display = 'none';
         currentSectionSpan.textContent = '';
+        // Esconde o botão "Voltar à Visão Geral" ao retornar para a visão geral
+        if (backToOverviewButtonContainer) {
+            backToOverviewButtonContainer.style.display = 'none';
+        }
     };
 
     // Event Listeners para os botões "Acessar" nos cards
@@ -147,6 +149,11 @@ document.addEventListener('DOMContentLoaded', function () {
         breadcrumb.style.display = 'none';
         currentSectionSpan.textContent = '';
         window.scrollTo({ top: 0, behavior: 'smooth' }); // Volta para o topo da página
+
+        // NOVO: Esconde o botão "Voltar à Visão Geral" ao clicar no breadcrumb principal
+        if (backToOverviewButtonContainer) {
+            backToOverviewButtonContainer.style.display = 'none';
+        }
     });
 
     // --- Campo de Pesquisa de Configurações ---
@@ -525,7 +532,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Função para retornar à tela principal de configurações
     // Esta função já deve existir
     window.hideSection = function (sectionId) {
-        const targetSection = document.getElementById(sectionId);
+        const targetSection = document.getElementById(sectionId);   
+
         if (targetSection) {
             targetSection.style.display = 'none';
         }
@@ -961,7 +969,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             profilePictureImg.src = response.url;
                             profilePictureImg.style.display = 'block'; // Garante que a imagem esteja visível
                             if (profilePictureIcon) profilePictureIcon.style.display = 'none'; // Esconde o ícone
-                        } else if (profilePictureIcon) { // Fallback para background-image na div
+                        } else { // Fallback para background-image na div
                             const profilePictureDiv = document.querySelector('.profile-picture');
                             if (profilePictureDiv) {
                                 profilePictureDiv.style.backgroundImage = `url(${response.url})`;
@@ -1043,85 +1051,68 @@ document.addEventListener('DOMContentLoaded', function () {
     // Função para carregar os dados completos do perfil do usuário
     async function loadUserProfileData() {
         const userId = sessionStorage.getItem('user_id');
-        if (!userId) {
-            console.warn("loadUserProfileData: User ID não encontrado na sessionStorage.");
-            return;
-        }
-
+        if (!userId) return;
         try {
             const response = await eel.get_user_profile_data(userId)();
             if (response.status === 'success' && response.data) {
-                const userData = response.data;
-                
-                // Preenche os campos de input
-                if (nomeInput) nomeInput.value = userData.nome || '';
-                if (emailInput) emailInput.value = userData.email || '';
-                if (cargoInput) cargoInput.value = userData.cargo || '';
-                // Assumindo que 'matricula' é um campo que também viria do backend,
-                // se não for, você pode remover ou adaptar.
-                // Se a matrícula não estiver no banco, você pode preencher com algo padrão ou vazio.
-                if (matriculaInput) matriculaInput.value = userData.matricula || ''; 
-
-                // Atualiza o nome de exibição no sidebar do perfil
-                if (profileDisplayName) profileDisplayName.textContent = userData.nome || 'Nome do Usuário';
-
-                // Carrega a foto de perfil
-                if (userData.foto_perfil_url) {
-                    if (profilePictureImg) {
-                        profilePictureImg.src = userData.foto_perfil_url;
-                        profilePictureImg.style.display = 'block';
-                        if (profilePictureIcon) profilePictureIcon.style.display = 'none';
-                    } else { // Fallback para background-image
-                        const profilePictureDiv = document.querySelector('.profile-picture');
-                        if (profilePictureDiv) {
-                            profilePictureDiv.style.backgroundImage = `url(${userData.foto_perfil_url})`;
-                            profilePictureDiv.style.backgroundSize = 'cover';
-                            profilePictureDiv.style.backgroundPosition = 'center';
-                            profilePictureDiv.style.backgroundRepeat = 'no-repeat';
-                            if (profilePictureIcon) profilePictureIcon.style.display = 'none';
-                        }
-                    }
+                const data = response.data;
+                // Preenche os campos do formulário de perfil
+                if (document.getElementById('nome')) document.getElementById('nome').value = data.nome || '';
+                if (document.getElementById('email')) document.getElementById('email').value = data.email || '';
+                if (document.getElementById('cargo')) document.getElementById('cargo').value = data.cargo || '';
+                if (document.getElementById('matricula')) document.getElementById('matricula').value = data.matricula || '';
+                if (document.getElementById('vinculoneta')) document.getElementById('vinculoneta').value = data.neta_perfil || '';
+                if (document.getElementById('vinculowfm')) document.getElementById('vinculowfm').value = data.wfm_perfil || '';
+                // Atualiza o nome exibido no topo do perfil
+                if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').textContent = data.nome || '';
+                // Atualiza a foto de perfil se existir
+                if (data.foto_perfil_url && document.getElementById('profile-img')) {
+                    document.getElementById('profile-img').src = data.foto_perfil_url;
+                    document.getElementById('profile-img').style.display = 'block';
+                    if (document.getElementById('profile-icon')) document.getElementById('profile-icon').style.display = 'none';
                 } else {
-                    // Se não houver foto_perfil_url, exibe o ícone padrão
-                    if (profilePictureImg) profilePictureImg.style.display = 'none';
-                    if (profilePictureIcon) profilePictureIcon.style.display = 'block';
-                    document.querySelector('.profile-picture').style.backgroundImage = 'none';
+                    if (document.getElementById('profile-img')) document.getElementById('profile-img').style.display = 'none';
+                    if (document.getElementById('profile-icon')) document.getElementById('profile-icon').style.display = 'block';
                 }
-
-                showToast('Dados do perfil carregados com sucesso!', 'info');
-
-            } else {
-                console.error("loadUserProfileData: Falha ao carregar dados do usuário:", response.message);
-                showToast('Erro ao carregar dados do perfil.', 'error');
-                // Opcional: Limpar campos ou definir valores padrão em caso de falha
-                if (nomeInput) nomeInput.value = 'N/A';
-                if (emailInput) emailInput.value = 'N/A';
-                if (cargoInput) cargoInput.value = 'N/A';
-                if (matriculaInput) matriculaInput.value = 'N/A';
-                if (profileDisplayName) profileDisplayName.textContent = 'Usuário Desconhecido';
-                if (profilePictureImg) profilePictureImg.style.display = 'none';
-                if (profilePictureIcon) profilePictureIcon.style.display = 'block';
-                document.querySelector('.profile-picture').style.backgroundImage = 'none';
             }
-        } catch (error) {
-            console.error('loadUserProfileData: Erro na chamada Eel para get_user_profile_data:', error);
-            showToast('Erro de comunicação com o servidor ao carregar perfil.', 'error');
+        } catch (e) {
+            // opcional: mostrar erro
+            console.error('Erro ao carregar dados do perfil:', e);
         }
     }
 
-    // Chama a função para carregar a foto de perfil ao carregar a página
-    // Esta chamada pode ser removida se loadUserProfileData já carregar a foto.
-    // loadProfilePicture(); 
+    // Chama a função ao abrir o perfil
+    window.showSection = function (sectionId) {
+        detailSections.forEach(section => {
+            section.style.display = 'none';
+        });
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.style.display = 'block';
+            if (sectionId === 'perfil' && backToOverviewButtonContainer) {
+                backToOverviewButtonContainer.style.display = 'flex';
+                loadUserProfileData(); // Atualiza os campos ao abrir o perfil
+            } else if (backToOverviewButtonContainer) {
+                backToOverviewButtonContainer.style.display = 'none';
+            }
+        }
+        if (configGrid) configGrid.style.display = 'none';
+        if (quickSettingsSection) quickSettingsSection.style.display = 'none';
+        if (otherSettingsGrid) otherSettingsGrid.style.display = 'none';
+        breadcrumb.style.display = 'block';
+        currentSectionSpan.textContent = targetSection ? targetSection.querySelector('.section-title')?.textContent || '' : '';
+    };
+
+    // --- Código existente não mostrado para brevidade ---
 
 });
 
 
+// As funções abaixo foram movidas para fora do DOMContentLoaded para serem globais (acessíveis pelo HTML)
+// Se já existirem em outro arquivo JS que é carregado antes, você pode remover as duplicatas.
 
 function iniciarTransicaoPagina() {
-    // Esta função parece estar definida mais de uma vez ou de formas inconsistentes nos seus arquivos.
-    // Mantenha UMA definição correta e acessível.
     console.log("[index.js] Chamada a iniciarTransicaoPagina.");
-
     const bodyElement = document.body;
     if (bodyElement) {
         bodyElement.style.display = 'block';
@@ -1136,13 +1127,7 @@ function iniciarTransicaoPagina() {
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOMContentLoaded disparado. Chamando iniciarTransicaoPagina.');
-    // Chama a função que inicia a transição da página
     iniciarTransicaoPagina();
-
-    // Se você tiver outras inicializações que precisam do DOM pronto
-    // mas NÃO precisam esperar pela transição ou pelo setTimeout dentro de iniciarTransicaoPagina,
-    // você pode colocá-las aqui fora do setTimeout da transição.
-
     console.log('DOMContentLoaded finalizado.');
 });
 
@@ -1158,7 +1143,6 @@ window.onload = async function () {
     console.log("[macros.js] window.onload UNIFICADO iniciado.");
 
     const nomeUsuarioElement = document.getElementById('nome-usuario');
-    // Novo elemento para exibir o nome do usuário na seção de perfil
     const profileDisplayName = document.getElementById('profile-display-name');
 
     let identificadorUsuario = null;
@@ -1175,10 +1159,6 @@ window.onload = async function () {
     if (identificadorUsuarioDaURL) {
         identificadorUsuario = identificadorUsuarioDaURL;
         sessionStorage.setItem('nomeUsuario', identificadorUsuario);
-        // NOVO: Armazena o userId também se vier da URL (assumindo que 'identificador' é o nome)
-        // Se 'identificador' for o nome e não o ID, você precisará ajustar como o ID é obtido ou salvo.
-        // Por enquanto, assumimos que 'identificador' pode ser o nome para exibição.
-        // O user_id real deve vir do login.
         console.log("[macros.js] Nome do usuário obtido da URL (identificador) e armazenado em sessionStorage.");
     } else if (userIdFromUrl && firstLoginComplete === 'true') {
         console.log("[macros.js] Redirecionado do primeiro login. Obtendo nome do usuário por ID...");
@@ -1199,7 +1179,6 @@ window.onload = async function () {
         }
     } else {
         identificadorUsuario = sessionStorage.getItem('nomeUsuario');
-        // Tenta obter o userId da sessionStorage também
         const storedUserId = sessionStorage.getItem('user_id');
         if (identificadorUsuario) {
             console.log("[macros.js] Nome do usuário obtido do sessionStorage (fallback).");

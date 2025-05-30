@@ -19,7 +19,12 @@ body.is-visible {
 
 /* Estilo do Cabeçalho */
 .header { /* */
-    background-color: #2983cc; /* */
+         background: linear-gradient(
+        to left,
+        #084272,         /* cor inicial */
+        #1a7fd1 40%,     /* cor intermediária (um azul mais claro) */
+        #65b1f0 100%     /* cor final (bem clara) */
+    );
     color: white; /* */
     padding: 25px 0; /* */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* */

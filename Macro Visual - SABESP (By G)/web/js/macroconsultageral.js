@@ -916,8 +916,6 @@ function startNewMacro() {
         divprocessamento.style.display = "none";
         divcomecar.style.display = "block";
         divpreview.style.display = "block";
-        loginneta.value = '';
-        senhaneta.value = '';
         tipoaquivocsvexcel.checked = true; // Reseta para CSV
         tipoaquivohidropde.checked = true;
         selecionaraquivo.value = ''; // Limpa o nome do arquivo selecionado

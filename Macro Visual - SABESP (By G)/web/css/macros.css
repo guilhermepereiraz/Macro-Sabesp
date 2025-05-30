@@ -37,7 +37,7 @@ h3 {
 
 /* Estilo do Cabeçalho */
 .header {
-         background: linear-gradient(
+     background: linear-gradient(
         to left,
         #084272,         /* cor inicial */
         #1a7fd1 40%,     /* cor intermediária (um azul mais claro) */

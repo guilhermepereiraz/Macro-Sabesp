@@ -22,6 +22,7 @@ import win32con
 import os
 import ctypes
 import queue
+import glob
 
 
 # Definição da exceção personalizada - mantida no início do arquivo
@@ -105,54 +106,22 @@ def open_results_folder():
     """
     try:
         home_dir = os.path.expanduser('~')
-        parent_folder_path = os.path.join(home_dir, 'Desktop', 'Macro JGL')
-        results_path = os.path.join(parent_folder_path, 'Macro Consulta Geral')
+        results_path = os.path.join(home_dir, 'Desktop', 'Macro JGL', 'Macro Consulta Geral')
 
         if not os.path.exists(results_path):
-            print(f"Pasta de resultados '{results_path}' não encontrada. Tentando criar...")
-            try:
-                os.makedirs(results_path, exist_ok=True)
-                print(f"Pasta '{results_path}' criada com sucesso.")
-            except Exception as e_create:
-                error_message = f"Erro ao tentar criar a pasta de resultados '{results_path}': {e_create}"
-                print(error_message)
-                if os.path.exists(parent_folder_path):
-                    results_path = parent_folder_path
-                else:
-                    return {"status": "error", "message": error_message}
+            os.makedirs(results_path, exist_ok=True)
 
-        print(f"Tentando abrir a pasta: {results_path}")
-        
         if sys.platform == "win32" or os.name == 'nt':
             os.startfile(results_path)
-            time.sleep(1)
-            try:
-                def find_explorer_window(hwnd, param):
-                    window_text = win32gui.GetWindowText(hwnd)
-                    if "Macro Consulta Geral" in window_text and win32gui.IsWindowVisible(hwnd):
-                        win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
-                        win32gui.SetForegroundWindow(hwnd)
-                        return False
-                    return True
-                win32gui.EnumWindows(find_explorer_window, None)
-            except Exception as e_win:
-                print(f"Aviso: Não foi possível dar foco à janela do Explorer. Detalhe: {e_win}")
-            
         elif sys.platform == "darwin":
             subprocess.run(['open', results_path], check=True)
         else:
             subprocess.run(['xdg-open', results_path], check=True)
-            
+
         return {"status": "success", "message": f"Pasta '{results_path}' aberta com sucesso."}
-        
-    except FileNotFoundError:
-        error_message = f"Erro: Caminho não encontrado ao tentar abrir '{results_path}'."
-        print(error_message)
-        return {"status": "error", "message": error_message}
     except Exception as e:
-        error_message = f"Erro inesperado ao abrir a pasta de resultados: {e}"
+        error_message = f"Erro ao abrir a pasta de resultados: {e}"
         print(error_message)
-        traceback.print_exc()
         return {"status": "error", "message": error_message}
 
 def formatar_tempo_legivel(segundos):
@@ -188,6 +157,55 @@ def invisibility_or_absence(locator):
             return True  # Considera invisível se não existe mais
     return _predicate
 
+def filtrar_itens_nao_processados(lista_os, nome_arquivo_resultado=None, nome_arquivo_erros=None):
+    """
+    Remove da lista_os todos os itens que já estão no arquivo de resultados ou de erros.
+    """
+    processados = set()
+    erros = set()
+
+    # Busca o arquivo de resultados mais recente, se não for passado
+    if not nome_arquivo_resultado:
+        arquivos_resultado = glob.glob(os.path.join(
+            os.path.expanduser('~'), 'Desktop', 'Macro JGL', 'Macro Consulta Geral', 'Resultado_Consulta_Geral-*.csv'))
+        if arquivos_resultado:
+            nome_arquivo_resultado = max(arquivos_resultado, key=os.path.getctime)
+    if nome_arquivo_resultado and os.path.exists(nome_arquivo_resultado):
+        try:
+            df_result = pd.read_csv(nome_arquivo_resultado, sep=';', encoding='utf-8-sig')
+            col_result = None
+            for col in ['PDE', 'HIDRO', 'Hidrometro']:
+                if col in df_result.columns:
+                    col_result = col
+                    break
+            if col_result:
+                processados = set(df_result[col_result].dropna().astype(str).str.strip())
+        except Exception as e:
+            print(f"Erro ao ler arquivo de resultados: {e}")
+
+    # Busca o arquivo de erros mais recente, se não for passado
+    if not nome_arquivo_erros:
+        arquivos_erros = glob.glob(os.path.join(
+            os.path.expanduser('~'), 'Desktop', 'Macro JGL', 'Macro Consulta Geral', 'Erros_Consulta_Geral-*.csv'))
+        if arquivos_erros:
+            nome_arquivo_erros = max(arquivos_erros, key=os.path.getctime)
+    if nome_arquivo_erros and os.path.exists(nome_arquivo_erros):
+        try:
+            df_erros = pd.read_csv(nome_arquivo_erros, sep=';', encoding='utf-8-sig')
+            col_erro = None
+            for col in ['PDE', 'HIDRO', 'Hidrometro']:
+                if col in df_erros.columns:
+                    col_erro = col
+                    break
+            if col_erro:
+                erros = set(df_erros[col_erro].dropna().astype(str).str.strip())
+        except Exception as e:
+            print(f"Erro ao ler arquivo de erros: {e}")
+
+    # Remove os já processados e já com erro
+    lista_filtrada = [item for item in lista_os if str(item).strip() not in processados and str(item).strip() not in erros]
+    return lista_filtrada
+
 def wait_forever(driver, condition, poll_frequency=0.5):
     """
     Espera indefinidamente até que a condição seja satisfeita.
@@ -199,7 +217,7 @@ def wait_forever(driver, condition, poll_frequency=0.5):
     while True:
         try:
             return WebDriverWait(driver, 5).until(condition)
-        except TimeoutException:
+        except (TimeoutException, StaleElementReferenceException, NoSuchElementException):
             time.sleep(poll_frequency)
 
 def adiciona_nao_encontrado_template_pde(item_value, lock): # Renomeado file_lock para lock para evitar shadowing
@@ -698,7 +716,7 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     iframe_sit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[5]/iframe')))
                     driver.switch_to.frame(iframe_sit)
                     
-                    painel_element_sitia = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[22]')))
+                    painel_element_sitia = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')))
                     painel_element_sitia.click()
                     driver.switch_to.default_content()
                  
@@ -901,19 +919,10 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
         processed_successfully = False # Falha
         raise ItemProcessingError(f"Erro inesperado '{type(e_general).__name__}' ao processar {item_type} {str(first_column_value).strip()}") from e_general
     finally:
-        # Este bloco é executado SEMPRE, independentemente de sucesso ou falha.
-        # A remoção do item do template.csv é feita aqui.
+
         apagar_processada(first_column_value, current_file_lock)
 
-        # Se o item NÃO foi processado com sucesso (flag é False),
-        # ele é adicionado ao arquivo de erros apropriado.
-        # O contador de 'erros' será incrementado pela thread_task se uma exceção foi levantada.
-        if not processed_successfully:
-            if item_type.lower() == "pde": # Usar item_type_lower aqui seria mais consistente, mas item_type original também funciona
-                adiciona_nao_encontrado_template_pde(first_column_value, current_file_lock)
-            elif item_type.lower() in ["hidro", "hidrometro"]:
-                adiciona_nao_encontrado_template_hidro(first_column_value, current_file_lock)
-            # REMOVIDO: Incremento do contador 'erros' daqui.
+
 
 def thread_task(thread_id, items_chunk, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None):
     global current_os_being_processed, current_os_lock
@@ -983,8 +992,89 @@ def thread_task(thread_id, items_chunk, item_type, current_file_lock, current_co
         if not processed:
             with current_counter_lock:
                 erros += 1
+            # Só grava no arquivo de erro após todas as tentativas falharem
+            if item_type.lower() == "pde":
+                adiciona_nao_encontrado_template_pde(item_value, current_file_lock)
+            elif item_type.lower() in ["hidro", "hidrometro"]:
+                adiciona_nao_encontrado_template_hidro(item_value, current_file_lock)
 
     # Ao final, fecha o driver se existir
+    if driver:
+        with driver_lock:
+            if driver in active_drivers:
+                active_drivers.remove(driver)
+        driver.quit()
+        print(f"\nThread {threading.current_thread().name} terminou e saiu do driver.", flush=True)
+
+def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None):
+    global current_os_being_processed, current_os_lock
+    global processados, erros
+
+    driver = None
+    MAX_RELOGIN_ATTEMPTS = 3
+
+    try:
+        driver = login(threading.current_thread().name, l_login, s_senha)
+        if isinstance(driver, dict) and driver.get("status") == "error":
+            print(f"Thread {threading.current_thread().name} - Erro de login detectado: {driver.get('message')}", flush=True)
+            return
+    except Exception as e:
+        print(f"Thread {threading.current_thread().name} - Erro ao inicializar driver: {e}", flush=True)
+        driver = None
+
+    while True:
+        try:
+            item_value = item_queue.get_nowait()
+        except queue.Empty:
+            break  # Fila vazia, thread termina
+
+        attempts = 0
+        processed = False
+        while attempts < MAX_RELOGIN_ATTEMPTS and not processed:
+            relogin_attempts = 0
+            while driver is None and relogin_attempts < MAX_RELOGIN_ATTEMPTS:
+                try:
+                    driver = login(threading.current_thread().name, l_login, s_senha)
+                    if isinstance(driver, dict) and driver.get("status") == "error":
+                        print(f"Thread {threading.current_thread().name} - Erro de login detectado (relogin): {driver.get('message')}", flush=True)
+                        return
+                except Exception as e:
+                    print(f"Thread {threading.current_thread().name} - Erro ao tentar reabrir driver: {e}", flush=True)
+                    driver = None
+                relogin_attempts += 1
+
+            if driver is None:
+                print(f"Thread {threading.current_thread().name} - Não foi possível reabrir o navegador após {MAX_RELOGIN_ATTEMPTS} tentativas. Pulando item {item_value}.")
+                break
+
+            with current_os_lock:
+                current_os_being_processed = str(item_value).strip()
+
+            try:
+                macro(driver, item_value, item_type, current_file_lock, item_value,
+                      identificador=identificador,
+                      nome_arquivo=nome_arquivo,
+                      tipo_arquivo=tipo_arquivo)
+                with current_counter_lock:
+                    processados += 1
+                processed = True
+            except Exception as e_macro:
+                print(f"Thread {threading.current_thread().name} - Erro ao processar item {item_value} (tentativa {attempts+1}): {e_macro}", flush=True)
+                if driver:
+                    try:
+                        with driver_lock:
+                            if driver in active_drivers:
+                                active_drivers.remove(driver)
+                        driver.quit()
+                    except Exception as e_close:
+                        print(f"Thread {threading.current_thread().name} - Erro ao fechar driver após falha: {e_close}", flush=True)
+                    driver = None
+                attempts += 1
+        if not processed:
+            with current_counter_lock:
+                erros += 1
+        item_queue.task_done()
+
     if driver:
         with driver_lock:
             if driver in active_drivers:
@@ -1118,7 +1208,35 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
     total_processar = len(lista_os)
     processados = 0 
     erros = 0     
-    
+
+    now = datetime.now()
+    data_formatada = now.strftime("%d_%m_%Y")
+    output_dir = os.path.join(os.path.expanduser('~'), 'Desktop', 'Macro JGL', 'Macro Consulta Geral')
+    nome_arquivo_resultado = os.path.join(output_dir, f'Resultado_Consulta_Geral-{data_formatada}.csv')
+    nome_arquivo_erros = os.path.join(output_dir, f'Erros_Consulta_Geral-{data_formatada}.csv')
+
+    # Filtra os itens já processados
+    lista_os = filtrar_itens_nao_processados(lista_os, nome_arquivo_resultado, nome_arquivo_erros)
+
+    # >>>>> ADICIONE ESTE BLOCO AQUI <<<<<
+    # Inicializa os contadores com o que já foi processado
+    processados = 0
+    erros = 0
+    if os.path.exists(nome_arquivo_resultado):
+        try:
+            df_result = pd.read_csv(nome_arquivo_resultado, sep=';', encoding='utf-8-sig')
+            processados = len(df_result)
+        except Exception as e:
+            print(f"Erro ao contar processados no arquivo de resultados: {e}")
+
+    if os.path.exists(nome_arquivo_erros):
+        try:
+            df_erros = pd.read_csv(nome_arquivo_erros, sep=';', encoding='utf-8-sig')
+            erros = len(df_erros)
+        except Exception as e:
+            print(f"Erro ao contar erros no arquivo de erros: {e}")
+    # <<<<< FIM DO BLOCO >>>>>
+
     with current_os_lock:
         current_os_being_processed = "Calculando..." 
     tempo_inicial_global = datetime.now()
@@ -1139,25 +1257,25 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
     if num_browsers > total_processar and total_processar > 0 : # Evita mais browsers que itens
         num_browsers = total_processar
     
-    item_chunks = np.array_split(np.array(lista_os), num_browsers) if total_processar > 0 else []
+    item_queue = queue.Queue()
+    for item in lista_os:
+        item_queue.put(item)
 
-
+    threads = []
     for i in range(num_browsers):
-        chunk = item_chunks[i].tolist() if i < len(item_chunks) else []
-        if chunk:
-            t = threading.Thread(
-                target=thread_task,
-                args=(i, chunk, tipo_pesquisa, file_lock, counter_lock, 
-                      login_usuario, senha_usuario),
-                kwargs={
-                    'identificador': identificador or login_usuario,  # Usa login_usuario como fallback
-                    'nome_arquivo': nome_arquivo,
-                    'tipo_arquivo': tipo_arquivo
-                },
-                name=f"Browser-{i+1}"
-            )
-            threads.append(t)
-            t.start()
+        t = threading.Thread(
+            target=thread_task_dynamic,
+            args=(item_queue, tipo_pesquisa, file_lock, counter_lock, 
+                  login_usuario, senha_usuario),
+            kwargs={
+                'identificador': identificador or login_usuario,
+                'nome_arquivo': nome_arquivo,
+                'tipo_arquivo': tipo_arquivo
+            },
+            name=f"Browser-{i+1}"
+        )
+        threads.append(t)
+        t.start()
 
     for t in threads:
         t.join() 
@@ -1196,100 +1314,3 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
             print(f"Erro ao chamar eel.update_progress (dados finais completos): {e_eel_final}")
 
     return {"status": "sucesso", "message": f"Processamento concluído em {tempo_str}."}
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s') # Configuração básica de logging
-    
-    modelo_input = str(input("Digite com qual voce vai filtra PDE / HIDROMETRO  (I / II): ")).lower()
-    if modelo_input not in ["i", "ii", "1", "2"]:
-        print("Modelo inválido. Por favor, insira 'I' ou 'II'.")
-        sys.exit()
-    
-    item_type_main = "PDE" if modelo_input in ["i", "1"] else "HIDROMETRO"
-
-    try:
-        num_browsers_main = int(input(f"Digite o número de navegadores para processar (padrão 1): ") or 1)
-        if num_browsers_main < 1:
-            num_browsers_main = 1
-    except ValueError:
-        print("Número de navegadores inválido. Usando 1 por padrão.")
-        num_browsers_main = 1
-        
-    arquivo_entrada_main = 'template.csv'
-    if not os.path.exists(arquivo_entrada_main):
-        print(f"Erro: Arquivo de entrada '{arquivo_entrada_main}' não encontrado.")
-        sys.exit()
-
-    try:
-        df_initial_main = pd.read_csv(arquivo_entrada_main)
-        if df_initial_main.empty:
-            print(f"Arquivo {arquivo_entrada_main} está vazio. Nada para processar.")
-            sys.exit()
-
-        all_items_main = df_initial_main.iloc[:, 0].dropna().astype(str).tolist()
-        if not all_items_main:
-            print(f"Nenhum item válido encontrado na primeira coluna do {arquivo_entrada_main}.")
-            sys.exit()
-
-        total_processar = len(all_items_main) # Define global
-        processados = 0 # Reseta globais
-        erros = 0       # Reseta globais
-        
-        print(f"Total de valores para processar: {total_processar}")
-
-        if num_browsers_main > total_processar:
-            print(f"Número de navegadores ({num_browsers_main}) é maior que o número de itens ({total_processar}). Usando {total_processar} navegadores.")
-            num_browsers_main = total_processar
-        
-        item_chunks_main = np.array_split(np.array(all_items_main), num_browsers_main) if total_processar > 0 else []
-
-        tempo_inicial_global = datetime.now() # Define global
-        print("Começo da operação: ", tempo_inicial_global.strftime("%H:%M -- %d/%m"))
-
-        with current_os_lock: # Define antes de iniciar o monitor
-            current_os_being_processed = "Iniciando..."
-
-        monitor_stop_event.clear()
-        pause_event.clear() # Garante que não comece pausado
-        stop_event.clear()  # Garante que não comece com sinal de parada
-
-        monitor_thread_main = threading.Thread(target=monitor_progresso, name="Monitor", daemon=True)
-        monitor_thread_main.start()
-
-        threads_main = []
-        for i in range(num_browsers_main):
-            chunk_main = item_chunks_main[i].tolist() if i < len(item_chunks_main) else []
-            if chunk_main:
-                thread = threading.Thread(target=thread_task,
-                                          args=(i, chunk_main, item_type_main, file_lock, counter_lock), # Não passa login/senha, usará padrão
-                                          name=f"Browser-{i+1}")
-                threads_main.append(thread)
-                thread.start()
-
-        for thread_main_item in threads_main: # Renomeado para evitar conflito com 'thread' do módulo
-            thread_main_item.join()
-
-        monitor_stop_event.set()
-        monitor_thread_main.join()
-
-        print("\n----------------------------------")
-        print("Processamento concluído.")
-        print("----------------------------------")
-        print("Começo da operação: ", tempo_inicial_global.strftime("%H:%M -- %d/%m"))
-        tempo_final_main = datetime.now()
-        print("Termino da operação: ", tempo_final_main.strftime("%H:%M -- %d/%m"))
-        
-        with counter_lock: # Acessa os contadores finais de forma segura
-            print(f"Total de itens processados: {processados}")
-            print(f"Total de erros: {erros}")
-        print(f"Total de itens que estavam no {arquivo_entrada_main} no início: {total_processar}")
-
-        tempo_total_main = tempo_final_main - tempo_inicial_global
-        print(f"Tempo total da operação: {formatar_tempo_legivel(int(tempo_total_main.total_seconds()))}")
-
-    except FileNotFoundError:
-        print(f"Erro: Arquivo {arquivo_entrada_main} não encontrado.")
-    except Exception as e_main:
-        print(f"Ocorreu um erro no processo principal: {e_main}")
-        traceback.print_exc(file=sys.stdout)

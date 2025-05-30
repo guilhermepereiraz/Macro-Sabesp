@@ -586,7 +586,49 @@
                         </form>
                         <p id="wfm-status" class="integration-status" style="display: none;"></p>
                     </div>
+
+                    <div class="integration-card">
+                        <h3>Vincular Vectora</h3>
+                        <form id="form-vincular-vc" class="integration-form">
+                            <div class="form-group">
+                                <label for="vc-cliente">Cliente:</label>
+                                <input type="text" id="vc-cliente" name="vc-cliente" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="vc-login">Login:</label>
+                                <input type="text" id="vc-login" name="vc-login" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vc-senha">Senha:</label>
+                                <input type="password" id="vc-senha" name="vc-senha" required>
+                            </div>
+
+                            <div class="form-group" style="display: none;">
+                                <label for="vc-nome">Nome:</label>
+                                <input type="text" id="vc-nome" name="vc-nome" readonly>
+                            </div>
+
+                            <div class="form-group" style="display: none;">
+                                <label for="vc-perfil">Perfil:</label>
+                                <input type="text" id="vc-perfil" name="vc-perfil" readonly>
+                            </div>
+
+
+                            <div class="spinner-border text-warning" role="status" style="width: 10em; height: 10em; margin-bottom: 30px; margin-top: 50px; display: none;" id="spinervivc">
+                                <span class="sr-only"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="bntvincvc">Vincular Vectora</button>
+
+                            <button type="submit" class="btn btn-secondaryy" id="bntvinc2vc"
+                                style="display: none;">Redefinir Vectora</button>
+                        </form>
+                        <p id="wfm-status" class="integration-status" style="display: none;"></p>
+                    </div>
                 </div>
+
+                
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary"
                         onclick="hideSection('integracoes-sistema')">Voltar</button>

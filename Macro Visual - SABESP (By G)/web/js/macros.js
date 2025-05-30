@@ -477,3 +477,32 @@ function updateLoggedInTime(sessionStartTime) {
     // Formata o tempo e atualiza o span
     loggedInTimeSpan.innerText = formatTime(elapsedSeconds);
 }
+
+// Carrega a foto de perfil ao iniciar
+async function loadProfilePicture() {
+    try {
+        const userId = sessionStorage.getItem('user_id');
+        if (!userId) {
+            console.warn("user_id não encontrado no sessionStorage.");
+            return;
+        }
+        const res = await eel.get_user_profile_data(userId)();
+        const profileImg = document.getElementById('profile-img');
+        const profileIcon = document.getElementById('profile-icon');
+        if (res && res.status === 'success' && res.data && res.data.foto_perfil_url) {
+            if (profileImg) {
+                profileImg.src = res.data.foto_perfil_url;
+                profileImg.style.display = 'block';
+            }
+            if (profileIcon) {
+                profileIcon.style.display = 'none';
+            }
+        } else {
+            if (profileImg) profileImg.style.display = 'none';
+            if (profileIcon) profileIcon.style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Erro ao carregar foto de perfil:', e);
+    }
+}
+window.addEventListener('DOMContentLoaded', loadProfilePicture);

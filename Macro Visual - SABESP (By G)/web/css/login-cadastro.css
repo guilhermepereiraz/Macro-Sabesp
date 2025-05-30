@@ -24,6 +24,7 @@ body {
     width: 90%;
     font-weight: bolder;
     transition: opacity 0.5s ease-in-out;
+
 }
 
 #principal.fade-out {
@@ -290,6 +291,94 @@ h3 {
     font-size: 1.5em;
 }
 
+/* TELA DE ATUALIZAÇÃO */
+#divatualizar {
+    position: fixed; /* Mantém na tela mesmo com scroll */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: #ffffff; /* Fundo branco puro */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Sombra mais suave e moderna */
+    max-width: 450px; /* Um pouco mais largo para melhor leitura */
+    width: 90%;
+    padding: 2.5rem; /* Padding maior */
+    border-radius: 12px; /* Cantos mais arredondados */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e0e0e0; /* Borda suave para definição */
+}
+
+#formulario-container-atualizar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem; /* Espaçamento entre os elementos */
+}
+
+.icon-wrapper {
+    background-color: #e0f2f7; /* Um fundo suave para o ícone */
+    border-radius: 50%; /* Faz um círculo */
+    padding: 1rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem; /* Espaço abaixo do ícone */
+}
+
+.update-icon {
+    width: 48px; /* Tamanho do ícone */
+    height: 48px;
+    color: #007bff; /* Cor primária azul */
+}
+
+#formulario-container-atualizar h3 {
+    margin: 0;
+    font-size: 1.8em; /* Título maior e mais impactante */
+    color: #333333; /* Cor de texto mais escura para contraste */
+    font-weight: 600; /* Mais negrito */
+}
+
+#formulario-container-atualizar p {
+    font-size: 1.1em;
+    color: #555555;
+    line-height: 1.6; /* Melhor legibilidade */
+    margin-bottom: 1.5rem; /* Espaço antes do botão */
+}
+
+.update-button {
+    display: inline-block;
+    background-color: #0d57f8; /* Azul primário */
+    color: white;
+    padding: 1rem 2rem; /* Botão maior */
+    border-radius: 8px; /* Cantos arredondados */
+    text-decoration: none; /* Remove sublinhado do link */
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Efeitos de transição */
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2); /* Sombra para o botão */
+}
+
+.update-button:hover {
+    color: white;
+    background-color: #00b7ff; /* Azul mais escuro ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de "levantar" */
+}
+
+.update-button:active {
+    transform: translateY(0); /* Efeito de "clicar" */
+}
+
+.not-now {
+    font-size: 0.9em;
+    color: #777777;
+    margin-top: 1rem; /* Espaço acima do texto pequeno */
+}
 /* CADASTRO */
 
 #cadastro {
@@ -683,3 +772,23 @@ h3 {
         gap: 16px;
     }
 }
+
+.fade-out {
+    opacity: 0 !important; /* Força a opacidade para 0 */
+    transition: opacity 0.5s ease-out; /* Define a transição para 0.5 segundos */
+}
+
+.fade-in {
+    opacity: 1 !important; /* Força a opacidade para 1 */
+    transition: opacity 0.5s ease-in; /* Define a transição para 0.5 segundos */
+}
+
+#principal {
+    transition: opacity 0.5s ease-in-out; /* Permite que a opacidade seja animada */
+}
+
+/* Garante que a div de atualização (#divatualizar) tenha uma transição de opacidade */
+#divatualizar {
+    transition: opacity 0.5s ease-in-out; /* Permite que a opacidade seja animada */
+}
+

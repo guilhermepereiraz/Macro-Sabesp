@@ -665,6 +665,98 @@ async function verificarLogindasd() {
         }, 3000); // 3000 milissegundos = 3 segundos
     }
     // O setTimeout agora está dentro dos blocos if/else/catch.
-
 } // Fim da função verificarLogindasd
 
+// Função para verificar a versão do aplicativo
+async function checkAppVersionForUpdate() {
+    console.log("[login.js] Iniciando verificação de versão do aplicativo.");
+    const localAppVersion = "1.0.2"; // Defina a versão atual do seu aplicativo aqui
+    const divAtualizar = document.getElementById('divatualizar');
+    const principalDiv = document.getElementById('principal'); // A div principal do conteúdo
+
+    if (!divAtualizar || !principalDiv) {
+        console.error("[login.js] Elementos 'divatualizar' ou 'principal' não encontrados.");
+        return;
+    }
+
+    try {
+        const response = await eel.get_atualicao_app()();
+        console.log("[login.js] Resposta do backend para get_atualicao_app:", response);
+
+        if (response.status === "success" && response.versao) {
+            const backendVersion = response.versao;
+            console.log(`[login.js] Versão local: ${localAppVersion}, Versão do backend: ${backendVersion}`);
+
+            if (localAppVersion !== backendVersion) {
+                console.log("[login.js] Versões diferentes! Iniciando animação de fade-out do login e fade-in da atualização.");
+                
+                // 1. Iniciar fade-out da principalDiv
+                principalDiv.classList.add('fade-out');
+                // Garante que a principalDiv está visível para o fade-out funcionar
+                principalDiv.style.opacity = '1'; 
+                principalDiv.classList.remove('fade-in'); // Remove a classe de fade-in caso esteja presente
+
+                // 2. Após a transição de fade-out, esconder principalDiv e mostrar divAtualizar com fade-in
+                setTimeout(() => {
+                    principalDiv.style.display = 'none';
+                    principalDiv.classList.remove('fade-out'); // Remove a classe fade-out para reutilização
+
+                    divAtualizar.style.display = 'flex'; // Torna visível para aplicar o fade-in
+                    // Garante que a divAtualizar começa com opacidade 0 antes de aplicar o fade-in
+                    divAtualizar.style.opacity = '0'; 
+                    divAtualizar.classList.add('fade-in'); // Aplica o fade-in
+                }, 500); // Duração do fade-out (0.5s)
+
+            } else {
+                console.log("[login.js] Versões iguais. Nenhuma atualização necessária. Garantindo que o login esteja visível.");
+                
+                // 1. Esconder divAtualizar (sem fade-out, apenas display: none)
+                if (divAtualizar.style.display !== 'none') {
+                    divAtualizar.classList.remove('fade-in'); // Remove fade-in se estiver presente
+                    divAtualizar.style.display = 'none'; // Oculta imediatamente
+                    divAtualizar.style.opacity = ''; // Reseta a opacidade
+                }
+
+                // 2. Mostrar principalDiv com fade-in (se não estiver visível ou oculta por fade-out)
+                if (principalDiv.style.display === 'none' || principalDiv.classList.contains('fade-out')) {
+                    principalDiv.style.display = 'flex'; // Torna visível
+                    principalDiv.style.opacity = '0'; // Garante que começa com opacidade 0 para o fade-in
+                    principalDiv.classList.remove('fade-out'); // Remove fade-out se estiver presente
+                    principalDiv.classList.add('fade-in'); // Aplica o fade-in
+                } else {
+                     // Se já estiver visível e sem fade-out, apenas garanta opacidade total
+                    principalDiv.classList.remove('fade-in');
+                    principalDiv.style.opacity = '1';
+                }
+            }
+        } else {
+            console.warn("[login.js] Não foi possível obter a versão do backend ou status não é sucesso. Mantendo login visível e garantindo que divAtualizar esteja oculta.");
+            divAtualizar.style.display = 'none'; // Oculta a div se não houver versão ou erro
+            divAtualizar.classList.remove('fade-in'); // Garante que não há classe fade-in
+            divAtualizar.style.opacity = ''; // Reseta a opacidade
+
+            principalDiv.style.display = 'flex'; // Garante que o conteúdo principal esteja visível
+            principalDiv.style.opacity = '0'; // Garante que começa com opacidade 0 para o fade-in
+            principalDiv.classList.remove('fade-out');
+            principalDiv.classList.add('fade-in'); // Aplica o fade-in para a div principal
+        }
+    } catch (e) {
+        console.error("[login.js] Erro ao chamar eel.get_atualicao_app:", e);
+        // Em caso de erro, garante que a div de atualização esteja oculta e o login visível
+        divAtualizar.style.display = 'none';
+        divAtualizar.classList.remove('fade-in');
+        divAtualizar.style.opacity = '';
+
+        principalDiv.style.display = 'flex';
+        principalDiv.style.opacity = '0';
+        principalDiv.classList.remove('fade-out');
+        principalDiv.classList.add('fade-in');
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', async function () {
+    console.log('DOMContentLoaded disparado em login.js.');
+    // Chama a função de verificação de versão logo no carregamento da página de login
+    await checkAppVersionForUpdate();
+});

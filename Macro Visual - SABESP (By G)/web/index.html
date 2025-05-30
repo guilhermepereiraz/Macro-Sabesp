@@ -7,6 +7,7 @@
     <title>Macro JGL - Menu Principal</title>
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="text/javascript" src="/eel.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
     <script src="js/botao_fixo.js"></script>
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
@@ -26,7 +27,7 @@
 
                 <nav class="main-nav">
                     <ul>
-                        <li><a href="index.html" style="text-decoration: underline; color: rgb(12, 38, 53);">Inicio</a></li>
+                        <li><a href="#" style="text-decoration: underline; color: rgb(12, 38, 53);">Inicio</a></li>
                         <li><a href="macros.html">Macros</a></li>
                         <li><a href="#">Consultas</a></li>
                         <li><a href="#">Ajuda</a></li>
@@ -39,7 +40,12 @@
                 <div class="user-actions-group">
                     <div class="user-info">
                         <div class="user-status-block">
-                            <i class="fas fa-user icon-user"></i>
+
+                        <div class="profile-picture">
+                            <i class="fas fa-user-circle" id="profile-icon" style="display: block;"></i>
+                            <img src="" alt="Foto de Perfil do Usuário" id="profile-img" style="display: none;">
+                        </div>
+
                             <div class="user-status-text">
                                 <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
                                     Usuário</span>
@@ -47,7 +53,7 @@
                             </div>
                         </div>
                         <div class="user-time-block">
-                            <i class="fas fa-clock icon-clock"></i>
+                            <i class="fas fa-clock icon-clock" style="font-size: 2.5em;"></i>
                             <div class="time-info-text">
                                 <span id="current-time" style="font-size: 1.2em; font-weight: 600;">Horario Atual</span>
                                 <span id="logged-in-time" style="margin-top: -2px;">Horario Logado</span>
@@ -170,15 +176,9 @@
 
 
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"
-        integrity="sha384-eMNCOe7tCwlWPjSj1jikR5+ebnQlEV+TnOOvfTmFGMKTmcX69jKnaYiwVP0klHW"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

@@ -453,11 +453,11 @@ const predefinedTips = [
     "Verifique se a coluna 'PDE' ou 'HIDROMETRO' está correta no seu arquivo.",
     "Em caso de lentidão reinicie, encerre e começe um novo processo.", // Dica nova
     "O processo pode levar um tempo, dependendo do volume de dados.",
-    "Você pode pausar o processamento a qualquer momento.",
     "Em caso de muitos erros, revise os dados de entrada e as credenciais do NETA.",
     "O relatório final será gerado automaticamente na sua Área de Trabalho.",
     "Certifique-se de que sua conexão com a internet está estável.",
     "Não feche o programa enquanto o robô estiver trabalhando.",
+    "Certifique-se de que o NETA está instavel para fazer a busca.",
     "Detalhes sobre os erros serão incluídos no log de erros." // Dica levemente alterada
 ];
 
@@ -1011,3 +1011,33 @@ document.addEventListener('DOMContentLoaded', () => {
     preencherCampos_NETA();
     // ...outros códigos do DOMContentLoaded...
 });
+
+// Carrega a foto de perfil ao iniciar
+async function loadProfilePicture() {
+    try {
+        const userId = sessionStorage.getItem('user_id');
+        if (!userId) {
+            console.warn("user_id não encontrado no sessionStorage.");
+            return;
+        }
+        const res = await eel.get_user_profile_data(userId)();
+        const profileImg = document.getElementById('profile-img');
+        const profileIcon = document.getElementById('profile-icon');
+        if (res && res.status === 'success' && res.data && res.data.foto_perfil_url) {
+            if (profileImg) {
+                profileImg.src = res.data.foto_perfil_url;
+                profileImg.style.display = 'block';
+            }
+            if (profileIcon) {
+                profileIcon.style.display = 'none';
+            }
+        } else {
+            if (profileImg) profileImg.style.display = 'none';
+            if (profileIcon) profileIcon.style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Erro ao carregar foto de perfil:', e);
+    }
+}
+window.addEventListener('DOMContentLoaded', loadProfilePicture);
+

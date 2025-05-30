@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/macros.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+    <script type="text/javascript" src="/eel.js"></script>
     <script src="js/botao_fixo.js"></script>
     <link rel="stylesheet" href="css/botao_fixo.css">
 </head>
@@ -38,7 +39,12 @@
                 <div class="user-actions-group">
                     <div class="user-info">
                         <div class="user-status-block">
-                            <i class="fas fa-user icon-user"></i>
+
+                             <div class="profile-picture">
+                            <i class="fas fa-user-circle" id="profile-icon" style="display: block;"></i>
+                            <img src="" alt="Foto de Perfil do Usuário" id="profile-img" style="display: none;">
+                        </div>
+
                             <div class="user-status-text">
                                 <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
                                     Usuário</span>
@@ -46,7 +52,7 @@
                             </div>
                         </div>
                         <div class="user-time-block">
-                            <i class="fas fa-clock icon-clock"></i>
+                            <i class="fas fa-clock icon-clock" style="font-size: 2.5em;"></i>
                             <div class="time-info-text">
                                 <span id="current-time" style="font-size: 1.2em; font-weight: 600;">Horario Atual</span>
                                 <span id="logged-in-time" style="margin-top: 1px;">Horario Logado</span>

@@ -234,6 +234,35 @@ def enviar_email_sugestao(dados_sugestao, destinatario_fixo):
         return {'sucesso': False, 'mensagem': f'Erro ao enviar sugestão: {e}'}
 
 @eel.expose
+def get_atualicao_app():
+    logging.info("Buscando versão do aplicativo na tabela tb_versao.")
+    connection = None
+    try:
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            # A query busca a versão onde o ID é 1. Não é necessário passar user_id.
+            sql = "SELECT versao FROM tb_versao WHERE id = 1"
+            cursor.execute(sql) # Removido (user_id,)
+            versao_data = cursor.fetchone() # Renomeado para refletir o que está sendo buscado
+
+            if versao_data:
+                logging.info(f"Versão encontrada: {versao_data.get('versao')}")
+                return {
+                    "status": "success",
+                    "versao": versao_data.get("versao", "N/A") # Retorna a versão
+                }
+            else:
+                logging.warning("Nenhuma versão encontrada na tabela tb_versao com ID = 1.")
+                return {"status": "not_found", "message": "Versão do aplicativo não encontrada."}
+    except Exception as e:
+        logging.error(f"Erro ao buscar a versão do aplicativo no banco de dados: {e}")
+        return {"status": "error", "message": f"Erro ao buscar versão: {e}"}
+    finally:
+        if connection:
+            connection.close()
+            logging.info("Conexão com o banco de dados fechada (get_atualicao_app).")
+
+@eel.expose
 def get_username_by_id(user_id):
     connection = None
     cursor = None

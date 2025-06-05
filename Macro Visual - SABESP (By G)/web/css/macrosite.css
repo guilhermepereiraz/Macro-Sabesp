@@ -707,3 +707,77 @@ button#encerrar:hover,
     object-fit: cover; /* Garante que a imagem cubra a área sem distorção, cortando se necessário */
     border-radius: 50%; /* Aplica a borda circular à imagem também, para melhor recorte */
 }
+
+#processing-log {
+    margin-top: 25px;
+    /* Espaço acima do log */
+    margin-bottom: 20px;
+    /* Espaço abaixo do log */
+    padding: 15px;
+    border: 1px solid #ccc;
+    /* Borda simples */
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    /* Fundo levemente acinzentado */
+}
+
+#processing-log h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    /* Linha separadora */
+    padding-bottom: 5px;
+}
+
+#recent-errors {
+    margin-top: 20px;
+    /* Espaço acima da lista de erros */
+    margin-bottom: 25px;
+    /* Espaço abaixo da lista de erros (antes dos botões) */
+    padding: 15px;
+    border: 1px solid #e0b4b4;
+    /* Borda clara indicando área de erro */
+    border-radius: 5px;
+    background-color: #f8dcdc;
+    /* Fundo claro indicando área de erro */
+}
+
+#recent-errors h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #c0392b;
+    /* Vermelho um pouco mais escuro */
+    border-bottom: 1px solid #e0a0a0;
+    /* Linha separadora avermelhada */
+    padding-bottom: 5px;
+}
+
+#contextual-tips {
+    margin-top: 20px;
+    /* Espaço acima deste painel */
+    margin-bottom: 20px;
+    /* Espaço abaixo deste painel */
+    padding: 15px;
+    border: 1px solid #a0d0f0;
+    /* Borda em tom azul claro */
+    border-left: 5px solid #007bff;
+    /* Borda esquerda mais grossa e colorida */
+    border-radius: 5px;
+    background-color: #e9f5ff;
+    /* Fundo azul bem claro */
+    color: #004085;
+    /* Cor do texto em tom azul escuro */
+    font-size: 0.95em;
+    /* Tamanho da fonte ligeiramente menor */
+}
+
+#contextual-tips h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #0056b3;
+    /* Cor do título */
+    border-bottom: 1px solid #b3d9ff;
+    /* Linha inferior sob o título */
+    padding-bottom: 5px;
+}

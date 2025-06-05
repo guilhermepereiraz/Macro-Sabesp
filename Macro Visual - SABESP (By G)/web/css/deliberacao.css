@@ -456,7 +456,8 @@ body.is-visible {
 #site-preview {
     width: 100%;
     /* Ocupa a largura total da seção */
-    height: 280px;
+    height: 30
+    0px;
     /* Ajuste esta altura para o que você precisa */
     background-color: #e0e0e0;
     /* Cor de fundo placeholder - pode ser uma imagem de fundo CSS */

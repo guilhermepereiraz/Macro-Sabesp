@@ -71,5 +71,6 @@ def extracao_de_dados():
     perfil = perfil_wfm.title()  # Todas as palavras com a primeira letra maiúscula
     print(perfil)
 
+    driver.quit()  # Fecha o navegador após a extração dos dados
     return {"nome": nome, "perfil": perfil}
 

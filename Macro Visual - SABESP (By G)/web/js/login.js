@@ -158,7 +158,17 @@ async function verificarLogin() {
             // 'incorrect_password' usará a mensagem padrão
         }
         // Original: Exibe a mensagem de erro
-        mensagemErroElement.innerText = errorMessage;
+        setTimeout(() => {
+            mensagemErroElement.innerText = errorMessage;
+            mensagemErroElement.style.display = 'block';
+            mensagemErroElement.style.color = 'red';
+            mensagemErroElement.style.fontWeight = 'bolder';
+            mensagemErroElement.style.opacity = '1';
+            mensagemErroElement.style.visibility = 'visible';
+            mensagemErroElement.style.zIndex = '9999';
+            mensagemErroElement.classList && mensagemErroElement.classList.remove('fade-out', 'fade-in', 'invisible', 'hidden');
+            mensagemErroElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 100);
     }
 }
 
@@ -323,15 +333,17 @@ function limparCamposFormulario(formId) {
 // Solicitar cadastro 
 
 
+function validarEmail(email) {
+    // Regex simples para validar formato de e-mail
+    return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+}
+
 async function verificarLogindasd() {
     const cargo = document.getElementById('cargo').value;
     const nome = document.getElementById('nome').value;
     const emailUsuario = document.getElementById('email2').value;
     const matricula = document.getElementById('matricula').value;
     const concordoTermos = document.getElementById('input222').checked;
-
-    // Elementos HTML (Verifique se os IDs estão corretos no seu HTML)
-    // #mensagem-4: Para erros de validação INICIAL e ERRO do backend/comunicação (no formulário de cadastro)
     const mensagemErroValidacaoInicial = document.getElementById('mensagem-4');
     // #carregandoprocesso: A div que aparece DURANTE o processo
     const carregandoprocessoDiv = document.getElementById('carregandoprocessando');
@@ -391,42 +403,47 @@ async function verificarLogindasd() {
     // Se a validação falhar, a mensagem de erro aparece em #mensagem-4
     if (!cargo || !nome || !emailUsuario || !matricula) {
         if (mensagemErroValidacaoInicial) {
-            mensagemErroValidacaoInicial.innerText = 'Por favor, preencha todos os campos obrigatórios.';
-            mensagemErroValidacaoInicial.style.color = 'red'; // Define a cor vermelha
-             mensagemErroValidacaoInicial.style.fontWeight = 'bolder'; // Fonte negrito
-            mensagemErroValidacaoInicial.style.display = 'block'; // Garante que está visível
+            mensagemErroValidacaoInicial.innerText = 'Preencha todos os campos obrigatórios.';
+            mensagemErroValidacaoInicial.style.display = 'block';
+            mensagemErroValidacaoInicial.style.color = 'red';
+            mensagemErroValidacaoInicial.style.fontWeight = 'bolder';
+            mensagemErroValidacaoInicial.style.opacity = '1';
+            mensagemErroValidacaoInicial.style.visibility = 'visible';
         }
-         // Garante que a mensagem de sucesso (#mensagem-5) está oculta
-         if (divcerto) divcerto.style.display = 'none';
-
-        // Garante que a tela de cadastro está visível (já deve estar pelo reset inicial, mas reforça)
-        if (cadastroDiv) {
-            cadastroDiv.style.display = 'flex'; // ou 'block'
-            cadastroDiv.style.opacity = '1';
+        return;
+    }
+    if (!validarEmail(emailUsuario)) {
+        if (mensagemErroValidacaoInicial) {
+            mensagemErroValidacaoInicial.innerText = 'E-mail inválido!';
+            mensagemErroValidacaoInicial.style.display = 'block';
+            mensagemErroValidacaoInicial.style.color = 'red';
+            mensagemErroValidacaoInicial.style.fontWeight = 'bolder';
+            mensagemErroValidacaoInicial.style.opacity = '1';
+            mensagemErroValidacaoInicial.style.visibility = 'visible';
         }
-        if (carregandoprocessoDiv) carregandoprocessoDiv.style.display = 'none';
-
-        return; // Sai da função se a validação falhar
+        return;
+    }
+    if (!/^[0-9]+$/.test(matricula)) {
+        if (mensagemErroValidacaoInicial) {
+            mensagemErroValidacaoInicial.innerText = 'A matrícula deve conter apenas números.';
+            mensagemErroValidacaoInicial.style.display = 'block';
+            mensagemErroValidacaoInicial.style.color = 'red';
+            mensagemErroValidacaoInicial.style.fontWeight = 'bolder';
+            mensagemErroValidacaoInicial.style.opacity = '1';
+            mensagemErroValidacaoInicial.style.visibility = 'visible';
+        }
+        return;
     }
     if (!concordoTermos) {
         if (mensagemErroValidacaoInicial) {
             mensagemErroValidacaoInicial.innerText = 'Você deve concordar com os termos da licença.';
-            mensagemErroValidacaoInicial.style.color = 'red'; // Define a cor vermelha
-             mensagemErroValidacaoInicial.style.fontWeight = 'bolder'; // Fonte negrito
-            mensagemErroValidacaoInicial.style.display = 'block'; // Garante que está visível
+            mensagemErroValidacaoInicial.style.display = 'block';
+            mensagemErroValidacaoInicial.style.color = 'red';
+            mensagemErroValidacaoInicial.style.fontWeight = 'bolder';
+            mensagemErroValidacaoInicial.style.opacity = '1';
+            mensagemErroValidacaoInicial.style.visibility = 'visible';
         }
-         // Garante que a mensagem de sucesso (#mensagem-5) está oculta
-         if (divcerto) divcerto.style.display = 'none';
-
-
-        // Garante que a tela de cadastro está visível (já deve estar pelo reset inicial, mas reforça)
-        if (cadastroDiv) {
-            cadastroDiv.style.display = 'flex'; // ou 'block'
-            cadastroDiv.style.opacity = '1';
-        }
-        if (carregandoprocessoDiv) carregandoprocessoDiv.style.display = 'none';
-
-        return; // Sai da função se a validação falhar
+        return;
     }
 
     // Se a validação passar, oculta a mensagem de validação inicial
@@ -670,7 +687,7 @@ async function verificarLogindasd() {
 // Função para verificar a versão do aplicativo
 async function checkAppVersionForUpdate() {
     console.log("[login.js] Iniciando verificação de versão do aplicativo.");
-    const localAppVersion = "1.0.3"; // Defina a versão atual do seu aplicativo aqui
+    const localAppVersion = "1.0.4"; // Defina a versão atual do seu aplicativo aqui
     const divAtualizar = document.getElementById('divatualizar');
     const principalDiv = document.getElementById('principal'); // A div principal do conteúdo
 
@@ -733,7 +750,7 @@ async function checkAppVersionForUpdate() {
             console.warn("[login.js] Não foi possível obter a versão do backend ou status não é sucesso. Mantendo login visível e garantindo que divAtualizar esteja oculta.");
             divAtualizar.style.display = 'none'; // Oculta a div se não houver versão ou erro
             divAtualizar.classList.remove('fade-in'); // Garante que não há classe fade-in
-            divAtualizar.style.opacity = ''; // Reseta a opacidade
+            divAtualizar.style.opacity = '';
 
             principalDiv.style.display = 'flex'; // Garante que o conteúdo principal esteja visível
             principalDiv.style.opacity = '0'; // Garante que começa com opacidade 0 para o fade-in

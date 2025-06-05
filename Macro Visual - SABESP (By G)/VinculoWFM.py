@@ -75,6 +75,7 @@ def extracao_de_dados():
             nome = ' '.join(nome)
 
         print(f"Nome: {nome}, Perfil: {perfil}")
+        driver.quit()  # Fecha o navegador após a extração dos dados
         return {'nome': nome, 'perfil': perfil}
     except Exception as e:
         print(f"Erro ao interagir com a janela de autenticação: {str(e)}")

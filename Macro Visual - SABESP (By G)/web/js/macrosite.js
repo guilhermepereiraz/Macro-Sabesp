@@ -170,9 +170,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         processarBotao.addEventListener('click', async () => {
             console.log("Botão 'Iniciar Processamento' clicado.");
             // Resetar mensagens e status anteriores da UI
+            const dicass = document.getElementById('iconeduvida');
             if (mensagemErroDiv) mensagemErroDiv.style.display = 'none';
             if (mensagemConclusaoDiv) mensagemConclusaoDiv.style.display = 'none';
             if (novoProcessamentoButton) novoProcessamentoButton.style.display = 'none';
+            if (dicass) dicass.style.display = 'none'; // Esconde o ícone de ajuda
 
             // Obter os valores dos inputs
             const login = loginInput ? loginInput.value : '';
@@ -199,8 +201,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }
 
             // Se a validação passou, então alteramos a visibilidade das divs
+            const dicas = document.getElementById('iconeduvida');
             if (sitePreviewDiv) sitePreviewDiv.style.display = 'none';
             if (formContainerDiv) formContainerDiv.style.display = 'none';
+            if (dicas) dicas.style.display = 'none'; // Esconde o ícone de ajuda
             if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'block';
 
             // A validação do arquivo já foi feita, mas uma checagem extra não prejudica.

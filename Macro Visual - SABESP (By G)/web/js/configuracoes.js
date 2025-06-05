@@ -513,6 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const netaStatus = document.getElementById('neta-status');
     const formVincularWFM = document.getElementById('form-vincular-wfm');
     const wfmStatus = document.getElementById('wfm-status');
+    const formvectora = document.getElementById('form-vincular-vectora');
 
 
     // Função para exibir uma seção específica e atualizar o breadcrumb
@@ -654,131 +655,89 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Lógica para o formulário Vincular WFM
-    if (formVincularWFM) {
-        formVincularWFM.addEventListener('submit', async function (event) {
+    if (formvectora) {
+        formvectora.addEventListener('submit', async function (event) {
             event.preventDefault();
-            const login = document.getElementById('wfm-login').value;
-            const senha = document.getElementById('wfm-senha').value;
-            const nome = document.getElementById('wfm-nome');
-            const perfil = document.getElementById('wfm-perfil');
-            const botaoVincular = document.getElementById('bntvinc');
-            const botaoRedefinir = document.getElementById('bntvinc2');
-            const spinnerVinculo = document.getElementById('spinervinc');
-            const loginInput = document.getElementById('wfm-login');
-            const senhaInput = document.getElementById('wfm-senha');
+            const login = document.getElementById('vc-login').value;
+            const senha = document.getElementById('vc-senha').value;
+            const costumer = document.getElementById('vc-cliente').value;
+            const nome = document.getElementById('vc-nome');
+            const perfil = document.getElementById('vc-perfil');
+            const botaoVincular = document.getElementById('bntvincvc');
+            const botaoRedefinir = document.getElementById('bntvinc2vc');
+            const spinnerVinculo = document.getElementById('spinervivc');
+            const costumerInput = document.getElementById('vc-cliente');
+            const loginInput = document.getElementById('vc-login');
+            const senhaInput = document.getElementById('vc-senha');
             const mensagemErroDiv = document.getElementById('mensagem-de-erro');
-            // Pega o user_id já salvo na sessionStorage
             const usuarioId = sessionStorage.getItem('user_id');
             if (!usuarioId) {
                 alert('ID do usuário não encontrado. Faça login novamente.');
                 return;
             }
-            // Esconde mensagem de erro antes de tentar
             if (mensagemErroDiv) {
                 mensagemErroDiv.style.display = 'none';
                 mensagemErroDiv.textContent = '';
             }
-            // Mostra apenas título, botão e spinner
             if (loginInput) loginInput.parentElement.style.display = 'none';
             if (senhaInput) senhaInput.parentElement.style.display = 'none';
             if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+            if (costumerInput) costumerInput.parentElement.style.display = 'none';
             if (botaoVincular) botaoVincular.style.display = 'inline-block';
             if (spinnerVinculo) spinnerVinculo.style.display = 'inline-block';
-            // Chama o backend para vincular
             let resultadoVinculo = null;
             try {
-                resultadoVinculo = await eel.vincular_wfm(usuarioId, login, senha)();
+                resultadoVinculo = await eel.vincular_vectora(usuarioId, costumer, login, senha)();
             } catch (e) {
                 if (mensagemErroDiv) {
                     mensagemErroDiv.textContent = 'Erro de comunicação com o backend.';
                     mensagemErroDiv.style.display = 'block';
                 }
                 if (spinnerVinculo) spinnerVinculo.style.display = 'none';
-                // Mostra novamente os campos de login e senha para o usuário tentar de novo
                 if (loginInput) loginInput.parentElement.style.display = 'block';
                 if (senhaInput) senhaInput.parentElement.style.display = 'block';
+                if (costumerInput) costumerInput.parentElement.style.display = 'block';
                 if (botaoVincular) botaoVincular.style.display = 'inline-block';
                 if (botaoRedefinir) botaoRedefinir.style.display = 'none';
                 return;
             }
-            // Se o backend retornar erro, mostra na div
             if (!resultadoVinculo || resultadoVinculo.status !== 'success') {
                 if (mensagemErroDiv) {
-                    mensagemErroDiv.textContent = resultadoVinculo && resultadoVinculo.message ? resultadoVinculo.message : 'Erro ao vincular WFM. Verifique login e senha.';
+                    mensagemErroDiv.textContent = resultadoVinculo && resultadoVinculo.message ? resultadoVinculo.message : 'Erro ao vincular Vectora. Verifique login e senha.';
                     mensagemErroDiv.style.display = 'block';
                 }
                 if (spinnerVinculo) spinnerVinculo.style.display = 'none';
-                // Mostra novamente os campos de login e senha para o usuário tentar de novo
                 if (loginInput) loginInput.parentElement.style.display = 'block';
                 if (loginInput) loginInput.value = '';
+                if (costumerInput) costumerInput.parentElement.style.display = 'block';
+                if (costumerInput) costumerInput.value = '';
                 if (senhaInput) senhaInput.parentElement.style.display = 'block';
                 if (senhaInput) senhaInput.value = '';
                 if (botaoVincular) botaoVincular.style.display = 'inline-block';
                 if (botaoRedefinir) botaoRedefinir.style.display = 'none';
                 return;
             }
-            // Simula processamento de 7 segundos (mantém sua lógica)
-            setTimeout(async () => {
-                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
-                if (botaoVincular) botaoVincular.style.display = 'none';
-                if (botaoRedefinir) botaoRedefinir.style.display = 'inline-block';
-                // Após o vínculo, busca e preenche os campos atualizados do backend
-                if (typeof preencherCamposWFM === 'function') {
-                    await preencherCamposWFM();
-                }
-                // Garante visibilidade dos campos
-                if (nome) {
-                    nome.parentElement.style.display = 'block';
-                    nome.style.display = 'block';
-                }
-                if (perfil) {
-                    perfil.parentElement.style.display = 'block';
-                    perfil.style.display = 'block';
-                }
-                wfmStatus.textContent = 'WFM vinculado com sucesso!';
-                wfmStatus.classList.add('success');
-                showToast('WFM vinculado com sucesso!', 'success');
-            }, 7000);
+            // Atualiza imediatamente após o vínculo
+            if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+            if (botaoVincular) botaoVincular.style.display = 'none';
+            if (botaoRedefinir) botaoRedefinir.style.display = 'inline-block';
+            if (typeof preencherCamposVectora === 'function') {
+                await preencherCamposVectora();
+            }
+            if (nome) {
+                nome.parentElement.style.display = 'block';
+                nome.style.display = 'block';
+            }
+            if (perfil) {
+                perfil.parentElement.style.display = 'block';
+                perfil.style.display = 'block';
+            }
+            wfmStatus.textContent = 'Vectora vinculado com sucesso!';
+            wfmStatus.classList.add('success');
+            showToast('Vectora vinculado com sucesso!', 'success');
         });
-
-        // Lógica para o botão Redefinir WFM
-        const botaoRedefinir = document.getElementById('bntvinc2');
-        if (botaoRedefinir) {
-            botaoRedefinir.addEventListener('click', function(event) {
-                event.preventDefault();
-                const loginInput = document.getElementById('wfm-login');
-                const senhaInput = document.getElementById('wfm-senha');
-                const botaoVincular = document.getElementById('bntvinc');
-                const spinnerVinculo = document.getElementById('spinervinc');
-                const nome = document.getElementById('wfm-nome');
-                const perfil = document.getElementById('wfm-perfil');
-                // Mostra login e senha novamente
-                if (loginInput) {
-                    loginInput.parentElement.style.display = 'block';
-                    loginInput.value = '';
-                }
-                if (senhaInput) {
-                    senhaInput.parentElement.style.display = 'block';
-                    senhaInput.value = '';
-                }
-                // Esconde nome e perfil
-                if (nome) nome.parentElement.style.display = 'none';
-                if (perfil) perfil.parentElement.style.display = 'none';
-                // Esconde redefinir, mostra vincular, esconde spinner
-                botaoRedefinir.style.display = 'none';
-                if (botaoVincular) botaoVincular.style.display = 'inline-block';
-                if (spinnerVinculo) spinnerVinculo.style.display = 'none';
-                // Limpa status
-                if (wfmStatus) {
-                    wfmStatus.textContent = '';
-                    wfmStatus.classList.remove('success', 'error');
-                }
-                
-            });      
-        }
     }
 
-    
 
     // Função para preencher os campos de nome/perfil WFM ao entrar na página de configurações
     async function preencherCamposWFM() {
@@ -823,6 +782,96 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     preencherCamposWFM();
+
+        async function preencherCamposVectora() {
+    const usuarioId = sessionStorage.getItem('user_id');
+    if (!usuarioId) return;
+    try {
+        const res = await eel.get_vectora_vinculo_by_user_id(usuarioId)();
+        const nomeInput = document.getElementById('vc-nome');
+        const perfilInput = document.getElementById('vc-perfil');
+        const loginInput = document.getElementById('vc-login');
+        const senhaInput = document.getElementById('vc-senha');
+        const costumerInput = document.getElementById('vc-cliente');
+        const botaoVincular = document.getElementById('bntvincvc');
+        const botaoRedefinir = document.getElementById('bntvinc2vc');
+        if (res && res.status === 'success' && res.vectora_nome && res.vectora_perfil) {
+            // Preenche e mostra apenas nome/perfil
+            if (nomeInput) {
+                nomeInput.value = res.vectora_nome || '';
+                if (nomeInput.parentElement) nomeInput.parentElement.style.display = 'block';
+                nomeInput.style.display = 'block';
+            }
+            if (perfilInput) {
+                perfilInput.value = res.vectora_perfil || '';
+                if (perfilInput.parentElement) perfilInput.parentElement.style.display = 'block';
+                perfilInput.style.display = 'block';
+            }
+            // Esconde login, senha e cliente
+            if (loginInput) loginInput.parentElement.style.display = 'none';
+            if (senhaInput) senhaInput.parentElement.style.display = 'none';
+            if (costumerInput) costumerInput.parentElement.style.display = 'none';
+            // Esconde botão vincular, mostra redefinir
+            if (botaoVincular) botaoVincular.style.display = 'none';
+            if (botaoRedefinir) botaoRedefinir.style.display = 'inline-block';
+        } else {
+            // Se não houver vínculo, mostra login/senha/cliente e botão vincular, esconde redefinir
+            if (loginInput) loginInput.parentElement.style.display = 'block';
+            if (senhaInput) senhaInput.parentElement.style.display = 'block';
+            if (costumerInput) costumerInput.parentElement.style.display = 'block';
+            if (botaoVincular) botaoVincular.style.display = 'inline-block';
+            if (botaoRedefinir) botaoRedefinir.style.display = 'none';
+            // Esconde nome/perfil
+            if (nomeInput) nomeInput.parentElement.style.display = 'none';
+            if (perfilInput) perfilInput.parentElement.style.display = 'none';
+        }
+    } catch (e) {
+        // opcional: mostrar erro
+        console.error('Erro ao preencher campos Vectora:', e);
+    }
+}
+
+    const botaoRedefinirvectora = document.getElementById('bntvinc2vc');
+    if (botaoRedefinirvectora) {
+        botaoRedefinirvectora.addEventListener('click', function(event) {
+            event.preventDefault();
+            const loginInput = document.getElementById('vc-login');
+            const senhaInput = document.getElementById('vc-senha');
+            const costumerInput = document.getElementById('vc-cliente');
+            const botaoVincular = document.getElementById('bntvincvc');
+            const spinnerVinculo = document.getElementById('spinervivc');
+            const nome = document.getElementById('vc-nome');
+            const perfil = document.getElementById('vc-perfil');
+            // Mostra login, senha e cliente novamente
+            if (loginInput) {
+                loginInput.parentElement.style.display = 'block';
+                loginInput.value = '';
+            }
+            if (senhaInput) {
+                senhaInput.parentElement.style.display = 'block';
+                senhaInput.value = '';
+            }
+            if (costumerInput) {
+                costumerInput.parentElement.style.display = 'block';
+                costumerInput.value = '';
+            }
+            // Esconde nome e perfil
+            if (nome) nome.parentElement.style.display = 'none';
+            if (perfil) perfil.parentElement.style.display = 'none';
+            // Esconde redefinir, mostra vincular, esconde spinner
+            if (botaoRedefinirvectora) botaoRedefinirvectora.style.display = 'none';
+            if (botaoVincular) botaoVincular.style.display = 'inline-block';
+            if (spinnerVinculo) spinnerVinculo.style.display = 'none';
+            // Limpa status se houver
+            if (wfmStatus) {
+                wfmStatus.textContent = '';
+                wfmStatus.classList.remove('success', 'error');
+            }
+        });
+    }
+
+
+    preencherCamposVectora();
 
     // Função para preencher os campos de nome/perfil Neta ao entrar na página de configurações
     async function preencherCamposNeta() {
@@ -902,6 +951,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     preencherCamposNeta();
+
+    
 
     // --- Lógica de Upload de Foto de Perfil ---
     // Adiciona listener para o clique no botão "Carregar Foto"

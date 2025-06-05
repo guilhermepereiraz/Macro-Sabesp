@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro JGL - Macro Site</title>
-    <link rel="stylesheet" href="css/macrosite.css">
+    <title>Macro JGL - Macro Deliberação</title>
+    <link rel="stylesheet" href="css/deliberacao.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/botao_fixo.css">
     <script src="js/botao_fixo.js"></script>
     <script type="text/javascript" src="eel.js"></script>
-    <script type="text/javascript" src="js/macrosite.js"></script>
+    <script type="text/javascript" src="js/deliberacao.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
 </head>
 
@@ -42,12 +42,13 @@
                 <div class="user-actions-group">
                     <div class="user-info">
                         <div class="user-status-block">
-                     
+                        
+                               
                            <div class="profile-picture">
                             <i class="fas fa-user-circle" id="profile-icon" style="display: block;"></i>
                             <img src="" alt="Foto de Perfil do Usuário" id="profile-img" style="display: none;">
                         </div>
-                        
+
                             <div class="user-status-text">
                                 <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
                                     Usuário</span>
@@ -71,69 +72,60 @@
 
     <main class="container">
         <section id="macrosite-section">
-            <h2 style="font-size: 2em; margin-top: 5%;">Macro SITE - WFM</h2>
+            <h2 style="font-size: 2em; border-bottom: 2px solid #0056b3; margin-top: 5%;">Macro Deliberação - VECTORA</h2>
             <i class="fas fa-info-circle icon" id="iconeduvida"
-                style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; border-top: 2px solid #0056b3; width: 100%; padding-top: 1%;"
+                style="color: rgb(5, 110, 248); font-size: 1.5em; margin-bottom: 1%; cursor: pointer; width: 100%;"
                 title="Dicas de Funcionamento" onclick="chamarDuvida()"> Dicas de Uso</i>
-            <div id="duvida-site" style="display: none;">
-                <p>Bem-vindo(a) à Macro de SITE - WFM. Esta ferramenta foi desenvolvida para otimizar a obtenção
-                    de informações diretamente do site WFM, automatizando o processo de busca e coleta de dados.</p>
+            <div id="duvida-vectora" style="display: none; font-weight: bolder;">
+                <p>Bem-vindo(a) à Macro Deliberação - VECTORA. Esta ferramenta foi desenvolvida para otimizar a
+                    obtenção
+                    de informações diretamente do site Vectora, automatizando o processo de busca e coleta de dados.</p>
                 <p>Para a execução desta macro, siga os passos abaixo:</p>
-                <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls) ou CSV
-                    (.csv).</p>
-                <p>2 - Certifique-se do conteúdo: O arquivo deve conter uma coluna essencial com o cabeçalho
-                    <strong>OS</strong> ou <strong>Número OS</strong>. Esta coluna deve listar todos os números de
-                    Ordens de Serviço para os quais você deseja buscar informações no site WFM.
+                <p>1 - Prepare seu arquivo: É necessário fornecer um documento nos formatos Excel (.xlsx, .xls). 
+                  </p>
+                <p>O arquivo deve conter uma coluna essencial com o cabeçalho <strong>INSTALAÇÃO.</strong> Esta coluna deve listar todos os números de instalação para os quais você deseja buscar informações no site Vectora.
                 </p>
                 <p>Ao final do processamento, uma pasta chamada
-                    <strong>[Macro JGL - Macro SITE]</strong> será criada na sua Área de Trabalho, contendo o arquivo
+                    <strong>[Macro JGL - Macro Vectora]</strong> será criada na sua Área de Trabalho, contendo o arquivo
                     com os resultados.
                 </p>
-                <p>Resultados Obtidos: OS, Fornecimento, Resultado SITE</p>
+            <p>Resultados Obtidos: <strong>EQUIPAMENTO</strong> Conterá o número de série do equipamento encontrado e um hyperlink direto para a página no sistema Vectora. A cor da fonte será <strong style="color: #2b8adf;">Azul Claro</strong> se o equipamento ou o link forem <strong style="color: #2b8adf;">Alterado</strong> (em comparação com uma execução anterior), ou <strong style="color: #28a745;">Verde Claro</strong> se for <strong  style="color: #28a745;">Inalterado</strong> (novo ou o mesmo equipamento/link). STATUS: Indicará se o registro foi  <strong style="color: #2b8adf;">Alterado</strong>  ou <strong  style="color: #28a745;">Inalterado.</strong> </p>
             </div>
-            <div id="site-preview">
+
+            <div id="site-preview" style="display: block;">
                 <h1>DEMOSTRATIVO</h1>
                 <p>Ao iniciar a macro, os resultado visual serão parecidos com esses.</p>
-                <p>Processando OS: 256489465</p>
-                <p>OS Processadas: 900 de 2000</p>
-                <p>OS Não Processadas: 5</p>
+                <p>Processando INSTALAÇÃO: 1  PC VRP João S. De Castro</p>
+                <p>Status INSTALAÇÃO: Inalterado</p>
+                <p>INSTALAÇÃO Processadas: 900 de 2000</p>
+                <p>INSTALAÇÃO Não Processadas: 5</p>
                 <p>Tempo Estimado: 01:50:30</p>
                 <p>Porcentagem Concluída: 49%</p>
             </div>
-            <div id="mensagem-de-erro"
-                style="color: red; display: none; font-weight: bolder; margin-left: 0.5%; margin-bottom: 1%;"></div>
+
+            <p id="macrosite-error-message" class="error-message" style="display: none; color: red;"></p>
 
             <div class="form-container" id="macrosite-form" style="display: block;">
-                <div class="input-group">
-                    <label for="site-login">Login (WFM):</label>
-                    <input type="text" id="site-login" placeholder="Digite o login do WFM">
+                    <div class="input-group">
+                    <label for="vectoraa-costumer">Costumer (VECTORA):</label>
+                    <input type="text" id="vectora-costumer" placeholder="Digite o Costumer do VECTORA">
                 </div>
                 <div class="input-group">
-                    <label for="site-password">Senha (WFM):</label>
-                    <input type="password" id="site-password" placeholder="Digite o login do WFM">
+                    <label for="vectoraa">Login (VECTORA):</label>
+                    <input type="text" id="vectora-login" placeholder="Digite o login do VECTORA">
                 </div>
                 <div class="input-group">
-                    <label>Tipo de Arquivo:</label>
-                    <div class="radio-group">
-                        <label for="csvOption">CSV</label>
-                        <input type="radio" id="csvOption" checked name="arquivoTipo" value="csv"
-                            style="margin-left: -0.5%; margin-top: -0.3%;">
-
-                        <label for="excelOption">Excel</label>
-                        <input type="radio" name="arquivoTipo" id="excelOption" value="excel"
-                            style="margin-left: -0.5%; margin-top: -0.3%;">
-
+                    <label for="vectoraa-password">Senha (VECTORA):</label>
+                    <input type="password" id="vectora-password" placeholder="Digite o login do VECTORA">
+                </div>         
+                    <div class="input-group file-input-group">
+                        <label for="arquivo-csv">Selecionar Arquivo:</label> <input type="file" id="arquivo-csv">
+                        <span class="file-name" id="selected-file-name"></span>
                     </div>
+
+                    <button id="processar" onclick="processarDeliberacao()">Iniciar</button>
+
                 </div>
-                <div class="input-group file-input-group">
-                    <label for="arquivo-csv">Selecionar Arquivo:</label> <input type="file" id="arquivo-csv">
-                    <span class="file-name" id="selected-file-name"></span>
-                </div>
-
-                <button id="processar">Iniciar</button>
-
-                <p id="macrosite-error-message" class="error-message" style="display: none; color: red;"></p>
-
             </div>
 
             <div id="macrosite-processing-status" style="display: none;">
@@ -151,8 +143,11 @@
                     <div class="rect5"></div>
                 </div>
                 <div class="status-info" style="font-size: 1.2em; margin-top: 3%;">
-                    <p>Processando OS: <span id="os-processando">- Calculando..</span></p>
-                    <p>OS Processadas: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
+                    <p>Processando INSTALAÇÃO: <span id="os-processando">- Calculando..</span></p>
+                    <p>Status INSTALAÇÃO: <span id="os-status">- Verificando..</span></p>
+                    
+                    <p>INSTALAÇÃO Processados: <span id="quantidade">- Calculando..</span><span id="total-count"></span></p>
+                    <p>INSTALAÇÃO com Erros: <span id="oserros">- Calculando..</span></p>
                     <p>Tempo Estimado: <span id="tempoestimado">- Calculando..</span></p>
                     <p>Porcentagem Concluída: <span id="porcentagem-concluida">- Calculando..</span></p>
                 </div>
@@ -176,9 +171,13 @@
                         <p id="dicasaqui">Prepare seu arquivo com antecedência para agilizar o processo.</p>
                     </div>
                 </div>
+<!-- 
+                <button id="pausar" class="styled-button" onclick="pausarMacro()">Pausar</button>
+                <button id="encerrar" class="styled-button" onclick="encerrarMacro()">Encerrar</button> -->
             </div>
-
-             <div id="macrosite-completion-status" class="completion-section" style="display: none;">
+            <div id="transps"></div>
+  
+            <div id="macrosite-completion-status" class="completion-section" style="display: none;">
                 <h2>Processamento Concluído</h2>
                 <div class="status-item">
                     <i class="fas fa-calendar-alt"></i><span class="status-label">Início:</span> <span
@@ -242,7 +241,9 @@
                 </div>
 
         </section>
+
     </main>
+
     <div id="transp"></div>
     <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
         <i class="fas fa-headset icon"></i>

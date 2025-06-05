@@ -79,6 +79,7 @@ def reiniciarmacro(valor):
             return login()
 
         try:
+            driver.get("https://geoprd.sabesp.com.br/sabespwfm/")
             logging.info("Tentando clicar em 'planejamento'...")
             planejamento = WebDriverWait(driver, 60).until(
                 EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div/div[2]/div[6]'))
@@ -475,7 +476,10 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
     global driver, wait
     logging.info("Recebendo solicitação para iniciar a macro do frontend...")
 
-    colunas_esperadas = ['Numero OS', 'Número OS', 'NUMERO OS', 'OS', 'os']
+    colunas_esperadas = [
+        'Numero OS', 'Número OS', 'NUMERO OS', 'OS', 'os', 'Os',
+        'numeroOs', 'numero_os', 'numeroOS', 'NumeroOs', 'Numero_os', 'NumeroOS'
+    ]
 
     logging.info("Carregando arquivo...")
     dados_extraidos = carregar_arquivo(conteudo_base64, tipo_arquivo, colunas_esperadas)
@@ -525,8 +529,8 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
         options = Options()
         options.add_argument("--disable-gpu")
         options.add_argument("--start-maximized")
-        # options.add_argument("--headless") # Deixa o navegador invisivel
-        # options.add_argument("--disable-gpu") # Deixa o navegador invisivel
+        options.add_argument("--headless") # Deixa o navegador invisivel
+        options.add_argument("--disable-gpu") # Deixa o navegador invisivel
 
         if driver is not None:
             logging.warning("Instância do navegador existente detectada antes de iniciar uma nova macro. Fechando.")

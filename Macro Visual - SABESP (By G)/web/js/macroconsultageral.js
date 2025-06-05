@@ -208,20 +208,20 @@ window.onload = function () {
     // Filtro dinâmico do input de arquivo (listener adicionado dentro de window.onload)
     function atualizarFiltroArquivo() {
         console.log("atualizarFiltroArquivo chamada");
-        
         if (inputArquivo && csvOption && excelOption) {
             console.log("Estado dos inputs:", {
                 csvChecked: csvOption.checked,
                 excelChecked: excelOption.checked,
                 inputArquivo: inputArquivo.id
             });
-            
+            // Limpa o input file SEMPRE que trocar o tipo
+            inputArquivo.value = '';
             if (csvOption.checked) {
-                inputArquivo.accept = '.csv';
-                console.log("Filtro definido para CSV");
+                inputArquivo.accept = 'text/csv,.csv';
+                console.log("Filtro definido para CSV (accept:", inputArquivo.accept, ")");
             } else if (excelOption.checked) {
-                inputArquivo.accept = '.xlsx,.xls';
-                console.log("Filtro definido para Excel");
+                inputArquivo.accept = '.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel';
+                console.log("Filtro definido para Excel (accept:", inputArquivo.accept, ")");
             } else {
                 inputArquivo.accept = '';
                 console.log("Nenhum filtro definido");
@@ -916,16 +916,27 @@ function startNewMacro() {
         divprocessamento.style.display = "none";
         divcomecar.style.display = "block";
         divpreview.style.display = "block";
-        tipoaquivocsvexcel.checked = true; // Reseta para CSV
-        tipoaquivohidropde.checked = true;
-        selecionaraquivo.value = ''; // Limpa o nome do arquivo selecionado
+        tipoaquivocsvexcel.checked = true;        tipoaquivohidropde.checked = true;
     }
+    // ZERA CAMPOS DE STATUS NA INTERFACE
+    const osProcessando = document.getElementById('os-processando');
+    const quantidade = document.getElementById('quantidade');
+    const totalCount = document.getElementById('total-count');
+    const oserros = document.getElementById('oserros');
+    const tempoEstimado = document.getElementById('tempoestimado');
+    const porcentagemConcluida = document.getElementById('porcentagem-concluida');
+    if (osProcessando) osProcessando.innerText = '';
+    if (quantidade) quantidade.innerText = '0';
+    if (totalCount) totalCount.innerText = ' de 0';
+    if (oserros) oserros.innerText = '0';
+    if (tempoEstimado) tempoEstimado.innerText = '00m 00s';
+    if (porcentagemConcluida) porcentagemConcluida.innerText = '0%';
 }
 
 async function viewResultsFolder() {
     console.log("Solicitando abertura da pasta de resultados...");
     try {
-        const result = await eel.open_results_folder()(); // Chama a função Python exposta
+        const result = await eel.open_results_foldervectora()(); // Chama a função Python exposta
         
         if (result) { // Verifica se houve um retorno
             if (result.status === "success") {

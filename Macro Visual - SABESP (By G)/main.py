@@ -15,8 +15,9 @@ import os
 from Consulta_GeraL_Final import iniciar_macro_consulta_geral
 from VinculoWFM import login
 from VinculoNETA import login_neta
-import threading
-from datetime import datetime # Importar datetime para tempo_inicial_global
+from VinculoVECTORA import login_vectora
+from Deliberacao import iniciar_macro_deliberacao
+from Deliberacao import open_results_foldervectora
 
 root = tk.Tk()
 screen_width = root.winfo_screenwidth()
@@ -123,9 +124,7 @@ Analisaremos seus dados e entraremos em contato em breve com as próximas etapas
 
 Agradecemos seu interesse.
 
-Atenciosamente,
-
-Equipe de Cadastro [Sabesp|Macro JGL]
+Atenciosamente, Equipe de Cadastro [Sabesp|Macro JGL]
 """
             try:
                 msg_confirmacao = MIMEText(corpo_confirmacao)
@@ -488,6 +487,44 @@ def vincular_wfm(usuario_id, wfm_login, wfm_senha):
 
 
 @eel.expose
+def vincular_vectora(usuario_id, vectora_costumer, vectora_login, vectora_senha):
+    logging.info(f"[vincular_vectora] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={vectora_login}")
+    resultado = login_vectora(vectora_costumer, vectora_login, vectora_senha)
+    logging.info(f"[vincular_vectora] Resultado do Selenium: {resultado}")
+    if not resultado or not resultado.get('nome') or not resultado.get('perfil'):
+        logging.error("[vincular_vectora] Falha ao autenticar no VECTORA. Login ou senha inválidos, ou erro na extração.")
+        return {"status": "error", "message": "Falha ao autenticar no VECTORA. Verifique login e senha."}
+
+    vectora_nome = resultado.get('nome', '')
+    vectora_perfil = resultado.get('perfil', '')
+    logging.info(f"[vincular_vectora] Nome extraído: {vectora_nome} | Perfil extraído: {vectora_perfil}")
+
+    connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+    try:
+        with connection.cursor() as cursor:
+            sql_check = "SELECT id FROM tb_vinculo_vectora WHERE usuario_id = %s"
+            cursor.execute(sql_check, (usuario_id,))
+            vinculo = cursor.fetchone()
+            logging.info(f"[vincular_vectora] Já existe vínculo? {vinculo}")
+            if vinculo:
+                sql_update = "UPDATE tb_vinculo_vectora SET vectora_costumer=%s, vectora_login=%s, vectora_senha=%s, vectora_nome=%s, vectora_perfil=%s, data_vinculo=NOW() WHERE usuario_id=%s"
+                cursor.execute(sql_update, (vectora_costumer, vectora_login, vectora_senha, vectora_nome, vectora_perfil, usuario_id))
+                logging.info(f"[vincular_vectora] Vínculo atualizado para usuario_id={usuario_id}")
+            else:
+                sql_insert = "INSERT INTO tb_vinculo_vectora (usuario_id, vectora_costumer, vectora_login, vectora_senha, vectora_nome, vectora_perfil) VALUES (%s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql_insert, (usuario_id, vectora_costumer, vectora_login, vectora_senha, vectora_nome, vectora_perfil))
+                logging.info(f"[vincular_vectora] Vínculo criado para usuario_id={usuario_id}")
+            connection.commit()
+            logging.info(f"[vincular_vectora] Commit realizado para usuario_id={usuario_id}")
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"[vincular_vectora] Erro ao salvar vínculo VECTORA: {e}")
+        return {"status": "error", "message": str(e)}
+    finally:
+        connection.close()
+        logging.info(f"[vincular_vecotra] Conexão com o banco fechada para usuario_id={usuario_id}")
+
+@eel.expose
 def vincular_neta(usuario_id, neta_login, neta_senha):
     logging.info(f"[vincular_neta] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={neta_login}")
     resultado = login_neta(neta_login, neta_senha)
@@ -571,6 +608,29 @@ def get_neta_vinculo_by_user_id(user_id):
         logging.error(f"Erro ao buscar vínculo NETA: {e}")
         return {"status": "error", "message": str(e)}
 
+@eel.expose
+def get_vectora_vinculo_by_user_id(user_id):
+    try:
+        connection = pymysql.connect(**DB_CONFIG, cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            sql = "SELECT vectora_costumer, vectora_login, vectora_senha, vectora_nome, vectora_perfil FROM tb_vinculo_vectora WHERE usuario_id = %s"
+            cursor.execute(sql, (user_id,))
+            vinculo = cursor.fetchone()
+            if vinculo:
+                return {
+                    "status": "success",
+                    "vectora_costumer": vinculo.get("vectora_costumer", ""),
+                    "vectora_login": vinculo.get("vectora_login", ""),
+                    "vectora_senha": vinculo.get("vectora_senha", ""),
+                    "vectora_nome": vinculo.get("vectora_nome", ""),
+                    "vectora_perfil": vinculo.get("vectora_perfil", "")
+                }
+            else:
+                return {"status": "not_found"}
+    except Exception as e:
+        logging.error(f"Erro ao buscar vínculo VECTORA: {e}")
+        return {"status": "error", "message": str(e)}
+
         
 @eel.expose
 def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario):
@@ -589,6 +649,24 @@ def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, 
         logging.error(f"Erro ao iniciar a macro: {e}")
         logging.exception("Detalhes do erro ao iniciar a macro:")
         return {"status": "erro", "message": "Erro ao iniciar a macro."}
+    
+@eel.expose
+def iniciar_macro_deliberacaoo(costumer, login, senha, conteudo_base64, nome_arquivo, tipo_arquivo, identificador_usuario):
+    logging.info(f"Chamada para iniciar macro para usuário da aplicação '{identificador_usuario}'")
+    logging.info(f"Credenciais passadas para a macro (login site): {costumer}, {login}, {'*' * len(senha)}")
+    logging.info(f"Nome do arquivo: {nome_arquivo}, Tipo: {tipo_arquivo}")
+
+    from Deliberacao import iniciar_macro_deliberacao as deliberacao_macro
+
+    try:
+        logging.info("Chamando a função iniciar_macro_deliberacao do Deliberacao.py...")
+        resultado = deliberacao_macro(costumer, login, senha, conteudo_base64, nome_arquivo, tipo_arquivo, identificador_usuario)
+        logging.info("Macro Deliberação iniciada com sucesso. Resultado: %s", resultado)
+        return resultado
+    except Exception as e:
+        logging.error(f"Erro ao iniciar a macro Deliberação: {e}")
+        logging.exception("Detalhes do erro ao iniciar a macro Deliberação:")
+        return {"status": "erro", "message": "Erro ao iniciar a macro Deliberação."}
 
 
 @eel.expose

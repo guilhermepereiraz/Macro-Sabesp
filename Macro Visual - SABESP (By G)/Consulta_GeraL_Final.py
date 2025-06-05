@@ -206,20 +206,22 @@ def filtrar_itens_nao_processados(lista_os, nome_arquivo_resultado=None, nome_ar
     lista_filtrada = [item for item in lista_os if str(item).strip() not in processados and str(item).strip() not in erros]
     return lista_filtrada
 
-def wait_forever(driver, condition, poll_frequency=0.5):
+class WaitTimeoutError(Exception):
+    pass
+
+def wait_forever(driver, condition, poll_frequency=0.5, max_wait=300):
     """
-    Espera indefinidamente até que a condição seja satisfeita.
-    - driver: instância do webdriver
-    - condition: condição do expected_conditions (EC)
-    - poll_frequency: intervalo entre tentativas (em segundos)
-    Retorna o elemento quando encontrado.
+    Espera até que a condição seja satisfeita, mas nunca mais que max_wait segundos.
     """
+    start = time.time()
     while True:
         try:
             return WebDriverWait(driver, 5).until(condition)
         except (TimeoutException, StaleElementReferenceException, NoSuchElementException):
+            if (time.time() - start) > max_wait:
+                raise WaitTimeoutError(f"Elemento não encontrado após {max_wait} segundos.")
             time.sleep(poll_frequency)
-
+            
 def adiciona_nao_encontrado_template_pde(item_value, lock): # Renomeado file_lock para lock para evitar shadowing
     dados = {
         "PDE": item_value,
@@ -253,8 +255,10 @@ def adiciona_nao_encontrado_template_pde(item_value, lock): # Renomeado file_loc
     with lock: # Usando o lock passado como argumento
         if file_exists:
             df.to_csv(output_file_path, mode="a", header=False, index=False, encoding="UTF-8-SIG", sep=";")
+            print(f"[ERRO PDE] Adicionado ao arquivo existente: {output_file_path} | PDE: {item_value}")
         else:
             df.to_csv(output_file_path, index=False, encoding="UTF-8-SIG", sep=";")
+            print(f"[ERRO PDE] Criado novo arquivo de erro: {output_file_path} | PDE: {item_value}")
 
 def adiciona_nao_encontrado_template_hidro(item_value, lock): # Renomeado file_lock para lock
     dados = {
@@ -647,6 +651,10 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
         time.sleep(0.5)
         item_type_lower = item_type.lower() # Usar uma variável local para evitar modificar o parâmetro
         processed_value_str = str(first_column_value).strip()
+        # NOVO: Remove parte decimal se houver (ex: 2000050651.0 -> 2000050651)
+        if '.' in processed_value_str:
+            processed_value_str = processed_value_str.split('.')[0]
+        print(f"Thread {threading.current_thread().name} - Valor a ser processado após split: {processed_value_str}")
 
         dados = {} # Inicializa o dicionário de dados aqui
 
@@ -757,7 +765,7 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                         print(f"Thread {threading.current_thread().name} - Botão de fechar detalhe não encontrado/clicável (HIDRO).")
                 
                 except TimeoutException:
-                    print(f"Thread {threading.current_thread().name} - Timeout durante a extração de dados para HIDRO {processed_value_str}.")
+                    print(f"Thread {threading.current_thread().name} - Timeout durante a extração de dados para HIDRO {processed_value_str} (Timeout/WaitTimeoutError).")
                     traceback.print_exc(file=sys.stdout) # Adicionado para detalhar o timeout
                     # processed_successfully permanece False
                 except Exception as e_extract:
@@ -778,10 +786,10 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
             xpath_pde = "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr/td[3]/div/fieldset/input[4]"
             
             try:
-
                 input_field_pde = wait_forever(driver, EC.presence_of_element_located((By.XPATH, xpath_pde)))
                 
-                pde_to_search = processed_value_str
+                pde_original = processed_value_str  # Definir antes de qualquer manipulação
+                pde_to_search = pde_original
                 print(f"Thread {threading.current_thread().name} - Valor PDE original: {pde_to_search}", flush=True)
                 
                 if pde_to_search.isdigit() and len(pde_to_search) < 10:
@@ -789,7 +797,14 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     pde_to_search = '0' * zeros_a_adicionar + pde_to_search
                     print(f"Thread {threading.current_thread().name} - PDE formatado com zeros: {pde_to_search}", flush=True)
                 elif not pde_to_search.isdigit():
-                    print(f"Thread {threading.current_thread().name} - AVISO: PDE não é um número válido: {pde_to_search}", flush=True)
+                    pde_original = processed_value_str  # Garante que está definido
+                    print(f"Thread {threading.current_thread().name} - AVISO: PDE não é um número válido: {pde_original}")
+                    # Adiciona o erro ao arquivo de erros e incrementa o contador de erros
+                    with counter_lock:
+                        global erros
+                        erros += 1
+                    adiciona_nao_encontrado_template_pde(pde_original, file_lock)
+                    return  # Corrige: era 'continue', mas aqui é função, então deve ser 'return'
 
                 input_field_pde.clear()
              
@@ -879,7 +894,7 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                         print(f"Thread {threading.current_thread().name} - Botão de fechar detalhe não encontrado/clicável (PDE).")
 
                 except TimeoutException:
-                    print(f"Thread {threading.current_thread().name} - Timeout durante a extração de dados para PDE {processed_value_str}.")
+                    print(f"Thread {threading.current_thread().name} - Timeout durante a extração de dados para PDE {processed_value_str} (Timeout/WaitTimeoutError).")
                     traceback.print_exc(file=sys.stdout) # Adicionado para detalhar o timeout
                     # processed_successfully permanece False
                 except Exception as e_extract_pde:
@@ -887,8 +902,8 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     traceback.print_exc(file=sys.stdout)
                     # processed_successfully permanece False
 
-            except TimeoutException: # Para a busca PDE inicial
-                 print(f"Thread {threading.current_thread().name} - Timeout na busca PDE inicial para {processed_value_str}.")
+            except (TimeoutException, WaitTimeoutError): # Para a busca PDE inicial
+                 print(f"Thread {threading.current_thread().name} - Timeout na busca PDE inicial para {processed_value_str} (Timeout/WaitTimeoutError).")
                  # processed_successfully permanece False
             except Exception as e_search_pde: # Para a busca PDE inicial
                  print(f"Thread {threading.current_thread().name} - Erro na busca PDE inicial para {processed_value_str}: {e_search_pde}")
@@ -906,7 +921,7 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
     except ItemProcessingError: # Se a exceção ItemProcessingError foi levantada acima ou por erro crítico
         processed_successfully = False # Garante que está False para o bloco finally
         raise # Re-levanta para ser pega pela thread_task
-    except (StaleElementReferenceException, NoSuchElementException, WebDriverException, TimeoutException) as selenium_ex:
+    except (StaleElementReferenceException, NoSuchElementException, WebDriverException, TimeoutException, WaitTimeoutError) as selenium_ex:
         # Captura exceções críticas de Selenium não tratadas internamente que indicam falha no processamento do item
         print(f"\nThread {threading.current_thread().name} - Erro crítico de Selenium na macro para {item_type} {str(first_column_value).strip()}: {selenium_ex}", flush=True)
         traceback.print_exc(file=sys.stdout)
@@ -1013,6 +1028,7 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
     driver = None
     MAX_RELOGIN_ATTEMPTS = 3
 
+    print(f"Thread {threading.current_thread().name} INICIOU")
     try:
         driver = login(threading.current_thread().name, l_login, s_senha)
         if isinstance(driver, dict) and driver.get("status") == "error":
@@ -1024,10 +1040,10 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
 
     while True:
         try:
-            item_value = item_queue.get_nowait()
+            item = item_queue.get(timeout=3)
         except queue.Empty:
-            break  # Fila vazia, thread termina
-
+            print(f"Thread {threading.current_thread().name} FINALIZOU (fila vazia)")
+            break
         attempts = 0
         processed = False
         while attempts < MAX_RELOGIN_ATTEMPTS and not processed:
@@ -1044,14 +1060,14 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                 relogin_attempts += 1
 
             if driver is None:
-                print(f"Thread {threading.current_thread().name} - Não foi possível reabrir o navegador após {MAX_RELOGIN_ATTEMPTS} tentativas. Pulando item {item_value}.")
+                print(f"Thread {threading.current_thread().name} - Não foi possível reabrir o navegador após {MAX_RELOGIN_ATTEMPTS} tentativas. Pulando item {item}.")
                 break
 
             with current_os_lock:
-                current_os_being_processed = str(item_value).strip()
+                current_os_being_processed = str(item).strip()
 
             try:
-                macro(driver, item_value, item_type, current_file_lock, item_value,
+                macro(driver, item, item_type, current_file_lock, item,
                       identificador=identificador,
                       nome_arquivo=nome_arquivo,
                       tipo_arquivo=tipo_arquivo)
@@ -1059,7 +1075,7 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                     processados += 1
                 processed = True
             except Exception as e_macro:
-                print(f"Thread {threading.current_thread().name} - Erro ao processar item {item_value} (tentativa {attempts+1}): {e_macro}", flush=True)
+                print(f"Thread {threading.current_thread().name} - Erro ao processar item {item} (tentativa {attempts+1}): {e_macro}", flush=True)
                 if driver:
                     try:
                         with driver_lock:
@@ -1080,8 +1096,22 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
             if driver in active_drivers:
                 active_drivers.remove(driver)
         driver.quit()
-        print(f"\nThread {threading.current_thread().name} terminou e saiu do driver.", flush=True)
+        print(f"Thread {threading.current_thread().name} FINALIZOU (driver encerrado)")
 
+# --- Bloco extra para garantir que nada fique pendente na fila após o processamento ---
+# (Adicionar ao final do processamento principal, após item_queue.join())
+#
+# if not item_queue.empty():
+#     print("Itens restantes na fila após processamento:")
+#     while not item_queue.empty():
+#         try:
+#             item_restante = item_queue.get_nowait()
+#             print(f"Item não processado: {item_restante}")
+#             # (Opcional) Marcar como erro aqui também
+#         except queue.Empty:
+#             break
+#
+# Isso pode ser colocado após item_queue.join() no fluxo principal.
 
 # thread_macro_wrapper não é usada pela interface Eel, mantida como estava mas com ressalva sobre o uso de counter_lock
 def thread_macro_wrapper(item, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None):
@@ -1126,7 +1156,7 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
     try:
         if tipo_arquivo == 'csv':
             conteudo_decodificado = base64.b64decode(conteudo_base64).decode('utf-8')
-            df = pd.read_csv(io.StringIO(conteudo_decodificado), sep=';', encoding='utf-8') 
+            df = pd.read_csv(io.StringIO(conteudo_decodificado), sep=';', encoding='utf-8-sig') 
         elif tipo_arquivo == 'excel':
             conteudo_decodificado = base64.b64decode(conteudo_base64)
             df = pd.read_excel(io.BytesIO(conteudo_decodificado))
@@ -1279,6 +1309,27 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
 
     for t in threads:
         t.join() 
+
+    item_queue.join()
+    print("Todos os itens foram processados ou marcados como erro.")
+
+    # Bloco extra: garantir que nada fique pendente na fila após o join
+    if not item_queue.empty():
+        print("Itens restantes na fila após processamento:")
+        while not item_queue.empty():
+            try:
+                item_restante = item_queue.get_nowait()
+                print(f"Item não processado: {item_restante}")
+                # Marca como erro também
+                with counter_lock:
+                    erros += 1
+                if tipo_pesquisa.lower() == "pde":
+                    adiciona_nao_encontrado_template_pde(item_restante, file_lock)
+                elif tipo_pesquisa.lower() in ["hidro", "hidrometro"]:
+                    adiciona_nao_encontrado_template_hidro(item_restante, file_lock)
+                item_queue.task_done()
+            except queue.Empty:
+                break
 
     monitor_stop_event.set() 
     monitor_thread.join() 

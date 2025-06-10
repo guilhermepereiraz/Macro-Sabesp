@@ -986,14 +986,14 @@ async function preencherCampos_NETA() {
             if (loginInput) {
                 loginInput.value = res.neta_login || '';
                 loginInput.readOnly = true;
-                loginInput.parentElement.style.display = 'block';
+                loginInput.parentElement.style.display = 'none';
                 loginInput.style.backgroundColor = 'rgb(230, 228, 228)';
                 loginInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }
             if (senhaInput) {
                 senhaInput.value = res.neta_senha || '';
                 senhaInput.readOnly = true;
-                senhaInput.parentElement.style.display = 'block';
+                senhaInput.parentElement.style.display = 'none';
                 senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';
                 senhaInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }

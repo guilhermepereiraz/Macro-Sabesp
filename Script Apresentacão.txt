@@ -26,10 +26,9 @@ Script Apresentação
 
 - Mostrar o Primeiro Login 
 
-Login SITE
 
-119576
-PosHack2024
+
+
 
 DB_CONFIG = {
     'host': '172.20.10.3',ou -- 172.20.10.1
@@ -45,46 +44,25 @@ DB_CONFIG = {
     'database': 'pendlist'
 }
 
-CREATE TABLE tb_consulta_geral (
-    id INT AUTO_INCREMENT PRIMARY KEY, -- Para MySQL. Para PostgreSQL, use SERIAL PRIMARY KEY
-    pde_hidro VARCHAR(255),
-    fornecimento VARCHAR(255),
-    tipo_mercado VARCHAR(255),
-    status_fornecimento VARCHAR(255),
-    titular VARCHAR(255),
-    tipo_sujeito VARCHAR(255),
-    celular VARCHAR(20),             -- Ajustado para um tamanho mais realista para números de telefone
-    endereco VARCHAR(500),           -- Aumentado para acomodar endereços mais longos
-    tipo_fornecimento VARCHAR(255),
-    oferta_produto VARCHAR(255),
-    entrega_fatura VARCHAR(255),
-    condicao VARCHAR(255),
-    modo_de_envio VARCHAR(255),
-    grupo_faturamento VARCHAR(255),
-    data_proxima_leitura VARCHAR(255), -- Conforme seu último código
-    numero_de_residencias VARCHAR(255), -- Conforme seu último código
-    status_atual VARCHAR(255),
-    atc VARCHAR(255),
-    tipo_de_cavalete VARCHAR(255),
-    data_de_ligacao_agua DATE,       -- Mantido como DATE
-    diametro VARCHAR(255),
-    sitia VARCHAR(255),
-    status_sitia VARCHAR(255),
-    data_de_ligacao_esgoto DATE,     -- Mantido como DATE
-    sitie VARCHAR(255),
-    status_sitie VARCHAR(255),
-	autor VARCHAR(100),
-	tipo_arquivo VARCHAR(100),
-nome_arquivo VARCHAR(255),
-data_consulta datetime DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY (pde_hidro, fornecimento) -- Chave Única composta por essas duas colunas
-);
-
 
 pyinstaller --onefile --windowed --add-data "web;web" --add-binary "C:\Users\gpereira.eficien\Downloads\edgedriver_win64\msedgedriver.exe;." --hidden-import pymysql main.py
 
 pyinstaller --onedir --add-data "web;web" --add-binary "C:\Users\gpereira.eficien\Downloads\edgedriver_win64\msedgedriver.exe;." --hidden-import pymysql main.py
 
+Login NETA
+
 530572
 !Q2w3e4r5t6y7u
+
+Login SITE
+
+MARCIO
+119576
+PosHack2024
+
+1 COISA fazer uma verificação em algum banco provalvemnte uma nova tabela, que terá sua chave estrangeira no tb_usuarios, que terá um valor fixo, que eu possa mudar, caso o valor procurar na macro, não seja igual oque esta no banco, sobe um pop falando que a macro esta desatualizado(CRIAR O CAMPO DE EXPLICAÇÃO)
+
+arrumar a função de solicitar cadastro
+
+fazer a função de enviar sugestão pegar o email do cara e fazer o cara mandar um email para o email pre definido
 

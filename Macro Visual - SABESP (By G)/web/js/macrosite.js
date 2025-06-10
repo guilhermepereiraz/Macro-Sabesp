@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     eel.expose(atualizar_status_os);
-    function atualizar_status_os(os_number, processed_count, total_count, status_code, status_message) {
+    function atualizar_status_os(os_number, processed_count, total_count, status_code, status_message, error_count) {
         // Atualiza apenas o número da OS processando
         if (statusOSAtual) {
             statusOSAtual.textContent = os_number;
@@ -127,6 +127,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // Atualiza apenas a quantidade processada e o total
         if (statusContadorOS) {
             statusContadorOS.textContent = `${processed_count} de ${total_count}`;
+        }
+
+        // Atualiza o número de erros
+        const osErrosElement = document.getElementById('os-erros');
+        if (osErrosElement) {
+            osErrosElement.textContent = (typeof error_count !== 'undefined') ? error_count : '0';
         }
 
         // Calcula e atualiza a barra de progresso e a porcentagem
@@ -161,6 +167,39 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (statusTempoRestante) {
             statusTempoRestante.textContent = time_remaining_formatted;
         }
+    }
+
+    // Função para formatar tempo estimado no estilo Consulta Geral
+    function formatarTempoLegivel(segundos) {
+        if (segundos == null || isNaN(segundos)) return "Calculando...";
+        segundos = Math.floor(segundos);
+        if (segundos < 0) return "Calculando...";
+        const horas = Math.floor(segundos / 3600);
+        const minutos = Math.floor((segundos % 3600) / 60);
+        const segundosRestantes = segundos % 60;
+        const partes = [];
+        if (horas > 0) partes.push(`${horas}h`);
+        if (minutos > 0 || (horas > 0 && segundosRestantes > 0)) partes.push(`${minutos}m`);
+        if (segundosRestantes > 0 || (!partes.length && segundos === 0)) partes.push(`${segundosRestantes}s`);
+        return partes.length ? partes.join(' ') : "0s";
+    }
+
+    // Substitui a função que atualiza o tempo estimado para usar o novo formato
+    // Esta função é chamada pelo backend via eel.atualizar_tempo_restante_js
+    function atualizar_tempo_restante_js(time_remaining) {
+        const statusTempoRestante = document.getElementById('tempoestimado');
+        let tempoFormatado = time_remaining;
+        // Se o backend enviar em segundos, converte. Se já vier string, mantém.
+        if (!isNaN(time_remaining)) {
+            tempoFormatado = formatarTempoLegivel(Number(time_remaining));
+        }
+        if (statusTempoRestante) {
+            statusTempoRestante.textContent = tempoFormatado;
+        }
+    }
+    // Expõe para o eel
+    if (typeof eel !== 'undefined') {
+        eel.expose(atualizar_tempo_restante_js);
     }
 
     // --- Listeners de Eventos para Botões ---
@@ -580,19 +619,21 @@ async function preencherCamposWFM_SITE() {
         const res = await eel.get_wfm_vinculo_by_user_id(usuarioId)();
         const loginInput = document.getElementById('site-login');
         const senhaInput = document.getElementById('site-password');
+        const vinculologin = document.getElementById('vinculado-login-label'); // ID do elemento que exibe o vínculo
+        const vinculosenha = document.getElementById('vinculado-senha-label'); // ID do elemento que exibe o vínculo
         if (res && res.status === 'success' && res.wfm_login && res.wfm_senha) {
             // Preenche login e senha reais e desabilita os campos
             if (loginInput) {
                 loginInput.value = res.wfm_login || '';
                 loginInput.readOnly = true;
-                loginInput.parentElement.style.display = 'block';
+                loginInput.parentElement.style.display = 'none';
                 loginInput.style.backgroundColor = 'rgb(230, 228, 228)';
                 loginInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }
             if (senhaInput) {
                 senhaInput.value = res.wfm_senha || '';
                 senhaInput.readOnly = true;
-                senhaInput.parentElement.style.display = 'block';
+                senhaInput.parentElement.style.display = 'none';
                 senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';   
                 senhaInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }

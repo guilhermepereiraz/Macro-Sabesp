@@ -360,11 +360,13 @@ def store_data_in_database(dados, identificador, nome_arquivo, tipo_arquivo):
         values = [
             dados.get('PDE') or dados.get('Hidrometro'),
             dados.get('Fornecimento'),
+            dados.get('Codificacao'),
             dados.get('Tipo Mercado'),
             dados.get('Status Fornecimento'),
             dados.get('Titular'),
             dados.get('Tipo Sujeito'),
             dados.get('Celular'),
+            dados.get("Email"),
             dados.get('Endereço Fornecimento'),
             dados.get('Tipo Fornecimento'),
             dados.get('Oferta/Produto'),
@@ -392,14 +394,14 @@ def store_data_in_database(dados, identificador, nome_arquivo, tipo_arquivo):
         # SQL para inserção dos dados
         sql = """
         INSERT INTO tb_consulta_geral (
-            pde_hidro, fornecimento, tipo_mercado, status_fornecimento,
-            titular, tipo_sujeito, celular, endereco, tipo_fornecimento,
+            pde_hidro, fornecimento, codificacao, tipo_mercado, status_fornecimento,
+            titular, tipo_sujeito, celular, email, endereco, tipo_fornecimento,
             oferta_produto, entrega_fatura, condicao, modo_de_envio,
             grupo_faturamento, data_proxima_leitura, numero_de_residencias,
             status_atual, atc, tipo_de_cavalete, data_de_ligacao_agua,
             diametro, sitia, status_sitia, data_de_ligacao_esgoto,
             sitie, status_sitie, autor, tipo_arquivo, nome_arquivo
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
@@ -430,10 +432,14 @@ def get_desktop_path():
         return os.path.join(os.path.expanduser('~'), 'Desktop')
 
 def armazena_final(dados, lock, identificador, nome_arquivo, tipo_arquivo):
-    campos_obrigatorrios = ["PDE", "Status Atual", "ATC"]
-    for campo in campos_obrigatorrios:
-        if campo not in dados or not dados[campo] or dados[campo].strip() == "":
-            print(f"Aviso: Campo obrigatório '{campo}' não encontrado ou vazio nos dados")
+    # Exige apenas o campo principal conforme o tipo
+    if tipo_arquivo and str(tipo_arquivo).lower() in ["hidro", "hidrometro"]:
+        if not ((dados.get("HIDRO") and dados["HIDRO"].strip() != "") or (dados.get("Hidrometro") and dados["Hidrometro"].strip() != "")):
+            print(f"Aviso: Campo obrigatório 'HIDRO' ou 'Hidrometro' não encontrado ou vazio nos dados")
+            return False
+    else:
+        if not (dados.get("PDE") and dados["PDE"].strip() != ""):
+            print(f"Aviso: Campo obrigatório 'PDE' não encontrado ou vazio nos dados")
             return False
 
     try:
@@ -638,7 +644,6 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
         if monitor_stop_event.is_set():
             raise ItemProcessingError("Processamento interrompido pelo usuário")
 
-        driver.refresh()
         time.sleep(2)  # Aumentado tempo de espera após refresh
         current_url = driver.current_url
         if 'RicercaCliente.aspx' not in current_url:
@@ -667,17 +672,21 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
 
                 busca_endereco = wait_forever(driver, EC.presence_of_element_located((By.XPATH, "/html/body/form/div[4]/div[4]/div[1]/ul[2]/li[2]/a")))
                 busca_endereco.click()
+                time.sleep(0.5)  # Aumentado tempo de espera após clique
 
                 input_field_hidro = wait_forever(driver, EC.presence_of_element_located((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[1]/td/div/div/fieldset/table/tbody/tr[1]/td[3]/div/fieldset/input[2]")))
                 input_field_hidro.clear()
+                time.sleep(0.5)  # Aumentado tempo de espera após clique
 
                 input_field_hidro.send_keys(processed_value_str)
 
                 bnt_pesquisa = wait_forever(driver, EC.presence_of_element_located((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td[2]/input[4]")))
                 bnt_pesquisa.click()
+                time.sleep(0.5)  # Aumentado tempo de espera após clique
 
                 bnt_busca_detalhe = wait_forever(driver, EC.presence_of_element_located((By.XPATH, "/html/body/form/div[4]/div[4]/table/tbody/tr[2]/td[2]/input[2]")))
                 bnt_busca_detalhe.click()
+                time.sleep(0.5)  # Aumentado tempo de espera após clique
 
                 wait_forever(driver, invisibility_or_absence((By.ID, "ctl00_lbl_ese_incorso")))
                 print(f"Thread {threading.current_thread().name} - Sequência de busca HIDRO concluída para {processed_value_str}. Iniciando Extração...", flush=True)
@@ -688,6 +697,7 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     driver.switch_to.frame(iframe)
                     painel_fornecimento = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[15]')))
                     painel_fornecimento.click()
+                    time.sleep(0.5)  # Aumentado tempo de espera após clique
 
                     wait_forever(driver, invisibility_or_absence((By.ID, "ctl00_lbl_ese_incorso")))
 
@@ -696,9 +706,10 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     iframe_utenza = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoUtenza"]')))
                     driver.switch_to.frame(iframe_utenza)
 
-
+                    print("inicando extração de dados do painel FORNECIMENTO...")
                     dados['Hidrometro'] = processed_value_str
                     dados['Fornecimento'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Codificacao'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
                     dados['PDE'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
                     dados['Tipo Mercado'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[3]/span[2]'))).text
                     dados['Status Fornecimento'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[2]'))).text
@@ -714,25 +725,27 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     dados['Grupo Faturamento'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[1]/span[2]'))).text
                     dados['Data Proxima Leitura'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[3]/span[2]'))).text
                     dados['Numero de Residencias'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[21]'))).text
-                    
+                    print(dados)
         
                     driver.switch_to.default_content()
                     fechar_painel_fornecimento = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')))
-                  
                     fechar_painel_fornecimento.click()
-                   
-                    iframe_sit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[5]/iframe')))
-                    driver.switch_to.frame(iframe_sit)
-                    
-                    painel_element_sitia = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')))
-                    painel_element_sitia.click()
-                    driver.switch_to.default_content()
-                 
-                    iframe_detail_sit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
-                    driver.switch_to.frame(iframe_detail_sit)
-                    
 
       
+                    iframe = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
+                    driver.switch_to.frame(iframe)
+
+                   
+                    painel_element_sitia = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[13]')))
+                    painel_element_sitia.click()
+ 
+                    driver.switch_to.default_content()
+           
+                    iframe_detail_sit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
+                    driver.switch_to.frame(iframe_detail_sit)
+
+
+                    print("inicando extração de dados do painel SITIA/SITIE...")
                     dados['Status Atual'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
                     dados['ATC'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
                     tipo_pde_elemento = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[4]/td/div/fieldset/p[2]/select')))
@@ -741,16 +754,38 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     dados['Data de Ligação Agua'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/span[2]/input[1]'))).get_attribute('value')
                     dados['Diâmetro:'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/p[2]/span[2]/input[1]'))).get_attribute('value')
                     dados['SITIA'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/p[8]/span[2]/input[1]'))).get_attribute('value') # Note: Same
-                    dados['Status SITIA'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/span[2]/input[1]'))).get_attribute('value')
+                    dados['Status SITIA'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/p[8]/span[2]/input[3]'))).get_attribute('value')
                     dados['Data de Ligação Esgoto'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[2]/fieldset/span[2]/input[1]'))).get_attribute('value')
                     dados['SITIE'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[2]/fieldset/p[2]/span[2]/input[1]'))).get_attribute('value')
                     dados['Status SITIE'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[2]/fieldset/p[2]/span[2]/input[3]'))).get_attribute('value')
+                    print(dados)
 
                     driver.switch_to.default_content()
                     fechar_painel_sitie = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/div/div[1]/div[1]/button/span[1]')))
                     fechar_painel_sitie.click()
-  
 
+                    iframe = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
+                    driver.switch_to.frame(iframe)
+
+                   
+                    painel_cliente = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[14]')))
+                    painel_cliente.click()
+
+                    driver.switch_to.default_content()
+
+                    iframe_clit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoCliente"]')))
+                    driver.switch_to.frame(iframe_clit)
+                    print("iframe acessado")
+
+                    print("Extração de dados do painel CLIENTE iniciada...")
+                    dados['Celular'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/div[1]/fieldset/table/tbody/tr[4]/td[3]/span[2]'))).text
+                    dados['Email'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/div[1]/fieldset/table/tbody/tr[5]/td[3]/span[2]'))).text
+                    print(dados)
+
+                    driver.switch_to.default_content()
+
+                    fechar_painel_cliente = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')))
+                    fechar_painel_cliente.click()
               
                     armazena_final(dados, current_file_lock, identificador, nome_arquivo, tipo_arquivo) # Passa todos os argumentos necessários
                     processed_successfully = True # Define sucesso APÓS armazenar
@@ -816,18 +851,27 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                 button_pde.click()
                 wait_forever(driver, invisibility_or_absence((By.ID, "ctl00_lbl_ese_incorso")))
 
-                try: # Try para extração de dados do PDE
+                try: # Try para extração de dados do HIDRO
+
                     iframe = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
                     driver.switch_to.frame(iframe)
-                    painel_fornecimento = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_NetSiuCPH_btni_crm_crupdr_apricruf"]')))
+                    painel_fornecimento = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[15]')))
                     painel_fornecimento.click()
+                    time.sleep(0.5)  # Aumentado tempo de espera após clique
+
                     wait_forever(driver, invisibility_or_absence((By.ID, "ctl00_lbl_ese_incorso")))
+
                     driver.switch_to.default_content()
+
                     iframe_utenza = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoUtenza"]')))
                     driver.switch_to.frame(iframe_utenza)
 
-                    dados['PDE'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
+                    print("inicando extração de dados do painel FORNECIMENTO...")
+                    dados['Hidrometro'] = processed_value_str
                     dados['Fornecimento'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[1]/span[2]'))).text
+                    dados['Codificacao'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
+                    dados['ATC'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr[3]/td/div[1]/fieldset/span[4]'))).text
+                    dados['PDE'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[2]/span[2]'))).text
                     dados['Tipo Mercado'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[1]/tbody/tr/td[3]/span[2]'))).text
                     dados['Status Fornecimento'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[2]'))).text
                     dados['Titular'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[4]'))).text
@@ -842,7 +886,8 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     dados['Grupo Faturamento'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[1]/span[2]'))).text
                     dados['Data Proxima Leitura'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/table[3]/tbody/tr/td[3]/span[2]'))).text
                     dados['Numero de Residencias'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/table/tbody/tr/td[1]/div[1]/fieldset/span[21]'))).text
-                    
+                    print(dados)
+        
                     driver.switch_to.default_content()
                     fechar_painel_fornecimento = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')))
                     fechar_painel_fornecimento.click()
@@ -859,28 +904,48 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
            
                     iframe_detail_sit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
                     driver.switch_to.frame(iframe_detail_sit)
-   
 
+
+                    print("inicando extração de dados do painel SITIA/SITIE...")
                     dados['Status Atual'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
-                    dados['ATC'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
                     tipo_pde_elemento = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[4]/td/div/fieldset/p[2]/select')))
                     tipo_pde_select = Select(tipo_pde_elemento)
                     dados['Tipo de Cavalete'] = tipo_pde_select.first_selected_option.text
                     dados['Data de Ligação Agua'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/span[2]/input[1]'))).get_attribute('value')
                     dados['Diâmetro:'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/p[2]/span[2]/input[1]'))).get_attribute('value')
                     dados['SITIA'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/p[8]/span[2]/input[1]'))).get_attribute('value') # Note: Same
-                    dados['Status SITIA'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/span[2]/input[1]'))).get_attribute('value')
+                    dados['Status SITIA'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[1]/fieldset/p[8]/span[2]/input[3]'))).get_attribute('value')
                     dados['Data de Ligação Esgoto'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[2]/fieldset/span[2]/input[1]'))).get_attribute('value')
                     dados['SITIE'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[2]/fieldset/p[2]/span[2]/input[1]'))).get_attribute('value')
                     dados['Status SITIE'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[6]/td/fieldset/div[2]/fieldset/p[2]/span[2]/input[3]'))).get_attribute('value')
-         
-        
+                    print(dados)
+
                     driver.switch_to.default_content()
                     fechar_painel_sitie = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/div/div[1]/div[1]/button/span[1]')))
                     fechar_painel_sitie.click()
 
+                    iframe = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoPdr"]')))
+                    driver.switch_to.frame(iframe)
 
+                    painel_cliente = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[2]/div/table/tbody/tr[1]/td/table/tbody/tr/td/table/tbody/tr/td[2]/input[14]')))
+                    painel_cliente.click()
 
+                    driver.switch_to.default_content()
+
+                    iframe_clit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="ifCruscottoCliente"]')))
+                    driver.switch_to.frame(iframe_clit)
+                    print("iframe acessado")
+
+                    print("Extração de dados do painel CLIENTE iniciada...")
+                    dados['Celular'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/div[1]/fieldset/table/tbody/tr[4]/td[3]/span[2]'))).text
+                    dados['Email'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[1]/div/table/tbody/tr[2]/td/table/tbody/tr/td/div/div[1]/fieldset/table/tbody/tr[5]/td[3]/span[2]'))).text
+                    print(dados)
+
+                    driver.switch_to.default_content()
+
+                    fechar_painel_cliente = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[4]/div[5]/table/tbody/tr/td[1]/div/div/ul/li[2]/a/span/input')))
+                    fechar_painel_cliente.click()
+              
                     armazena_final(dados, current_file_lock, identificador, nome_arquivo, tipo_arquivo) # Passa todos os argumentos necessários
                     processed_successfully = True # Define sucesso APÓS armazenar
 

@@ -53,21 +53,21 @@ async function preencherCamposVectora() {
             if (costumerInput) {
                 costumerInput.value = res.vectora_costumer || '';
                 costumerInput.readOnly = true;
-                costumerInput.parentElement.style.display = 'block';
+                costumerInput.parentElement.style.display = 'none';
                 costumerInput.style.backgroundColor = 'rgb(230, 228, 228)';
                 costumerInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }
             if (loginInput) {
                 loginInput.value = res.vectora_login || '';
                 loginInput.readOnly = true;
-                loginInput.parentElement.style.display = 'block';
+                loginInput.parentElement.style.display = 'none';
                 loginInput.style.backgroundColor = 'rgb(230, 228, 228)';
                 loginInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }
             if (senhaInput) {
                 senhaInput.value = res.vectora_senha || '';
                 senhaInput.readOnly = true;
-                senhaInput.parentElement.style.display = 'block';
+                senhaInput.parentElement.style.display = 'none';
                 senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';
                 senhaInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }

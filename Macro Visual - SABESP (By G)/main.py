@@ -324,7 +324,7 @@ def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha):
             cursor.execute(sql_update_password, (nova_senha, user_id))
             print("--> Query de atualização de senha executada.")
 
-            print(f"--> Atualizando ultimo_login para o usuário ID: {user_id}")
+            print(f"--> Atualizando ultimo_login  para o usuário ID: {user_id}")
             sql_update_last_login = "UPDATE tb_usuarios SET ultimo_login = CURRENT_TIMESTAMP() WHERE id = %s"
             cursor.execute(sql_update_last_login, (user_id,))
             print("--> Query de atualização de ultimo_login executada.")

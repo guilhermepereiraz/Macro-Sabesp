@@ -781,3 +781,14 @@ button#encerrar:hover,
     /* Linha inferior sob o título */
     padding-bottom: 5px;
 }
+
+.login-label {
+    padding: 15px;
+    background-color: #e6e5e5;
+    color: rgb(128, 128, 128);
+    width: 280px;
+    border-radius: 50px 0px 50px 0px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+

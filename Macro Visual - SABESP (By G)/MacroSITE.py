@@ -79,7 +79,6 @@ def reiniciarmacro(valor):
             return login()
 
         try:
-            driver.get("https://geoprd.sabesp.com.br/sabespwfm/")
             logging.info("Tentando clicar em 'planejamento'...")
             planejamento = WebDriverWait(driver, 60).until(
                 EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div/div[2]/div[6]'))
@@ -277,6 +276,7 @@ def macro(valor):
                     EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
                 )
         busca_execucao.click()
+        time.sleep(1)  # Espera um pouco para garantir que o clique foi registrado
     except:
         print("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.") # Exemplo de log
 
@@ -286,6 +286,7 @@ def macro(valor):
                     EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
                 )
         busca_execucao.click()
+        time.sleep(1)  # Espera um pouco para garantir que o clique foi registrado
     except:
         print("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.2") # Exemplo de log
 
@@ -296,10 +297,9 @@ def macro(valor):
             logging.info("Alterando para o iframe principal e tentando localizar 'status_avaliacao'...")
             driver.switch_to.default_content()
             wait.until(EC.frame_to_be_available_and_switch_to_it((By.NAME, 'mainFrame')))
-            status_avaliacao = WebDriverWait(driver, 20).until(EC.presence_of_element_located(
-                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[1]/tbody[9]/tr[1]/td/span'))
-            )
+            status_avaliacao = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[1]/tbody[9]/tr[1]/td/span/img')))
             status_avaliacao.click()
+            time.sleep(1)  # Espera um pouco para garantir que o clique foi registrado
             logging.info("Status de avaliação clicado com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -309,10 +309,10 @@ def macro(valor):
 
     while True:
         try:
-            com_resultado = WebDriverWait(driver, 20).until(EC.presence_of_element_located(
-                (By.XPATH, '//select[@name="_lyXWFMRAGMSTATOINIVIO"]')))
+            com_resultado = wait.until(EC.presence_of_element_located((By.XPATH, '//select[@name="_lyXWFMRAGMSTATOINIVIO"]')))
             select_neta = Select(com_resultado)
             select_neta.select_by_index(2)
+            time.sleep(1)
             logging.info("Resultado selecionado com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -322,9 +322,11 @@ def macro(valor):
 
     while True:
         try:
-            dados_os = WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
-                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[1]/tbody[13]/tr[1]/td/span/img')))
+            dados_os = wait.until(EC.visibility_of_element_located(
+                 (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[1]/tbody[13]/tr[1]/td/span/img')
+             ))
             dados_os.click()
+            time.sleep(1)
             logging.info("Dados OS clicados com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -334,11 +336,14 @@ def macro(valor):
 
     while True:
         try:
-            numero_os = WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
-                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[1]/tbody[13]/tr[3]/td[2]/table/tbody/tr/td/input')))
+            numero_os = wait.until(EC.visibility_of_element_located(
+                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[1]/tbody[13]/tr[3]/td[2]/table/tbody/tr/td/input ')
+            ))
             numero_os.click()
             numero_os.clear()
-            numero_os.send_keys(str(valor))
+            time.sleep(1)
+            numero_os.send_keys(valor)
+            time.sleep(1)
             logging.info("Número OS preenchido com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -348,8 +353,9 @@ def macro(valor):
 
     while True:
         try:
-            contrato_x = WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[1]/tbody[3]/tr[11]/td[2]/table/tbody/tr/td[3]/img[2]')))
+            contrato_x = wait.until(EC.visibility_of_element_located((By.XPATH, "//img[@alt='Esvaziar' and contains(@id, '_clear')]")))       
             driver.execute_script("arguments[0].click();", contrato_x)
+            time.sleep(1.5)
             logging.info("Contrato X clicado com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -359,10 +365,11 @@ def macro(valor):
 
     while True:
         try:
-            WebDriverWait(driver, 20).until(EC.invisibility_of_element_located((By.ID, "transpdiv-2")))
-            botao_buscar = WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
-                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[3]/tbody/tr/td/table/tbody/tr/td[3]/button')))
+            botao_buscar = wait.until(EC.visibility_of_element_located(
+                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[3]/tbody/tr/td/table/tbody/tr/td[3]/button')
+            ))
             botao_buscar.click()
+            time.sleep(3)
             logging.info("Botão buscar clicado com sucesso.")
             break  # sair do loop se a ação for bem-sucedida
         except (TimeoutException, StaleElementReferenceException, ElementClickInterceptedException) as e:
@@ -372,9 +379,11 @@ def macro(valor):
 
     while True:
         try:
-            linhas_laranja = WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
-                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[3]/div[2]/div/div/div/table/tbody/tr[2]/td[1]/div[1]/div/div/img')))
+            linhas_laranja = wait.until(EC.visibility_of_element_located(
+                (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[3]/div[2]/div/div/div/table/tbody/tr[2]/td[1]/div[1]/div/div/img')
+            ))
             linhas_laranja.click()
+            time.sleep(2)
             logging.info("Linhas laranja clicadas com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -388,6 +397,7 @@ def macro(valor):
                 EC.visibility_of_element_located((By.XPATH, "//div[contains(text(), 'Resultado Intervenção')]"))
             )
             resultado_intervencao.click()
+            time.sleep(2)
             logging.info("Resultado intervenção clicado com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -403,6 +413,7 @@ def macro(valor):
             )
             if select_element.is_displayed():
                 str_status_site = select_element.text
+                time.sleep(2)
             logging.info("Status site obtido com sucesso.")
             break 
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -416,6 +427,7 @@ def macro(valor):
                 EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/table/tbody/tr[1]/td/div/div[1]/div[2]"))
             )
             dados_client.click()
+            time.sleep(2)
             logging.info("dados cliente clicado.")
             break 
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -431,6 +443,7 @@ def macro(valor):
 
             if forn_usuario.is_displayed():
                 fornecimento_wfm = forn_usuario.text
+            time.sleep(2)
             logging.info("Fornecimento WFM obtido com sucesso.")
             break 
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -442,11 +455,13 @@ def macro(valor):
         try:
             botao_fecha = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[3]/div[2]/div[6]')))
             driver.execute_script("arguments[0].click();", botao_fecha)
+            time.sleep(2)
             logging.info("Botão fechar clicado com sucesso.")
             break 
         except (TimeoutException, StaleElementReferenceException) as e:
-            logging.warning("Erro encontrado ao clicar em botão fechar. Tentando novamente...")
-            continue  # Tenta novamente sem retornar erro
+            logging.warning("Erro encontrado ao obter fornecimento WFM. Tentando novamente...")
+            reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
+            return {"status": "erro", "message": f"Erro ao obter fornecimento WFM para OS {valor}: "}
 
     while True:
         try:
@@ -454,11 +469,13 @@ def macro(valor):
                 EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[2]/div[2]/div[2]'))
             )
             busca_execucao.click()
+            time.sleep(2)
             logging.info("Busca execução clicada com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
-            logging.warning("Erro encontrado ao clicar em busca execução. Tentando novamente...")
-            continue  # Tenta novamente sem retornar erro
+            logging.warning("Erro encontrado ao obter fornecimento WFM. Tentando novamente...")
+            reiniciarmacro(valor)  # Voltar para reiniciarmacro em caso de erro
+            return {"status": "erro", "message": f"Erro ao obter fornecimento WFM para OS {valor}: "}
         except Exception as e:
             logging.error("Erro inesperado ao clicar em busca execução: %s", str(e))
             return {"status": "erro", "message": f"Erro inesperado ao clicar em busca execução para OS {valor}: "}
@@ -527,10 +544,10 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
     try:
         logging.info("Configurando e iniciando o navegador para execução do Selenium...")
         options = Options()
-        options.add_argument("--disable-gpu")
-        options.add_argument("--start-maximized")
-        options.add_argument("--headless") # Deixa o navegador invisivel
-        options.add_argument("--disable-gpu") # Deixa o navegador invisivel
+        # options.add_argument("--disable-gpu")
+        # options.add_argument("--start-maximized")
+        # options.add_argument("--headless") # Deixa o navegador invisivel
+        # options.add_argument("--disable-gpu") # Deixa o navegador invisivel
 
         if driver is not None:
             logging.warning("Instância do navegador existente detectada antes de iniciar uma nova macro. Fechando.")
@@ -579,6 +596,7 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
         driver = None
         return {"status": "erro", "message": "Erro crítico ao iniciar o navegador ou fazer login."}
 
+    erro_count = 0  # Novo contador de erros
     tempo_inicial = datetime.now()
     logging.info("Começo da operação: %s", tempo_inicial.strftime("%H:%M -- %d/%m"))
     if 'eel' in globals() and hasattr(eel, 'display_macro_processing_status_frontend'):
@@ -591,38 +609,55 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
         str_id_os = str(id_os)
         logging.info("Iniciando processamento da OS %s (%d/%d)", str_id_os, idx + 1, total_processar)
 
+        # Calcular e enviar tempo estimado antes de processar a OS
+        restantes = total_processar - (idx + 1)
+        tempo_decorrido_segundos = (datetime.now() - tempo_inicial).total_seconds()
+        os_processadas = idx
+        if 'eel' in globals() and hasattr(eel, 'atualizar_tempo_restante_js'):
+            try:
+                if os_processadas > 0:
+                    tempo_por_os = tempo_decorrido_segundos / os_processadas
+                    tempo_restante_segundos = tempo_por_os * restantes
+                    eel.atualizar_tempo_restante_js(int(tempo_restante_segundos))
+                else:
+                    eel.atualizar_tempo_restante_js("Calculando...")
+            except Exception as e:
+                logging.error(f"Falha ao calcular ou enviar tempo restante para o frontend: {e}")
+
         if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
             try:
-                eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "Processando", f"Processando: {str_id_os}")
+                eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "Processando", f"Processando: {str_id_os}", erro_count)
             except Exception as e:
-                 logging.error(f"Falha ao enviar status da OS {str_id_os} para o frontend: {e}")
+                logging.error(f"Falha ao enviar status da OS {str_id_os} para o frontend: {e}")
 
         try:
             resultado_macro_os = macro(str_id_os)
 
             if resultado_macro_os.get("status") == "erro":
-                 logging.error(f"A função macro reportou um erro para a OS {str_id_os}: {resultado_macro_os.get('message')}")
-                 registrar_erro_os(str_id_os)
-                 if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
-                     try:
-                         eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "Erro", f"Erro na OS {str_id_os}: {resultado_macro_os.get('message', 'Desconhecido')}")
-                     except Exception as e:
-                         logging.error(f"Falha ao enviar status de erro da OS {str_id_os} para o frontend: {e}")
-                 continue
+                logging.error(f"A função macro reportou um erro para a OS {str_id_os}: {resultado_macro_os.get('message')}")
+                registrar_erro_os(str_id_os)
+                erro_count += 1  # Incrementa erro
+                if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
+                    try:
+                        eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "Erro", f"Erro na OS {str_id_os}: {resultado_macro_os.get('message', 'Desconhecido')}", erro_count)
+                    except Exception as e:
+                        logging.error(f"Falha ao enviar status de erro da OS {str_id_os} para o frontend: {e}")
+                continue
             else:
-                 logging.info(f"OS {str_id_os} processada com sucesso pela função macro.")
-                 if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
-                     try:
-                         eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "Sucesso", f"OS {str_id_os} Concluída")
-                     except Exception as e:
-                         logging.error(f"Falha ao enviar status de sucesso da OS {str_id_os} para o frontend: {e}")
+                logging.info(f"OS {str_id_os} processada com sucesso pela função macro.")
+                if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
+                    try:
+                        eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "Sucesso", f"OS {str_id_os} Concluída", erro_count)
+                    except Exception as e:
+                        logging.error(f"Falha ao enviar status de sucesso da OS {str_id_os} para o frontend: {e}")
 
         except Exception as e:
             logging.error(f"Erro CRÍTICO INESPERADO ao processar a OS {str_id_os}: {e}", exc_info=True)
             registrar_erro_os(str_id_os)
+            erro_count += 1  # Incrementa erro
             if 'eel' in globals() and hasattr(eel, 'atualizar_status_os'):
                 try:
-                    eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "CRÍTICO", f"Erro CRÍTICO na OS {str_id_os}: {e}")
+                    eel.atualizar_status_os(str_id_os, idx + 1, total_processar, "CRÍTICO", f"Erro CRÍTICO na OS {str_id_os}: {e}", erro_count)
                 except Exception as ee:
                     logging.error(f"Falha ao enviar status de erro CRÍTICO da OS {str_id_os} para o frontend: {ee}")
             break

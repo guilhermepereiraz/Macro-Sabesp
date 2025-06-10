@@ -1,0 +1,85 @@
+CREATE TABLE `tb_usuarios` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `nome` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(50) NOT NULL,
+  `cargo` varchar(50) DEFAULT NULL,
+  `matricula` varchar(50) DEFAULT NULL,
+  `foto_perfil_url` varchar(255) DEFAULT NULL,
+  `ativo` tinyint(1) DEFAULT '1',
+  `ultima_macro` varchar(100) DEFAULT NULL,
+  `data_cadastro` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ultimo_login` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email_nome` (`email`,`nome`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE tb_versao (
+id INT NOT NULL AUTO_INCREMENT,
+versao VARCHAR(30) NOT NULL,
+ PRIMARY KEY (id)
+)
+
+CREATE TABLE `tb_vinculo_wfm` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NOT NULL,
+  `wfm_login` VARCHAR(100) DEFAULT NULL,
+  `wfm_senha` VARCHAR(100) DEFAULT NULL,
+  `wfm_nome` VARCHAR(100) DEFAULT NULL,
+  `wfm_perfil` VARCHAR(100) DEFAULT NULL,
+  `data_vinculo` DATETIME DEFAULT CURRENT_TIMESTAMP, 
+  PRIMARY KEY (`id`),
+  KEY `usuario_id` (`usuario_id`),
+  CONSTRAINT `tb_vinculo_wfm_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `tb_usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `tb_vinculo_neta` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NOT NULL,
+  `neta_login` VARCHAR(100) DEFAULT NULL,
+  `neta_senha` VARCHAR(100) DEFAULT NULL,
+  `neta_nome` VARCHAR(100) DEFAULT NULL,
+  `neta_perfil` VARCHAR(100) DEFAULT NULL,
+  `data_vinculo` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `usuario_id` (`usuario_id`),
+  CONSTRAINT `tb_vinculo_neta_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `tb_usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE tb_consulta_geral (
+    id INT AUTO_INCREMENT PRIMARY KEY, -- Para MySQL. Para PostgreSQL, use SERIAL PRIMARY KEY
+    pde_hidro VARCHAR(255),
+    fornecimento VARCHAR(255),
+    tipo_mercado VARCHAR(255),
+    status_fornecimento VARCHAR(255),
+    titular VARCHAR(255),
+    tipo_sujeito VARCHAR(255),
+    celular VARCHAR(20),             -- Ajustado para um tamanho mais realista para números de telefone
+    endereco VARCHAR(500),           -- Aumentado para acomodar endereços mais longos
+    tipo_fornecimento VARCHAR(255),
+    oferta_produto VARCHAR(255),
+    entrega_fatura VARCHAR(255),
+    condicao VARCHAR(255),
+    modo_de_envio VARCHAR(255),
+    grupo_faturamento VARCHAR(255),
+    data_proxima_leitura VARCHAR(255), -- Conforme seu último código
+    numero_de_residencias VARCHAR(255), -- Conforme seu último código
+    status_atual VARCHAR(255),
+    atc VARCHAR(255),
+    tipo_de_cavalete VARCHAR(255),
+    data_de_ligacao_agua DATE,       -- Mantido como DATE
+    diametro VARCHAR(255),
+    sitia VARCHAR(255),
+    status_sitia VARCHAR(255),
+    data_de_ligacao_esgoto DATE,     -- Mantido como DATE
+    sitie VARCHAR(255),
+    status_sitie VARCHAR(255),
+	autor VARCHAR(100),
+	tipo_arquivo VARCHAR(100),
+nome_arquivo VARCHAR(255),
+data_consulta datetime DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY (pde_hidro, fornecimento) -- Chave Única composta por essas duas colunas
+);
+
+ALTER TABLE `tb_usuarios` AUTO_INCREMENT = 1;
+

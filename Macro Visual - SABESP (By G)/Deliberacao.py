@@ -13,9 +13,8 @@ import numpy as np
 import sys
 import traceback
 import eel
-import logging
+# import logging
 import subprocess
-import pymysql
 import pymysql.cursors
 import win32gui
 import win32con

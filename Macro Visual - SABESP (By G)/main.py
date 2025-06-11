@@ -40,10 +40,10 @@ if not any(isinstance(handler, logging.StreamHandler) for handler in logging.get
 logging.info("--- main.py Iniciado ---")
 
 DB_CONFIG = {
-    'host': '10.51.109.123',
-    'user': 'root',
-    'password': 'SB28@sabesp',
-    'database': 'pendlist'
+    'host': '127.0.0.1',
+    'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
+    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendilist'
 }
 
 EMAIL_CONFIG = {                

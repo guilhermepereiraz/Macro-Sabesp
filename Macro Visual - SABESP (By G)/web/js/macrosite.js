@@ -2,7 +2,7 @@
 // Este script é carregado no seu arquivo macroSITE.html.
 
 // Torna a função deslogar acessível globalmente para o onclick no HTML
-window.deslogar = function() {
+window.deslogar = function () {
     console.log("[macrosite.js] Chamada a deslogar.");
     sessionStorage.removeItem('nomeUsuario'); // Limpa o nome de usuário da sessão
     console.log("[macrosite.js] sessionStorage 'nomeUsuario' limpo. Redirecionando para login.html");
@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const inputArquivo = document.getElementById('arquivo-csv'); // AJUSTADO: ID 'arquivo-csv' no HTML
     const loginInput = document.getElementById('site-login'); // AJUSTADO: ID 'site-login' no HTML
     const senhaInput = document.getElementById('site-password'); // AJUSTADO: ID 'site-password' no HTML
-    
+
     // ATENÇÃO: Elemento 'identificador' NÃO EXISTE NO SEU HTML.
     // A variável será null, e a funcionalidade dependente dela não funcionará.
-    const identificadorInput = document.getElementById('identificador'); 
+    const identificadorInput = document.getElementById('identificador');
 
     const mensagemErroDiv = document.getElementById('mensagem-de-erro'); // AJUSTADO: ID 'mensagem-de-erro' no HTML
     const mensagemConclusaoDiv = document.getElementById('macrosite-completion-summary'); // AJUSTADO: ID 'macrosite-completion-summary' no HTML
@@ -33,12 +33,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const statusOSAtual = document.getElementById('os-processando'); // AJUSTADO: ID 'os-processando' no HTML
     const statusContadorOS = document.getElementById('quantidade'); // AJUSTADO: ID 'quantidade' no HTML
     const statusTempoRestante = document.getElementById('tempoestimado'); // AJUSTADO: ID 'tempoestimado' no HTML
-    
+
     // ATENÇÃO: Elementos 'loader' e 'progressBar' NÃO EXISTEM NO SEU HTML.
     // A funcionalidade de carregamento/barra de progresso não aparecerá.
-    const loader = document.getElementById('loader'); 
-    const progressBar = document.getElementById('progressBar'); 
-    
+    const loader = document.getElementById('loader');
+    const progressBar = document.getElementById('progressBar');
+
     const selectedFileNameSpan = document.getElementById('selected-file-name'); // AJUSTADO: ID 'selected-file-name' no HTML
 
     // Elementos adicionais do HTML original que podem ser úteis (para a lógica de esconder/mostrar)
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (sitePreviewDiv) sitePreviewDiv.style.display = 'block'; // Ou 'flex' dependendo do seu CSS
         if (formContainerDiv) formContainerDiv.style.display = 'block';
         introParagraphs.forEach(p => p.style.display = 'block');
-        
+
         atualizarFiltroArquivo(); // Garante que o filtro de arquivo seja definido ao resetar a UI (ADICIONADO)
     }
 
@@ -85,22 +85,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     eel.expose(display_macro_error_frontend);
     function display_macro_error_frontend(errorMessage) {
-        console.error("Erro recebido do Python:", errorMessage);
-        if (mensagemErroDiv) {
-            mensagemErroDiv.textContent = errorMessage;
-            mensagemErroDiv.style.display = 'block';
-        }
-        if (mensagemConclusaoDiv) mensagemConclusaoDiv.style.display = 'none';
-        if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'none'; // Oculta o container de status de processamento
-        if (loader) loader.style.display = 'none'; // Oculta o loader
-        if (novoProcessamentoButton) novoProcessamentoButton.style.display = 'block'; // Mostra o botão para iniciar um novo processamento
-        if (statusOSAtual) statusOSAtual.textContent = "- Calculando..";
-        if (statusContadorOS) statusContadorOS.textContent = "0/0";
-        if (statusTempoRestante) statusTempoRestante.textContent = "00:00:00";
-        if (progressBar) {
-            progressBar.style.width = '0%';
-            progressBar.setAttribute('aria-valuenow', 0);
-        }
+        mostrarErroNaTela(errorMessage);
     }
 
     eel.expose(display_macro_completion_frontend);
@@ -115,6 +100,26 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (loader) loader.style.display = 'none'; // Oculta o loader
         if (novoProcessamentoButton) novoProcessamentoButton.style.display = 'block'; // Mostra o botão para iniciar um novo processamento
         if (statusOSAtual) statusOSAtual.textContent = "Processamento Concluído!"; // Atualiza o status final
+    }
+
+    eel.expose(display_macro_completion_status);
+    function display_macro_completion_status(data) {
+        // Esconde o status de processamento
+        const processingDiv = document.getElementById('macrosite-processing-status');
+        if (processingDiv) processingDiv.style.display = 'none';
+
+        // Mostra o resumo de conclusão
+        const completionDiv = document.getElementById('macrosite-completion-status');
+        if (completionDiv) completionDiv.style.display = 'block';
+
+        // Preenche os campos com os dados do backend
+        if (data) {
+            document.getElementById('start-datetime').textContent = data.start_datetime || '-';
+            document.getElementById('end-datetime').textContent = data.end_datetime || '-';
+            document.getElementById('processed-count').textContent = data.processed_count || '0';
+            document.getElementById('error-count').textContent = data.error_count || '0';
+            document.getElementById('total-time').textContent = data.total_time || '-';
+        }
     }
 
     eel.expose(atualizar_status_os);
@@ -149,15 +154,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 porcentagemConcluidaElement.textContent = `${progress.toFixed(0)}%`;
             }
         } else {
-             // Lida com o caso de total_count ser 0 (arquivo vazio, por exemplo)
-             if (progressBar) {
+            // Lida com o caso de total_count ser 0 (arquivo vazio, por exemplo)
+            if (progressBar) {
                 progressBar.style.width = '0%';
                 progressBar.setAttribute('aria-valuenow', 0);
-             }
-             const porcentagemConcluidaElement = document.getElementById('porcentagem-concluida');
-             if (porcentagemConcluidaElement) {
-                 porcentagemConcluidaElement.textContent = '0%';
-             }
+            }
+            const porcentagemConcluidaElement = document.getElementById('porcentagem-concluida');
+            if (porcentagemConcluidaElement) {
+                porcentagemConcluidaElement.textContent = '0%';
+            }
         }
     }
 
@@ -249,9 +254,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // A validação do arquivo já foi feita, mas uma checagem extra não prejudica.
             // No entanto, a lógica principal de validação está acima.
             // Esta parte pode ser redundante se a validação de 'arquivo' em missingFields for suficiente.
-            if (!arquivo) { 
+            if (!arquivo) {
                 // Este bloco teoricamente não deveria ser alcançado se a validação acima estiver correta.
-                alert('Por favor, selecione um arquivo antes de iniciar o processamento.');
+                mostrarErroNaTela('Por favor, selecione um arquivo antes de iniciar o processamento.');
                 // Reverter a visibilidade caso algo muito inesperado aconteça e chegue aqui
                 if (sitePreviewDiv) sitePreviewDiv.style.display = 'block';
                 if (formContainerDiv) formContainerDiv.style.display = 'block';
@@ -276,13 +281,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     )();
 
                     if (resultado.status === 'sucesso') {
-                        alert('Macro iniciada com sucesso!');
+                        print('Macro iniciada com sucesso!');
                     } else {
-                        alert(`Erro ao iniciar a macro: ${resultado.message}`);
+                        mostrarErroNaTela(`${resultado.message}`);
                     }
                 } catch (error) {
                     console.error('Erro ao chamar a macro no backend:', error);
-                    alert('Erro ao iniciar a macro. Verifique os logs para mais detalhes.');
+                    mostrarErroNaTela('Erro ao iniciar a macro. Verifique os logs para mais detalhes.');
                 }
             };
 
@@ -295,7 +300,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     // Listener para o input de arquivo para exibir o nome do arquivo selecionado
     if (inputArquivo && selectedFileNameSpan) {
-        inputArquivo.addEventListener('change', function() {
+        inputArquivo.addEventListener('change', function () {
             if (inputArquivo.files.length > 0) {
                 selectedFileNameSpan.textContent = inputArquivo.files[0].name;
                 // Limpa erro se um arquivo é selecionado
@@ -410,7 +415,7 @@ function chamarDuvida() {
 
             // 1. Mostra a div de dúvida
             divDuvida.style.display = 'block';
-            lampadaIcon.style.color = 'orange'; 
+            lampadaIcon.style.color = 'orange';
             lampadaIcon.style.marginBottom = '0px';
 
 
@@ -418,7 +423,7 @@ function chamarDuvida() {
             console.log("Estado atual: Visível. Mudando para: Oculto (ícone Azul).");
             divDuvida.style.display = 'none';
             lampadaIcon.style.color = 'rgb(5, 110, 248)';
-            lampadaIcon.style.marginBottom = '1%'; 
+            lampadaIcon.style.marginBottom = '1%';
 
         }
 
@@ -470,26 +475,26 @@ window.onload = async function () {
         sessionStartTime = parseInt(sessionStartTime, 10);
         if (!isNaN(sessionStartTime)) {
             console.log("Timer: sessionStartTime válido obtido do sessionStorage.");
-             if (typeof updateLoggedInTime === 'function') {
+            if (typeof updateLoggedInTime === 'function') {
                 updateLoggedInTime(sessionStartTime);
                 setInterval(() => {
                     updateLoggedInTime(sessionStartTime);
                 }, 1000);
-                 console.log("Timer: Timer iniciado usando sessionStorage.");
-             } else {
-                 console.error("Timer: Função updateLoggedInTime não definida neste escopo.");
-                  const loggedInTimeSpan = document.getElementById('logged-in-time');
-                  if (loggedInTimeSpan) {
-                     loggedInTimeSpan.innerText = "Erro JS (timer)";
-                 }
+                console.log("Timer: Timer iniciado usando sessionStorage.");
+            } else {
+                console.error("Timer: Função updateLoggedInTime não definida neste escopo.");
+                const loggedInTimeSpan = document.getElementById('logged-in-time');
+                if (loggedInTimeSpan) {
+                    loggedInTimeSpan.innerText = "Erro JS (timer)";
+                }
             }
         } else {
             console.error("Timer: Valor inválido para sessionStartTime no sessionStorage. Limpando...");
-             const loggedInTimeSpan = document.getElementById('logged-in-time');
-             if (loggedInTimeSpan) {
+            const loggedInTimeSpan = document.getElementById('logged-in-time');
+            if (loggedInTimeSpan) {
                 loggedInTimeSpan.innerText = "Erro no timer (storage)";
-             }
-             sessionStorage.removeItem('sessionStartTime');
+            }
+            sessionStorage.removeItem('sessionStartTime');
         }
     } else {
         // Como esta é macroSITE, a URL geralmente não virá direto do login com login_time.
@@ -497,34 +502,34 @@ window.onload = async function () {
         // No entanto, o foco é o sessionStorage.
         const urlParams = new URLSearchParams(window.location.search);
         const loginTimeParam = urlParams.get('login_time');
-         console.log(`Timer: sessionStartTime não encontrado no sessionStorage. Checando URL (improvável). Valor: ${loginTimeParam}`);
+        console.log(`Timer: sessionStartTime não encontrado no sessionStorage. Checando URL (improvável). Valor: ${loginTimeParam}`);
 
         if (loginTimeParam) {
-             sessionStartTime = parseInt(loginTimeParam, 10);
-             if (!isNaN(sessionStartTime)) {
-                  console.log("Timer: sessionStartTime válido obtido da URL (fallback).");
-                 sessionStorage.setItem('sessionStartTime', sessionStartTime); // Salva para futuras navegações
-                 console.log("Timer: sessionStartTime salvo em sessionStorage a partir da URL.");
-                  if (typeof updateLoggedInTime === 'function') {
-                     updateLoggedInTime(sessionStartTime);
-                     setInterval(() => {
-                         updateLoggedInTime(sessionStartTime);
-                     }, 1000);
-                      console.log("Timer: Timer iniciado usando URL (fallback).");
-                  } else {
-                      console.error("Timer: Função updateLoggedInTime não definida neste escopo (URL fallback).");
-                       const loggedInTimeSpan = document.getElementById('logged-in-time');
-                       if (loggedInTimeSpan) {
-                          loggedInTimeSpan.innerText = "Erro JS (timer URL)";
-                       }
-                  }
-             } else {
-                 console.error("Timer: Parâmetro 'login_time' inválido na URL (fallback).");
-                 const loggedInTimeSpan = document.getElementById('logged-in-time');
-                  if (loggedInTimeSpan) {
-                     loggedInTimeSpan.innerText = "Erro no timer (URL fallback)";
-                  }
-             }
+            sessionStartTime = parseInt(loginTimeParam, 10);
+            if (!isNaN(sessionStartTime)) {
+                console.log("Timer: sessionStartTime válido obtido da URL (fallback).");
+                sessionStorage.setItem('sessionStartTime', sessionStartTime); // Salva para futuras navegações
+                console.log("Timer: sessionStartTime salvo em sessionStorage a partir da URL.");
+                if (typeof updateLoggedInTime === 'function') {
+                    updateLoggedInTime(sessionStartTime);
+                    setInterval(() => {
+                        updateLoggedInTime(sessionStartTime);
+                    }, 1000);
+                    console.log("Timer: Timer iniciado usando URL (fallback).");
+                } else {
+                    console.error("Timer: Função updateLoggedInTime não definida neste escopo (URL fallback).");
+                    const loggedInTimeSpan = document.getElementById('logged-in-time');
+                    if (loggedInTimeSpan) {
+                        loggedInTimeSpan.innerText = "Erro JS (timer URL)";
+                    }
+                }
+            } else {
+                console.error("Timer: Parâmetro 'login_time' inválido na URL (fallback).");
+                const loggedInTimeSpan = document.getElementById('logged-in-time');
+                if (loggedInTimeSpan) {
+                    loggedInTimeSpan.innerText = "Erro no timer (URL fallback)";
+                }
+            }
         } else {
             console.warn("Timer: Parâmetro 'login_time' não encontrado em URL nem sessionStorage. O timer não iniciará.");
             const loggedInTimeSpan = document.getElementById('logged-in-time');
@@ -582,29 +587,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     // Código da animação anime.js movido para dentro do DOMContentLoaded
     var textWrapper = document.querySelector('.ml7 .letters');
-    
+
 
     // Verifica se o elemento foi encontrado antes de tentar manipular
     if (textWrapper) {
         textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
 
-        anime.timeline({loop: true})
-          .add({
-            targets: '.ml7 .letter',
-            translateY: ["1.1em", 0],
-            translateX: ["0.55em", 0],
-            translateZ: 0,
-            rotateZ: [180, 0],
-            duration: 750,
-            easing: "easeOutExpo",
-            delay: (el, i) => 50 * i
-          }).add({
-            targets: '.ml7',
-            opacity: 0,
-            duration: 4000,
-            easing: "easeOutExpo",
-            delay: 1000
-          });
+        anime.timeline({ loop: true })
+            .add({
+                targets: '.ml7 .letter',
+                translateY: ["1.1em", 0],
+                translateX: ["0.55em", 0],
+                translateZ: 0,
+                rotateZ: [180, 0],
+                duration: 750,
+                easing: "easeOutExpo",
+                delay: (el, i) => 50 * i
+            }).add({
+                targets: '.ml7',
+                opacity: 0,
+                duration: 4000,
+                easing: "easeOutExpo",
+                delay: 1000
+            });
     } else {
         console.error("Element with class '.ml7 .letters' not found.");
     }
@@ -634,7 +639,7 @@ async function preencherCamposWFM_SITE() {
                 senhaInput.value = res.wfm_senha || '';
                 senhaInput.readOnly = true;
                 senhaInput.parentElement.style.display = 'none';
-                senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';   
+                senhaInput.style.backgroundColor = 'rgb(230, 228, 228)';
                 senhaInput.style.cursor = 'not-allowed'; // Opcional: muda o cursor para indicar que o campo é somente leitura
             }
         } else {
@@ -689,3 +694,38 @@ async function loadProfilePicture() {
     }
 }
 window.addEventListener('DOMContentLoaded', loadProfilePicture);
+
+// Novas funções para mostrar mensagens de erro na tela
+function mostrarErroNaTela(mensagem) {
+    // Mostra as divs iniciais
+    const dicas = document.getElementById('iconeduvida');
+    const sitePreviewDiv = document.getElementById('site-preview');
+    const formContainerDiv = document.getElementById('macrosite-form');
+    const mensagemErroDiv = document.getElementById('mensagem-de-erro');
+    const statusProcessamentoDiv = document.getElementById('macrosite-processing-status');
+    const completionDiv = document.getElementById('macrosite-completion-status');
+
+    if (dicas) dicas.style.display = 'block';
+    if (sitePreviewDiv) sitePreviewDiv.style.display = 'block';
+    if (formContainerDiv) formContainerDiv.style.display = 'block';
+    if (statusProcessamentoDiv) statusProcessamentoDiv.style.display = 'none';
+    if (completionDiv) completionDiv.style.display = 'none';
+
+    if (mensagemErroDiv) {
+        mensagemErroDiv.textContent = mensagem;
+        mensagemErroDiv.style.display = 'block';
+    }
+}
+
+// Exemplo de uso em erros de processamento:
+// eel.expose(display_macro_error_frontend);
+// function display_macro_error_frontend(errorMessage) {
+//     mostrarErroNaTela(errorMessage);
+// }
+
+// Exemplo de uso em catch de promessas:
+// try {
+//     // ... chamada ao backend ...
+// } catch (error) {
+//     mostrarErroNaTela('Erro ao iniciar a macro. Verifique os logs para mais detalhes.');
+// }

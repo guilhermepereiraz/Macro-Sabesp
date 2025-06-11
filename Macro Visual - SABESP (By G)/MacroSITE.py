@@ -222,7 +222,7 @@ def login(l_login, s_senha):
         # Clicar no campo de nome de usuário
         driver.switch_to.frame(driver.find_element(By.NAME, "mainFrame"))
         logging.info("Alterado para o iframe 'mainFrame'.")
-        time.sleep(2)
+        time.sleep(1)
         username_field = driver.find_element(By.CSS_SELECTOR, "input[id='USER']")  # Campo de usuário
         password_field = driver.find_element(By.CSS_SELECTOR, 'input[id="INPUTPASS"]')  # Campo de senha
         login_button = driver.find_element("id", "submbtn")  # Botão de login
@@ -233,7 +233,7 @@ def login(l_login, s_senha):
         login_button.click()
         logging.info("Credenciais enviadas e botão de login clicado.")
 
-        time.sleep(2)
+        time.sleep(1)
 
         planejamento = WebDriverWait(driver, 120).until(
             EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div/div[2]/div[6]'))
@@ -369,7 +369,7 @@ def macro(valor):
                 (By.XPATH, '/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/div[2]/div/div/div/div[1]/table/tbody/tr/td/div/div[2]/div/form/table[3]/tbody/tr/td/table/tbody/tr/td[3]/button')
             ))
             botao_buscar.click()
-            time.sleep(3)
+            time.sleep(1)
             logging.info("Botão buscar clicado com sucesso.")
             break  # sair do loop se a ação for bem-sucedida
         except (TimeoutException, StaleElementReferenceException, ElementClickInterceptedException) as e:
@@ -397,7 +397,7 @@ def macro(valor):
                 EC.visibility_of_element_located((By.XPATH, "//div[contains(text(), 'Resultado Intervenção')]"))
             )
             resultado_intervencao.click()
-            time.sleep(2)
+            time.sleep(1)
             logging.info("Resultado intervenção clicado com sucesso.")
             break
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -427,7 +427,7 @@ def macro(valor):
                 EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/table/tbody/tr[2]/td/table/tbody/tr/td/table/tbody/tr[1]/td/div/div[1]/div[2]"))
             )
             dados_client.click()
-            time.sleep(2)
+            time.sleep(1)
             logging.info("dados cliente clicado.")
             break 
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -443,7 +443,7 @@ def macro(valor):
 
             if forn_usuario.is_displayed():
                 fornecimento_wfm = forn_usuario.text
-            time.sleep(2)
+            time.sleep(1)
             logging.info("Fornecimento WFM obtido com sucesso.")
             break 
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -455,7 +455,7 @@ def macro(valor):
         try:
             botao_fecha = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/div/table/tbody/tr[3]/td/div/div/table/tbody/tr[1]/td/div[3]/div[2]/div[6]')))
             driver.execute_script("arguments[0].click();", botao_fecha)
-            time.sleep(2)
+            time.sleep(1)
             logging.info("Botão fechar clicado com sucesso.")
             break 
         except (TimeoutException, StaleElementReferenceException) as e:
@@ -544,10 +544,8 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
     try:
         logging.info("Configurando e iniciando o navegador para execução do Selenium...")
         options = Options()
-        # options.add_argument("--disable-gpu")
-        # options.add_argument("--start-maximized")
-        # options.add_argument("--headless") # Deixa o navegador invisivel
-        # options.add_argument("--disable-gpu") # Deixa o navegador invisivel
+        options.add_argument("--start-maximized")
+        options.add_argument("--headless=new")
 
         if driver is not None:
             logging.warning("Instância do navegador existente detectada antes de iniciar uma nova macro. Fechando.")
@@ -692,35 +690,27 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
     logging.info("Começo da operação: %s", tempo_inicial.strftime("%H:%M -- %d/%m"))
 
     tempo_final = datetime.now()
-    logging.info("Termino da operação: %s", tempo_final.strftime("%H:%M -- %d/%m"))
-    logging.info("Total de OS processadas (%d)", total_processar)
-
     tempo_total = tempo_final - tempo_inicial
-    total_segundos = int(tempo_total.total_seconds())
-    if total_segundos < 60:
-        logging.info("Tempo total da operação: %d segundos", total_segundos)
-    else:
-        total_minutos = total_segundos // 60
-        total_segundos_restantes = total_segundos % 60
-        if total_minutos < 60:
-            logging.info("Tempo total da operação: %d minutos e %d segundos", total_minutos, total_segundos_restantes)
-        else:
-            total_horas = total_minutos // 60
-            total_minutos_restantes = total_minutos % 60
-            logging.info("Tempo total da operação: %d horas e %d minutos", total_horas, total_minutos_restantes)
+    tempo_total_str = str(tempo_total).split(".")[0]  # Formato HH:MM:SS
 
-    if driver:
+    # Novo: retorna os dados para o frontend
+    if 'eel' in globals() and hasattr(eel, 'display_macro_completion_status'):
         try:
-            driver.quit()
-            logging.info("Navegador fechado ao final do processamento.")
+            eel.display_macro_completion_status({
+                "start_datetime": tempo_inicial.strftime("%d/%m/%Y às %H:%M:%S"),
+                "end_datetime": tempo_final.strftime("%d/%m/%Y às %H:%M:%S"),
+                "processed_count": total_processar,
+                "error_count": erro_count,
+                "total_time": tempo_total_str
+            })
         except Exception as e:
-            logging.warning(f"Não foi possível fechar o navegador ao final do processamento: {e}")
-        driver = None
+            logging.error(f"Falha ao enviar dados de conclusão para o frontend: {e}")
 
-    if 'eel' in globals() and hasattr(eel, 'display_macro_completion_frontend'):
-        try:
-            eel.display_macro_completion_frontend("Processamento da macro concluído com sucesso!")
-        except Exception as e:
-            logging.error(f"Falha ao enviar mensagem de conclusão para o frontend: {e}")
-
-    return {"status": "sucesso", "message": "Processamento da macro concluído."}
+    return {
+        "status": "sucesso",
+        "start_datetime": tempo_inicial.strftime("%d/%m/%Y às %H:%M:%S"),
+        "end_datetime": tempo_final.strftime("%d/%m/%Y às %H:%M:%S"),
+        "processed_count": total_processar,
+        "error_count": erro_count,
+        "total_time": tempo_total_str
+    }

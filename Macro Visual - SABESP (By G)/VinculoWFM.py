@@ -1,32 +1,15 @@
-from selenium.webdriver.edge.options import Options
 from time import sleep
-import time
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, ElementClickInterceptedException
-import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-import os
-from selenium.webdriver.support.ui import Select
-import datetime
-from dateutil.relativedelta import relativedelta
-import pandas as pd
-from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.common.by import By
-from selenium import webdriver 
-from datetime import datetime
-import time
-import os
-
-
-
 
 def login(l_login, s_senha):
     global driver, waint, implicit_wait
+    from selenium.webdriver.edge.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, ElementClickInterceptedException
+    import time
+
     prefs = {"profile.default_content_setting_values.notifications": 2}
     options = Options()
     options.add_argument("--headless") 
@@ -58,10 +41,17 @@ def login(l_login, s_senha):
 
 def extracao_de_dados():
     global driver,waint,implicit_wait
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    import time
     try:
         cliclar_no_perfil = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/table/tbody/tr[2]/td/div/div[1]/div[2]")))
         cliclar_no_perfil = driver.execute_script("arguments[0].click();", cliclar_no_perfil)
-        i_de_informacao = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/table/tbody/tr[2]/td/div/div[2]/div/div[3]"))).click()
+        time.sleep(1) 
+        i_de_informacao = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/table/tbody/tr[2]/td/div/div[2]/div/div[3]")))
+        i_de_informacao.click()
+        time.sleep(1)  # Aguarda o carregamento da janela de informações
         nome_do_perfil = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[3]/div[2]/div[2]/div/div[2]/div[1]/div/div[2]"))).text
         texto = nome_do_perfil  # "HENRIQUE VIEIRA\nMARCIO"
         nomes = texto.split('\n')

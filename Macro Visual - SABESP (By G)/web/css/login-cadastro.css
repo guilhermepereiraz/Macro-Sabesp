@@ -792,3 +792,14 @@ h3 {
     transition: opacity 0.5s ease-in-out; /* Permite que a opacidade seja animada */
 }
 
+.licenca {
+    color:#2b8adf;
+    margin-left: 2px;
+}
+
+.licenca:hover {
+    text-decoration:underline;
+    cursor: pointer;
+}
+
+

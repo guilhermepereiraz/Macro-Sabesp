@@ -763,8 +763,16 @@ function fecharEncerramentoFinal() {
     }
 };
 
+// Flag global para garantir que a tela final nunca seja sobrescrita
+let telaFinalExibida = false;
+
 eel.expose(update_progress);
 function update_progress(data) {
+    // Proteção: se a tela final já foi exibida, não faz mais nada
+    if (telaFinalExibida) {
+        console.log('[update_progress] Update ignorado: tela final já exibida.');
+        return;
+    }
     console.log("Dados recebidos do Python:", data); // Para depuração
 
     // Elementos HTML que você deseja atualizar
@@ -817,34 +825,62 @@ function update_progress(data) {
 
     // Lógica para lidar com a finalização do processo
     if (data.finalizado) {
-        // Esconde status de processamento
-        document.getElementById('macrosite-processing-status').style.display = 'none';
-        
-        // Garante que as divs de confirmação de encerramento/pausa manual e o overlay
-        // sejam escondidos quando a macro finaliza, caso estivessem visíveis.
+        console.log('[update_progress] Sinal de finalização recebido:', data);
+        telaFinalExibida = true; // Seta a flag para nunca mais sobrescrever
+        // Esconde status de processamento (robustez extra)
+        const procDiv = document.getElementById('macrosite-processing-status');
+        if (procDiv) {
+            procDiv.style.display = 'none';
+            console.log('Div de processamento oculta (finalizado)');
+        } else {
+            console.warn('Div de processamento não encontrada!');
+        }
+        // Esconde overlays de confirmação/pausa
         const divEncerrar = document.getElementById('Divencerrar');
         const divPausar = document.getElementById('Divpausar');
         const divTransps = document.getElementById('transps');
-
         if (divEncerrar) divEncerrar.style.display = 'none';
         if (divPausar) divPausar.style.display = 'none';
         if (divTransps) divTransps.style.display = 'none';
-
-        // Mostra status de conclusão (o resumo detalhado com tempos, contagens, etc.)
-        document.getElementById('macrosite-completion-status').style.display = 'block';
-
-
+        // Mostra status de conclusão (robustez extra)
+        const compDiv = document.getElementById('macrosite-completion-status');
+        if (compDiv) {
+            compDiv.style.setProperty('display', 'block', 'important');
+            compDiv.style.visibility = 'visible';
+            compDiv.style.opacity = '1';
+            compDiv.style.zIndex = '9999';
+            compDiv.removeAttribute('hidden');
+            compDiv.classList.add('finalizacao-forcada');
+            console.log('Div de conclusão exibida (finalizado) [forçado]');
+        } else {
+            console.error('Div de conclusão não encontrada! Verifique o id no HTML.');
+        }
         // Atualiza os campos finais
-        if (data.start_datetime) document.getElementById('start-datetime').innerText = data.start_datetime;
-        if (data.end_datetime) document.getElementById('end-datetime').innerText = data.end_datetime;
-        if (data.processed_count !== undefined) document.getElementById('processed-count').innerText = data.processed_count;
-        if (data.error_count !== undefined) document.getElementById('error-count').innerText = data.error_count;
-        if (data.total_time) document.getElementById('total-time').innerText = data.total_time;
-
-        // REMOVIDO: mostrarEncerramentoFinal();
-        // A DivencerrarFinal (mensagem "Macro encerrada com sucesso") só deve aparecer
-        // no fluxo de encerramento MANUAL do usuário (quando ele clica "Sim" na Divencerrar),
-        // e não quando a macro termina naturalmente seu processamento.
+        if (data.start_datetime) {
+            const el = document.getElementById('start-datetime');
+            if (el) el.innerText = data.start_datetime;
+        }
+        if (data.end_datetime) {
+            const el = document.getElementById('end-datetime');
+            if (el) el.innerText = data.end_datetime;
+        }
+        if (data.processed_count !== undefined) {
+            const el = document.getElementById('processed-count');
+            if (el) el.innerText = data.processed_count;
+        }
+        if (data.error_count !== undefined) {
+            const el = document.getElementById('error-count');
+            if (el) el.innerText = data.error_count;
+        }
+        if (data.total_time) {
+            const el = document.getElementById('total-time');
+            if (el) el.innerText = data.total_time;
+        }
+        return; // Não executa mais nada depois de exibir a tela final
+    }
+    if (telaFinalExibida) {
+        // Se a tela final já foi exibida, nunca mais esconde ela
+        return;
     }
 
     // Lógica para lidar com erros críticos do processo
@@ -936,7 +972,7 @@ function startNewMacro() {
 async function viewResultsFolder() {
     console.log("Solicitando abertura da pasta de resultados...");
     try {
-        const result = await eel.open_results_foldervectora()(); // Chama a função Python exposta
+        const result = await eel.open_results_folder()(); // Chama a função Python exposta
         
         if (result) { // Verifica se houve um retorno
             if (result.status === "success") {

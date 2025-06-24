@@ -607,7 +607,7 @@ def macro(caminho_arquivo, costumer, login, senha, tipo_arquivo, identificador_u
         tempo_inicial = datetime.now()
         print("Começo da operação: ", tempo_inicial.strftime("%H:%M -- %d/%m"))
 
-        max_workers = 5  # Ajuste conforme sua máquina
+        max_workers = 3  # Ajuste conforme sua máquina
         lock = threading.Lock()
         import multiprocessing
         contador_global = multiprocessing.Value('i', 0)

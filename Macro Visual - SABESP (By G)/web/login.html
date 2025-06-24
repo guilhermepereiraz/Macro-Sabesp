@@ -39,11 +39,15 @@
                                 <input type="checkbox" id="slide-save-1" name="slide-save-1">
                                 <span class="slide-slider"></span>
                             </label>
-                            <span class="slide-label">Eu concordo com os <span
-                                    style="color:#2b8adf;text-decoration:underline; margin-left: 2px;">termos da
-                                    licenças</span></span>
+
+                            <span class="slide-label">Eu concordo com os <span class="licenca" id="licencaframe" style="cursor:pointer; position:relative; z-index:1000;" onclick="mostrarframa()">termos de licenças</span>
+                                <div id="iframeLicencaContainer" style="display:none; position:absolute; left:50%; transform:translateX(-50%); margin-top:-340px; z-index:2000; margin-left: 30%;">
+                                    <iframe src="termos_licenca.html" id="iframeLicenca" frameborder="0" style="background:#fff; width:420px; height:320px;  border: 2px solid rgb(96, 174, 248); box-shadow: 2px 2px 5px rgb(74, 74, 75);"></iframe>
+                                </div>
+                            </span>
                         </div>
                         </label>
+                        
                     </div>
                 </div>
                 <button type="button" onclick="verificarLogin()">Entrar</button>
@@ -85,7 +89,7 @@
         </div>
         <h3 class="atualizar">Hora de uma atualização!</h3>
         <p>Parece que você está usando uma versão anterior do nosso aplicativo. Para ter acesso a todas as novidades e melhorias, por favor, atualize para a versão mais recente.</p>
-        <a href="SEU_LINK_DE_ATUALIZACAO" class="update-button">Atualizar agora</a>
+        <a href="https://sabespcloud.sharepoint.com/sites/PendlistON/Documentos%20Compartilhados/Forms/AllItems.aspx?csf=1&web=1&e=kSq1CX&CID=6ee74b71%2D5c30%2D46b7%2Da199%2D595e05ed6d34&FolderCTID=0x0120009B69C291D2EB24428E8306E6E07C75D7&id=%2Fsites%2FPendlistON%2FDocumentos%20Compartilhados%2FMACRO%20SABESP" class="update-button" target="_blank">Atualizar agora</a>
         <small class="not-now">O aplicativo não funcionará até que a atualização seja concluída</small>
     </div>
 </div>

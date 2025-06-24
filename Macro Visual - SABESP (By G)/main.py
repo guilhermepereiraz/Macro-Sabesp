@@ -1,28 +1,22 @@
-import eel
-from MacroSITE import iniciar_macro
+import os
 import sys
+import ctypes
+import eel
+import psutil
+import tkinter as tk
+from tkinter import messagebox
+from MacroSITE import iniciar_macro
 import pymysql
 import logging
-import traceback
-import hashlib
-import pymysql.cursors
 import random
 import smtplib
 from email.mime.text import MIMEText
-import tkinter as tk
 import base64
-import os
-from Consulta_GeraL_Final import iniciar_macro_consulta_geral
 from VinculoWFM import login
 from VinculoNETA import login_neta
 from VinculoVECTORA import login_vectora
-from Deliberacao import iniciar_macro_deliberacao
-from Deliberacao import open_results_foldervectora
-
-root = tk.Tk()
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-root.destroy()
+import multiprocessing
+import threading
 
 log_format = '%(asctime)s - %(levelname)s - %(threadName)s - %(message)s'
 logging.basicConfig(level=logging.INFO,
@@ -39,11 +33,14 @@ if not any(isinstance(handler, logging.StreamHandler) for handler in logging.get
 
 logging.info("--- main.py Iniciado ---")
 
+
+# Configurações do banco de dados e email
+
 DB_CONFIG = {
-    'host': '127.0.0.1',
+    'host': '10.51.109.123',
     'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
-    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
-    'database': 'pendilist'
+    'password': 'SB28@sabesp', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendlist'
 }
 
 EMAIL_CONFIG = {                
@@ -53,9 +50,55 @@ EMAIL_CONFIG = {
     'porta_smtp': 587
 }
 
+# Definir screen_width e screen_height antes de qualquer uso
+import ctypes
+user32 = None
+screen_width = 1200
+screen_height = 800
+try:
+    user32 = ctypes.windll.user32
+    screen_width = user32.GetSystemMetrics(0)
+    screen_height = user32.GetSystemMetrics(1)
+except Exception as e:
+    logging.warning(f"Não foi possível obter a resolução da tela, usando valores padrão. Erro: {e}")
+
 eel.init('web') 
 
-@eel.expose
+#Função Para verificar se já existe uma instância do aplicativo em execução
+
+def verificar_instancia_unica():
+    import psutil
+    import os
+    import sys
+    current_pid = os.getpid()
+    exe_name = os.path.basename(sys.executable).lower()
+    script_path = os.path.abspath(sys.argv[0]).lower()
+    count = 0
+    for proc in psutil.process_iter(['pid', 'name', 'exe', 'cmdline']):
+        try:
+            if proc.info['pid'] == current_pid:
+                continue
+            proc_exe = proc.info.get('exe')
+            proc_name = proc.info.get('name', '').lower()
+            cmdline = proc.info.get('cmdline')
+            # Bloqueia se já houver outro EXE igual rodando
+            if proc_exe and os.path.basename(proc_exe).lower() == exe_name:
+                count += 1
+                continue
+            # Bloqueia se já houver outro script Python igual rodando
+            if cmdline and any(os.path.abspath(str(arg)).lower() == script_path for arg in cmdline):
+                count += 1
+        except (psutil.NoSuchProcess, psutil.AccessDenied, Exception):
+            continue
+    if count > 0:
+        print("Já existe uma instância do aplicativo em execução. Fechando...")
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(0, "Já existe uma instância do aplicativo em execução", "Aviso", 0x10)
+        sys.exit(0)
+
+
+# Função para enviar uma solicitação de cadastro automatico por email 
+
 def enviar_email_cadastro_automatico(dados_cadastro, destinatario_fixo):
     logging.info(f"Recebida solicitação de envio de dois emails automáticos.")
     logging.info(f"Dados do formulário: {dados_cadastro}")
@@ -101,7 +144,6 @@ Sistema de Cadastro Automático
 
             server = smtplib.SMTP(EMAIL_CONFIG['servidor_smtp'], EMAIL_CONFIG['porta_smtp'])
             server.starttls()
-            server.login(remetente_email, remetente_senha)
             server.sendmail(remetente_email, destinatario_fixo, msg_detalhes.as_string())
             server.quit()
             logging.info(f"Email de detalhes enviado com sucesso para {destinatario_fixo}")
@@ -115,17 +157,7 @@ Sistema de Cadastro Automático
             logging.info(f"Preparando email de confirmação para {email_usuario}")
             assunto_confirmacao = f"Confirmação de Solicitação de Cadastro - Chamado #{numero_chamado_gerado}"
             corpo_confirmacao = f"""Prezado(a) {dados_cadastro.get('nome', 'Usuário(a)')},
-
-Sua solicitação de cadastro foi recebida com sucesso.
-
-Um chamado foi criado com o número: {numero_chamado_gerado}
-
-Analisaremos seus dados e entraremos em contato em breve com as próximas etapas.
-
-Agradecemos seu interesse.
-
-Atenciosamente, Equipe de Cadastro [Sabesp|Macro JGL]
-"""
+\nSua solicitação de cadastro foi recebida com sucesso.\n\nUm chamado foi criado com o número: {numero_chamado_gerado}\n\nAnalisaremos seus dados e entraremos em contato em breve com as próximas etapas.\n\nAgradecemos seu interesse.\n\nAtenciosamente, Equipe de Cadastro [Sabesp|Macro JGL]\n"""
             try:
                 msg_confirmacao = MIMEText(corpo_confirmacao)
                 msg_confirmacao['Subject'] = assunto_confirmacao
@@ -160,6 +192,8 @@ Atenciosamente, Equipe de Cadastro [Sabesp|Macro JGL]
         logging.exception("Detalhes do erro inesperado na função enviar_email_cadastro_automatico:")
         return {'sucesso': False, 'mensagem': f'Erro interno ao processar solicitação: {e}', 'numeroChamado': numero_chamado_gerado}
 
+
+# Função para enviar sugestão|Melhorias de macro por email
 
 @eel.expose
 def enviar_email_sugestao(dados_sugestao, destinatario_fixo):
@@ -232,6 +266,9 @@ def enviar_email_sugestao(dados_sugestao, destinatario_fixo):
         logging.exception("Detalhes do erro ao enviar sugestão:")
         return {'sucesso': False, 'mensagem': f'Erro ao enviar sugestão: {e}'}
 
+
+# Função que verifica qual versão o usuario esta usando e compara com a versão do banco de dados
+
 @eel.expose
 def get_atualicao_app():
     logging.info("Buscando versão do aplicativo na tabela tb_versao.")
@@ -260,6 +297,9 @@ def get_atualicao_app():
         if connection:
             connection.close()
             logging.info("Conexão com o banco de dados fechada (get_atualicao_app).")
+
+
+# Função paara obter o nome do usuário pelo ID
 
 @eel.expose
 def get_username_by_id(user_id):
@@ -293,6 +333,9 @@ def get_username_by_id(user_id):
             cursor.close()
         if connection:
             connection.close()
+
+
+# Função para alterar a senha do usuário no primeiro login
 
 @eel.expose
 def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha):
@@ -350,7 +393,6 @@ def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha):
             connection.rollback()
             print("--> Rollback realizado.")
         print("--> Retornando status 'db_error'")
-        return {"status": "db_error"}
 
     except Exception as e:
         print(f"--> Capturado Erro Geral: {e}")
@@ -360,7 +402,6 @@ def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha):
             connection.rollback()
             print("--> Rollback realizado.")
         print("--> Retornando status 'internal_error'")
-        return {"status": "internal_error"}
 
     finally:
         print("--> Bloco finally sendo executado.")
@@ -374,6 +415,8 @@ def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha):
 
     print("--> Fim da função alterar_senha_primeiro_login.")
 
+
+# Função para verificar as credenciais do usuário
 
 @eel.expose
 def verificar_credenciais(email, senha_texto_claro):
@@ -447,6 +490,8 @@ def verificar_credenciais(email, senha_texto_claro):
             logging.info("Conexão com o banco de dados para login fechada.")
 
 
+# Função para vincular o usuário ao WFM
+
 @eel.expose
 def vincular_wfm(usuario_id, wfm_login, wfm_senha):
     logging.info(f"[vincular_wfm] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={wfm_login}")
@@ -486,6 +531,8 @@ def vincular_wfm(usuario_id, wfm_login, wfm_senha):
         logging.info(f"[vincular_wfm] Conexão com o banco fechada para usuario_id={usuario_id}")
 
 
+# Função para vincular o usuário ao VECTORA 
+
 @eel.expose
 def vincular_vectora(usuario_id, vectora_costumer, vectora_login, vectora_senha):
     logging.info(f"[vincular_vectora] Iniciando vínculo para usuario_id={usuario_id}, wfm_login={vectora_login}")
@@ -523,6 +570,9 @@ def vincular_vectora(usuario_id, vectora_costumer, vectora_login, vectora_senha)
     finally:
         connection.close()
         logging.info(f"[vincular_vecotra] Conexão com o banco fechada para usuario_id={usuario_id}")
+
+
+# Função para vincular o usuário ao NETA
 
 @eel.expose
 def vincular_neta(usuario_id, neta_login, neta_senha):
@@ -563,6 +613,8 @@ def vincular_neta(usuario_id, neta_login, neta_senha):
         logging.info(f"[vincular_neta] Conexão com o banco fechada para usuario_id={usuario_id}")
 
 
+# Funções para obter os vínculos do usuário WFM
+
 @eel.expose
 def get_wfm_vinculo_by_user_id(user_id):
     try:
@@ -586,6 +638,8 @@ def get_wfm_vinculo_by_user_id(user_id):
         return {"status": "error", "message": str(e)}
     
 
+# Funções para obter os vínculos do usuário NETA
+
 @eel.expose
 def get_neta_vinculo_by_user_id(user_id):
     try:
@@ -607,6 +661,9 @@ def get_neta_vinculo_by_user_id(user_id):
     except Exception as e:
         logging.error(f"Erro ao buscar vínculo NETA: {e}")
         return {"status": "error", "message": str(e)}
+
+
+# Funções para obter os vínculos do usuário NETA
 
 @eel.expose
 def get_vectora_vinculo_by_user_id(user_id):
@@ -631,7 +688,9 @@ def get_vectora_vinculo_by_user_id(user_id):
         logging.error(f"Erro ao buscar vínculo VECTORA: {e}")
         return {"status": "error", "message": str(e)}
 
-        
+
+# função para iniciar a macro do site WFM
+
 @eel.expose
 def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, identificador_usuario):
     logging.info(f"Chamada para iniciar macro para usuário da aplicação '{identificador_usuario}'")
@@ -650,6 +709,9 @@ def iniciar_macro_eel(conteudo_csv, login_usuario, senha_usuario, nome_arquivo, 
         logging.exception("Detalhes do erro ao iniciar a macro:")
         return {"status": "erro", "message": "Erro ao iniciar a macro."}
     
+
+# Função para iniciar a macro de Deliberação VECTORA
+
 @eel.expose
 def iniciar_macro_deliberacaoo(costumer, login, senha, conteudo_base64, nome_arquivo, tipo_arquivo, identificador_usuario):
     logging.info(f"Chamada para iniciar macro para usuário da aplicação '{identificador_usuario}'")
@@ -669,35 +731,57 @@ def iniciar_macro_deliberacaoo(costumer, login, senha, conteudo_base64, nome_arq
         return {"status": "erro", "message": "Erro ao iniciar a macro Deliberação."}
 
 
+# Função para iniciar a macro de Consulta Geral NETA
+
+def macro_consulta_geral_worker(args, progress_queue):
+    from Consulta_GeraL_Final import iniciar_macro_consulta_geral
+    iniciar_macro_consulta_geral(*args, progress_queue=progress_queue)
+
+def progress_listener(progress_queue):
+    while True:
+        try:
+            data = progress_queue.get()
+            if data == 'END':
+                break
+            eel.update_progress(data)
+        except Exception as e:
+            logging.error(f"Erro na thread de progresso: {e}")
+
 @eel.expose
 def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, nome_usuario=None):
     logging.info(f"Chamada para iniciar macro Consulta Geral para '{tipo_pesquisa.upper()}'")
-    
     try:
         if not nome_usuario:
-            logging.warning("Nome do usuário não fornecido")
-            nome_usuario = "Usuário não identificado"
-            
+            nome_usuario = "Usuário"
         logging.info(f"Nome do usuário: {nome_usuario}")
-        
+
         if tipo_pesquisa.lower() not in ['pde', 'hidro']:
             logging.error(f"Tipo de pesquisa inválido: {tipo_pesquisa}")
             return {"status": "erro", "message": "Tipo de pesquisa deve ser 'pde' ou 'hidro'"}
-            
-        return iniciar_macro_consulta_geral(
-            conteudo_base64, 
-            login_usuario, 
-            senha_usuario, 
-            nome_arquivo, 
-            tipo_arquivo, 
+
+        progress_queue = multiprocessing.Queue()
+        args = (
+            conteudo_base64,
+            login_usuario,
+            senha_usuario,
+            nome_arquivo,
+            tipo_arquivo,
             tipo_pesquisa,
-            identificador=nome_usuario
+            5,  # número de threads, ajuste se necessário
+            nome_usuario
         )
+        threading.Thread(target=progress_listener, args=(progress_queue,), daemon=True).start()
+        p = multiprocessing.Process(target=macro_consulta_geral_worker, args=(args, progress_queue))
+        p.start()
+
+        return {"status": "sucesso", "message": "Macro iniciada em background."}
     except Exception as e:
         logging.error(f"Erro ao iniciar a macro Consulta Geral: {e}")
         logging.exception("Detalhes do erro ao iniciar a macro Consulta Geral:")
         return {"status": "erro", "message": "Erro ao iniciar a macro Consulta Geral."}
 
+
+# Função para salvar uma nova senha
 
 @eel.expose
 def salvar_nova_senha(senha_atual, nova_senha):
@@ -721,6 +805,8 @@ def salvar_nova_senha(senha_atual, nova_senha):
         return {"status": "erro", "message": "Erro ao atualizar a senha."}
 
 
+# Função para atualizar o campo ultimo_login do usuário
+
 @eel.expose
 def atualizar_ultimo_login(user_id=None):
     try:
@@ -736,6 +822,9 @@ def atualizar_ultimo_login(user_id=None):
     except Exception as e:
         logging.error(f"Erro ao atualizar o campo ultimo_login: {e}")
         return {"status": "erro", "message": f"Erro ao atualizar o campo ultimo_login: {e}"}
+    
+
+# Função para upload de foto de perfil do usuário
     
 @eel.expose
 def upload_profile_picture(user_id, base64_image_data, file_extension):
@@ -782,6 +871,9 @@ def upload_profile_picture(user_id, base64_image_data, file_extension):
         logging.error(f"Erro no upload_profile_picture: {e}")
         logging.exception("Detalhes do erro no upload_profile_picture:")
         return {"status": "error", "message": f"Erro ao processar a imagem: {e}"}
+    
+
+# Função para obter dados completos do perfil do usuário
 
 @eel.expose
 def get_user_profile_data(user_id):
@@ -819,33 +911,40 @@ def get_user_profile_data(user_id):
         if connection:
             connection.close()
 
-def close_callback(page, sockets):
-    logging.info(f"Conexão websocket fechada para a página: {page}. Sockets restantes: {len(sockets)}")
+# Função de callback para fechar o processo Python quando não houver mais conexões WebSocket
 
-    if page == "macroSITE.html" and not sockets:
-        logging.info("Última conexão websocket fechada para macroSITE.html. Sinalizando para parar a macro e encerrando processo Python.")
-        try:
-            from MacroSITE import parar_macro_event
-            parar_macro_event.set()
-        except Exception as e:
-            logging.error(f"Erro ao sinalizar parada da macro: {e}")
+def close_callback(page, sockets):
+    import threading
+    logging.info(f"Conexão websocket fechada para a página: {page}. Sockets restantes: {len(sockets)}")
+    def tentar_encerrar():
+        import time
+        
+        time.sleep(5)  # Aguarda 2 segundo para ver se outro socket abre
+        if not eel._websockets:  # Se ainda não há sockets, encerra
+            logging.info("Nenhuma conexão websocket ativa após delay. Encerrando processo Python.")
+            os._exit(0)
+        else:
+            logging.info("Nova conexão websocket detectada após delay. Não encerra o processo.")
+
+    if not sockets:
+        threading.Thread(target=tentar_encerrar, daemon=True).start()
     else:
         logging.info("Conexões WebSocket ainda ativas ou página irrelevante para a macro.")
 
-try:
-    logging.info("--- Iniciando Aplicação Eel ---")
-    eel.start('login.html', mode='chrome', size=(screen_width, screen_height), close_callback=close_callback)
+if __name__ == "__main__":
+    try:
+        logging.info("--- Iniciando Aplicação Eel ---")
+        eel.start('login.html', mode='chrome', size=(screen_width, screen_height), close_callback=close_callback)
+        logging.info("Chamada eel.start retornou.")
+    except EnvironmentError as e:
+        logging.error(f"Erro de ambiente ao iniciar EEL: {e}")
+        logging.exception("Detalhes do erro de ambiente ao iniciar EEL:")
+        os._exit(1)
+    except Exception as e:
+        logging.error(f"Erro geral ao iniciar EEL: {e}")
+        logging.exception("Detalhes do erro geral ao iniciar EEL:")
+        os._exit(1)
 
-    logging.info("Chamada eel.start retornou.")
+    logging.info("--- Saindo da Aplicação ---")
 
-except EnvironmentError as e:
-    logging.error(f"Erro de ambiente ao iniciar EEL: {e}")
-    logging.exception("Detalhes do erro de ambiente ao iniciar EEL:")
-    sys.exit(1)
 
-except Exception as e:
-    logging.error(f"Erro geral ao iniciar EEL: {e}")
-    logging.exception("Detalhes do erro geral ao iniciar EEL:")
-    sys.exit(1)
-
-logging.info("--- Saindo da Aplicação ---")

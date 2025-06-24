@@ -32,7 +32,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// AQUI É ONDE VOCÊ DEVE ADICIONAR A LINHA PARA FORÇAR O IDIOMA
 var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+// -->> ADICIONE A LINHA ABAIXO AQUI <<--
+Tawk_API.customisation = {
+    'language' : 'pt-BR'
+};
 (function () {
     var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
     s1.async = true;

@@ -79,8 +79,49 @@ async function verificarLogin() {
     const principalDiv = document.getElementById('principal');
     const carregandoCertoDiv = document.getElementById('carregandocerto');
     const carregandoErradoDiv = document.getElementById('carregandoerrado');
+    // Seleciona o slide correto para os termos (o segundo slide-switch na tela de login)
+    const slideSwitches = document.querySelectorAll('.slide-switch input[type="checkbox"]');
+    // O segundo slide é o de termos de licença
+    const termosSlider = slideSwitches[1];
+    const inputemail = document.getElementById('email');
+    const inputsenha = document.getElementById('password');
 
     mensagemErroElement.innerText = '';
+
+    // Validação do aceite dos termos (slider)
+    if (!termosSlider || !termosSlider.checked) {
+        mensagemErroElement.innerText = 'Você deve aceitar os termos da licença para continuar.';
+        mensagemErroElement.style.display = 'block';
+        mensagemErroElement.style.color = 'red';
+        mensagemErroElement.style.fontWeight = 'bolder';
+        mensagemErroElement.style.opacity = '1';
+        mensagemErroElement.style.visibility = 'visible';
+        mensagemErroElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+        return;
+    }
+
+    if (!inputemail || inputemail.value.trim() === '') {
+        mensagemErroElement.innerText = 'Você preenche seu email para continuar.';
+        mensagemErroElement.style.display = 'block';
+        mensagemErroElement.style.color = 'red';
+        mensagemErroElement.style.fontWeight = 'bolder';
+        mensagemErroElement.style.opacity = '1';
+        mensagemErroElement.style.visibility = 'visible';
+        mensagemErroElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+        return;
+    }
+
+    if (!inputsenha || inputsenha.value.trim() === '') {
+        mensagemErroElement.innerText = 'Você preenche sua senha para continuar.';
+        mensagemErroElement.style.display = 'block';
+        mensagemErroElement.style.color = 'red';
+        mensagemErroElement.style.fontWeight = 'bolder';
+        mensagemErroElement.style.opacity = '1';
+        mensagemErroElement.style.visibility = 'visible';
+        mensagemErroElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+        return;
+    }
+
 
     principalDiv.style.display = 'none';
     carregandoErradoDiv.style.display = 'none';
@@ -88,10 +129,9 @@ async function verificarLogin() {
 
     const spinnerCerto = document.querySelector('#carregandocerto .spinner-border');
     const imagemVerificado = document.getElementById('verificado');
-    if (spinnerCerto) spinnerCerto.style.display = 'block'; // Define o spinner de sucesso como visível
-    if (imagemVerificado) imagemVerificado.style.display = 'none'; // Define a imagem de sucesso como oculta
+    if (spinnerCerto) spinnerCerto.style.display = 'block';
+    if (imagemVerificado) imagemVerificado.style.display = 'none';
 
-    // Mostra a div de sucesso (estado de carregamento/spinner)
     carregandoCertoDiv.style.display = 'flex';
 
     // Chama a função Python - agora retorna um objeto { status: '...', identifier: '...' }
@@ -687,7 +727,7 @@ async function verificarLogindasd() {
 // Função para verificar a versão do aplicativo
 async function checkAppVersionForUpdate() {
     console.log("[login.js] Iniciando verificação de versão do aplicativo.");
-    const localAppVersion = "1.0.4"; // Defina a versão atual do seu aplicativo aqui
+    const localAppVersion = "1.0.5"; // Defina a versão atual do seu aplicativo aqui
     const divAtualizar = document.getElementById('divatualizar');
     const principalDiv = document.getElementById('principal'); // A div principal do conteúdo
 
@@ -777,3 +817,33 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Chama a função de verificação de versão logo no carregamento da página de login
     await checkAppVersionForUpdate();
 });
+
+function mostrarframa(){
+    var container = document.getElementById('iframeLicencaContainer');
+    if (container) {
+        container.style.display = 'block';
+        // Adiciona um listener para fechar ao clicar fora
+        setTimeout(function() {
+            document.addEventListener('mousedown', fecharIframeAoClicarFora);
+        }, 10);
+    }
+}
+
+function fecharIframeAoClicarFora(event) {
+    var container = document.getElementById('iframeLicencaContainer');
+    if (container && container.style.display === 'block') {
+        // Só fecha se o clique não for dentro do container
+        if (!container.contains(event.target)) {
+            container.style.display = 'none';
+            document.removeEventListener('mousedown', fecharIframeAoClicarFora);
+        }
+    }
+}
+
+function fecharIframeLicenca(){
+    var container = document.getElementById('iframeLicencaContainer');
+    if (container) {
+        container.style.display = 'none';
+        document.removeEventListener('mousedown', fecharIframeAoClicarFora);
+    }
+}

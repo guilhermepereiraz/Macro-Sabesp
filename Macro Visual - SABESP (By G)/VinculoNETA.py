@@ -1,30 +1,15 @@
-from selenium.webdriver.edge.options import Options
-from time import sleep
-import time
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, ElementClickInterceptedException
-import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-import os
-from selenium.webdriver.support.ui import Select
-import datetime
 from dateutil.relativedelta import relativedelta
-import pandas as pd
-from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.common.by import By
-from selenium import webdriver 
-from datetime import datetime
-import time
-import os
-
 
 def login_neta(l_login, s_senha):
     global driver, waint, implicit_wait
+    from selenium.webdriver.edge.options import Options
+    from selenium import webdriver
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, ElementClickInterceptedException
+    import time
+
     prefs = {"profile.default_content_setting_values.notifications": 2}
     options = Options()
     options.add_argument("--headless") 
@@ -57,6 +42,10 @@ def login_neta(l_login, s_senha):
         print(f"Erro ao interagir com a janela de autenticação: {str(e)}")
 
 def extracao_de_dados():
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+
     nome_wfmm = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, "/html/body/form/div[5]/div[1]/table/tbody/tr/td[2]/span[1]"))
     ).text

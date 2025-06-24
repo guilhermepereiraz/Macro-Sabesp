@@ -84,7 +84,10 @@ async function salvarNovaSenha() {
             await eel.atualizar_ultimo_login()();
 
             setTimeout(() => {
-                window.location.href = 'index.html';
+                const userId = obterParametroDaURL('identificador');
+                const loginStartTime = Date.now();
+                // Redireciona para index.html passando user_id e first_login_complete na URL
+                window.location.href = `index.html?user_id=${encodeURIComponent(userId)}&first_login_complete=true&login_time=${loginStartTime}`;
             }, 2000); // Redireciona após 2 segundos
         } else {
             mensagemErro.textContent = response.message || 'Erro ao alterar a senha. Tente novamente mais tarde.';

@@ -544,8 +544,21 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
     try:
         logging.info("Configurando e iniciando o navegador para execução do Selenium...")
         options = Options()
-        options.add_argument("--start-maximized")
-        options.add_argument("--headless=new")
+        # options.add_argument("--headless=new")
+        # options.add_argument("--disable-blink-features=AutomationControlled")
+        # options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        # options.add_experimental_option('useAutomationExtension', False)
+        # options.add_argument("--window-size=1920,1080")
+        # options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+        # options.add_experimental_option("prefs", {
+        #     'download.prompt_for_download': False,
+        #     'download.directory_upgrade': True,
+        #     'safeBrowse.enabled': True,
+        #     "profile.default_content_setting_values.notifications": 2
+        # })
+
+        driver = webdriver.ChromiumEdge(options=options)
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
         if driver is not None:
             logging.warning("Instância do navegador existente detectada antes de iniciar uma nova macro. Fechando.")

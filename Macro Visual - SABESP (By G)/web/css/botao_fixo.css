@@ -194,3 +194,138 @@ fixed-button-container>h1 {
     color: rgb(102, 100, 100);
     margin-left: 7.5em;
 }
+
+
+/* ------------------------------------------- */
+/* ESTILOS DO CONTAINER DA NOTIFICAÇÃO (TOAST/SNACK BAR) */
+/* ------------------------------------------- */
+.toast-notification {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    background-color: #FFFFFF;
+    border: 1px solid #DDEEEF;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    width: 350px;
+    max-width: 90%;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    /* Estado inicial: fora da tela e invisível */
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.toast-notification.visible {
+    /* Estado visível: posição normal e opaco */
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* ------------------------------------------- */
+/* ESTILOS DO CONTEÚDO INTERNO DA NOTIFICAÇÃO */
+/* ------------------------------------------- */
+.toast-content {
+    display: flex;
+    align-items: flex-start;
+    /* Alinha o ícone e o texto no topo */
+    padding: 15px 20px;
+    gap: 12px;
+    /* Espaço entre o ícone e o texto */
+    border-bottom: 1px solid #EEEEEE;
+    /* Linha divisória sutil */
+}
+
+.toast-icon {
+    font-size: 28px;
+    /* Ícone um pouco maior */
+    color: #28a745;
+    /* Um verde de sucesso, ou o azul principal */
+    line-height: 1;
+}
+
+.toast-text {
+    flex-grow: 1;
+    /* Ocupa o espaço restante */
+}
+
+.toast-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333333;
+    /* Ou o azul da sua paleta para o título */
+}
+
+.toast-message {
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-size: 14px;
+    color: #666666;
+    line-height: 1.4;
+}
+
+/* ------------------------------------------- */
+/* ESTILOS DA ÁREA DOS BOTÕES DE AÇÃO (TOAST) */
+/* ------------------------------------------- */
+.toast-actions {
+    padding: 10px 20px 15px;
+    /* Mais padding embaixo */
+    display: flex;
+    justify-content: flex-end;
+    /* Alinha os botões à direita */
+    gap: 10px;
+    /* Espaço entre os botões */
+}
+
+/* ------------------------------------------- */
+/* ESTILOS DOS BOTÕES (Compactos para Toast) */
+/* ------------------------------------------- */
+.btn-toast-primary,
+.btn-toast-secondary {
+    padding: 8px 12px;
+    /* Padding menor */
+    border-radius: 4px;
+    /* Cantos levemente arredondados */
+    cursor: pointer;
+    font-size: 13px;
+    /* Fonte um pouco menor */
+    font-weight: bold;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-toast-primary {
+    background-color: #4A90E2;
+    /* Azul principal */
+    color: #FFFFFF;
+    border: none;
+}
+
+.btn-toast-primary:hover {
+    background-color: #3A7ECB;
+}
+
+.btn-toast-secondary {
+    background-color: #FFFFFF;
+    color: #4A90E2;
+    border: 1px solid #4A90E2;
+}
+
+.btn-toast-secondary:hover {
+    background-color: #F0F8FF;
+    color: #3A7ECB;
+    border-color: #3A7ECB;
+}
+
+/* ------------------------------------------- */
+/* ESTILOS DO OVERLAY (Geralmente NÃO USADO com Toast, mas deixo como opção) */
+/* ------------------------------------------- */
+.overlay {
+    /* Pode remover este bloco se não quiser o fundo escuro com a toast */
+    display: none;
+    /* Geralmente oculto para toast notifications */
+}

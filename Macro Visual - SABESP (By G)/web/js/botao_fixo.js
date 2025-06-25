@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
 var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
 // -->> ADICIONE A LINHA ABAIXO AQUI <<--
 Tawk_API.customisation = {
-    'language' : 'pt-BR'
+    'language': 'pt-BR'
 };
 (function () {
     var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
@@ -83,3 +83,17 @@ Tawk_API.onChatMinimized = function () {
     // Mostra o botão fixo
     document.getElementById("fixedButton")?.style.setProperty("display", "", "important");
 };
+
+window.addEventListener('DOMContentLoaded', function () {
+    const toast = document.getElementById('notificacaoMacroToast');
+    if (toast) {
+        // Garante que a animação reinicia se recarregar
+        toast.classList.remove('visible');
+        setTimeout(() => {
+            toast.classList.add('visible');
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 10000); // 9 segundos visível
+        }, 100); // pequeno delay para suavizar a entrada
+    }
+});

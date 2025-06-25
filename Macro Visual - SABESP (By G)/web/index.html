@@ -16,6 +16,8 @@
 
 
 <body>
+
+
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -41,10 +43,10 @@
                     <div class="user-info">
                         <div class="user-status-block">
 
-                        <div class="profile-picture">
-                            <i class="fas fa-user-circle" id="profile-icon" style="display: block;"></i>
-                            <img src="" alt="Foto de Perfil do Usuário" id="profile-img" style="display: none;">
-                        </div>
+                            <div class="profile-picture">
+                                <i class="fas fa-user-circle" id="profile-icon" style="display: block;"></i>
+                                <img src="" alt="Foto de Perfil do Usuário" id="profile-img" style="display: none;">
+                            </div>
 
                             <div class="user-status-text">
                                 <span style="font-size: 1.2em; font-weight: 600;" id="nome-usuario">Nome do
@@ -66,6 +68,24 @@
             </div>
         </div>
     </header>
+
+    <!-- POP_UP macroConsultaGeral -->
+
+    <div id="notificacaoMacroToast" class="toast-notification visible">
+
+        <div class="toast-content">
+            <span class="toast-icon">✔️</span>
+            <div class="toast-text">
+                <h3 class="toast-title">Macro Concluída!</h3>
+                <p class="toast-message">Macro Consulta Geral foi finalizada com êxito.</p>
+            </div>
+        </div>
+
+        <div class="toast-actions">
+            <button class="btn-toast-secondary">Nova Consulta</button>
+            <button class="btn-toast-primary">Ver Resultados</button>
+        </div>
+    </div>
 
     <div class="main-content">
         <div class="container">
@@ -96,7 +116,8 @@
                     </div>
                 </a>
 
-                <a href="macroDELIBERACAO.html" style="text-decoration: none; display: block; width: 100%; height: 100%;">
+                <a href="macroDELIBERACAO.html"
+                    style="text-decoration: none; display: block; width: 100%; height: 100%;">
                     <div class="card">
                         <i class="fas fa-heart icon"></i>
                         <h3>Macro Deliberação</h3>
@@ -168,9 +189,9 @@
 
 
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

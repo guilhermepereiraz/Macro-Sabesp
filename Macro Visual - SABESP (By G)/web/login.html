@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <script type="text/javascript" src="eel.js"></script>
-    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="imagens/SabespIcon.ico" type="image/x-icon">
 </head>
 
 <body>
@@ -40,14 +40,18 @@
                                 <span class="slide-slider"></span>
                             </label>
 
-                            <span class="slide-label">Eu concordo com os <span class="licenca" id="licencaframe" style="cursor:pointer; position:relative; z-index:1000;" onclick="mostrarframa()">termos de licenças</span>
-                                <div id="iframeLicencaContainer" style="display:none; position:absolute; left:50%; transform:translateX(-50%); margin-top:-340px; z-index:2000; margin-left: 30%;">
-                                    <iframe src="termos_licenca.html" id="iframeLicenca" frameborder="0" style="background:#fff; width:420px; height:320px;  border: 2px solid rgb(96, 174, 248); box-shadow: 2px 2px 5px rgb(74, 74, 75);"></iframe>
+                            <span class="slide-label">Eu concordo com os <span class="licenca" id="licencaframe"
+                                    style="cursor:pointer; position:relative; z-index:1000;"
+                                    onclick="mostrarframa()">termos de licenças</span>
+                                <div id="iframeLicencaContainer"
+                                    style="display:none; position:absolute; left:50%; transform:translateX(-50%); margin-top:-340px; z-index:2000; margin-left: 30%;">
+                                    <iframe src="termos_licenca.html" id="iframeLicenca" frameborder="0"
+                                        style="background:#fff; width:420px; height:320px;  border: 2px solid rgb(96, 174, 248); box-shadow: 2px 2px 5px rgb(74, 74, 75);"></iframe>
                                 </div>
                             </span>
                         </div>
                         </label>
-                        
+
                     </div>
                 </div>
                 <button type="button" onclick="verificarLogin()">Entrar</button>
@@ -58,9 +62,13 @@
 
     <div id="carregandocerto" style="display: none;">
         <div id="formulario-container-crc">
-            <h3 class="verificandocred">Verificando Credenciais</h3>
-            <img src="imagens/icone-de-tique-ronde-verte.png" alt="Ícone de verificação verde" id="verificado"
-                style="display: none; width: 20%; margin-top: 5%; margin-bottom: 5%;">
+            <h3 class="verificandocred" id="vericandocrecendiaiscerto" style="font-weight: 700;">Verificando Credenciais</h3>
+            <div class="check-container" id="verificado">
+                <svg class="checkmark-group" viewBox="0 0 58 58">
+                    <circle class="animated-circle" cx="29" cy="29" r="25" />
+                    <path class="check-path" d="M21 29.5l5 5 10-10" />
+                </svg>
+            </div>
             <div class="spinner-border text-success" role="status"
                 style="width: 7em; height: 7em; text-align: center; margin-top: 8%;">
                 <span class="visually-hidden"></span>
@@ -70,29 +78,38 @@
 
     <div id="carregandoerrado" style="display: none;">
         <div id="formulario-container-cre">
-            <h3 class="verificandocred">Verificando Credenciais</h3>
+            <h3 class="verificandocred" id="vericandocrecendiaiserro" style="font-weight: 700;">Verificando Credenciais</h3>
             <div class="spinner-border text-danger" role="status"
                 style="width: 7em; height: 7em; text-align: center; margin-top: 8%;">
                 <span class="visually-hidden"></span>
             </div>
-            <img src="imagens/icone-de-incorreto.png" alt="Ícone de verificação errado" id="nao-verificado"
-                style="display: none; width: 25%; margin-top: 5%; margin-bottom: 5%;">
+
+            <div class="check-containererror" id="nao-verificado">
+                <svg class="checkmark-grouperro" viewBox="0 0 58 58">
+                    <circle class="animated-circleerro" cx="29" cy="29" r="25" />
+                    <path class="x-path x-path-1" d="M18 18 L40 40" />
+                    <path class="x-path x-path-2" d="M40 18 L18 40" />
+                </svg>
+            </div>
         </div>
     </div>
 
-<div id="divatualizar" style="display: none;">
-    <div id="formulario-container-atualizar">
-        <div class="icon-wrapper">
-            <svg class="update-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-            </svg>
+    <div id="divatualizar" style="display: none;">
+        <div id="formulario-container-atualizar">
+            <div class="icon-wrapper">
+                <svg class="update-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                </svg>
+            </div>
+            <h3 class="atualizar">Hora de uma atualização!</h3>
+            <p>Parece que você está usando uma versão anterior do nosso aplicativo. Para ter acesso a todas as novidades
+                e melhorias, por favor, atualize para a versão mais recente.</p>
+            <a href="https://sabespcloud.sharepoint.com/sites/PendlistON/Documentos%20Compartilhados/Forms/AllItems.aspx?csf=1&web=1&e=kSq1CX&CID=6ee74b71%2D5c30%2D46b7%2Da199%2D595e05ed6d34&FolderCTID=0x0120009B69C291D2EB24428E8306E6E07C75D7&id=%2Fsites%2FPendlistON%2FDocumentos%20Compartilhados%2FMACRO%20SABESP"
+                class="update-button" target="_blank">Atualizar agora</a>
+            <small class="not-now">O aplicativo não funcionará até que a atualização seja concluída</small>
         </div>
-        <h3 class="atualizar">Hora de uma atualização!</h3>
-        <p>Parece que você está usando uma versão anterior do nosso aplicativo. Para ter acesso a todas as novidades e melhorias, por favor, atualize para a versão mais recente.</p>
-        <a href="https://sabespcloud.sharepoint.com/sites/PendlistON/Documentos%20Compartilhados/Forms/AllItems.aspx?csf=1&web=1&e=kSq1CX&CID=6ee74b71%2D5c30%2D46b7%2Da199%2D595e05ed6d34&FolderCTID=0x0120009B69C291D2EB24428E8306E6E07C75D7&id=%2Fsites%2FPendlistON%2FDocumentos%20Compartilhados%2FMACRO%20SABESP" class="update-button" target="_blank">Atualizar agora</a>
-        <small class="not-now">O aplicativo não funcionará até que a atualização seja concluída</small>
     </div>
-</div>
 
     <div id="cadastro" style="display: none;">
         <img src="imagens/sabesp_login.png" alt="Imagem de Login" id="imgcad">
@@ -103,13 +120,13 @@
             <p id="mensagem-5" style="color: green;"></p>
             <form id="login-form2">
                 <div>
-                    <input type="text" id="cargo" name="cargo" placeholder="Cargo" list="listadecargo">
+                    <select name="cargo" id="cargo">
+                        <option value="" disabled selected>Cargo</option>
+                        <option value="Técnico">Técnico</option>
+                        <option value="Gerencial">Gerencial</option>
+                        <option value="Diretoria">Diretoria</option>
+                    </select>
 
-                    <datalist id="listadecargo">
-                        <option value="Técnico"></option>
-                        <option value="Gerencial"></option>
-                        <option value="Diretoria"></option>
-                    </datalist>
                 </div>
                 <div>
                     <label for="nome"></label>
@@ -145,10 +162,24 @@
                 <span class="visually-hidden"></span>
 
             </div>
-            <img src="imagens/icone-de-tique-ronde-verte.png" alt="Ícone de verificação verde" id="verificado2"
-                style="display: none; width: 20%; margin-top: 5%; margin-bottom: 5%;">
-            <img src="imagens/icone-de-incorreto.png" alt="Ícone de verificação errado" id="nao-verificado2"
-                style="display: none; width: 25%; margin-top: 5%; margin-bottom: 5%;">
+
+                   <div class="check-container" id="verificado2">
+                <svg class="checkmark-group" viewBox="0 0 58 58">
+                    <circle class="animated-circle" cx="29" cy="29" r="25" />
+                    <path class="check-path" d="M21 29.5l5 5 10-10" />
+                </svg>
+            </div>
+            
+
+            <div class="check-containererror2" id="nao-verificado2">
+                <svg class="checkmark-grouperro2" viewBox="0 0 58 58">
+                    <circle class="animated-circleerro2" cx="29" cy="29" r="25" />
+                    <path class="x-path x-path-1" d="M18 18 L40 40" />
+                    <path class="x-path x-path-2" d="M40 18 L18 40" />
+                </svg>
+            </div>
+
+     
             <p id="mensagem-3" style="color: red; margin-bottom: -5%;"></p>
         </div>
     </div>

@@ -729,3 +729,20 @@ function mostrarErroNaTela(mensagem) {
 // } catch (error) {
 //     mostrarErroNaTela('Erro ao iniciar a macro. Verifique os logs para mais detalhes.');
 // }
+
+
+if (window.eel) {
+    eel.expose(function update_progress(data) {
+        if (data && data.macro_concluida) {
+            mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+            localStorage.setItem('macroFinalizada', 'true');
+        }
+    }, 'update_progress');
+}
+
+window.addEventListener('storage', function(event) {
+    if (event.key === 'macroFinalizada' && event.newValue === 'true') {
+        mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+        localStorage.setItem('macroFinalizada', 'false');
+    }
+});

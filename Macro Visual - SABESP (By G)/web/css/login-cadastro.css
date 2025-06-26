@@ -429,6 +429,13 @@ button {
     margin-top: 2em;
 }
 
+#cargo {
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+
 #formulario-container-cadastro input,
 #formulario-container-cadastro button {
     padding: 1rem;
@@ -437,7 +444,6 @@ button {
     border-radius: 4px;
     width: 100%;
     box-sizing: border-box;
-    ;
 }
 
 #formulario-container-cadastro button {
@@ -802,4 +808,321 @@ h3 {
     cursor: pointer;
 }
 
+/* ANIMAÇÃO CHECK */
 
+.check-container {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2%;
+    margin-left: 1%;
+}
+
+.checkmark-group {
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilos e animação para o CÍRCULO VERDE SÓLIDO */
+.animated-circle {
+    fill: rgb(7, 80, 7);
+    /* Preenchimento verde sólido */
+    stroke: none;
+    /* Remove qualquer contorno */
+
+    transform-origin: center;
+    transform: scale(0);
+    /* Começa invisível e pequeno */
+    opacity: 0;
+    /* Começa transparente */
+    animation: growAndFadeInCircle 0.5s ease-out forwards;
+    /* Animação combinada */
+    animation-delay: 0.1s;
+    /* Pequeno atraso para iniciar */
+}
+
+/* Estilos e animação para o path do check */
+.check-path {
+    fill: none;
+    /* Não preenche a seta, ela será desenhada como um traço */
+    stroke-width: 4;
+    /* ALTERE ESTE VALOR PARA DEIXAR MAIS FINA OU MAIS GROSSA */
+    /* Espessura da linha do check para deixá-lo "gordinho" */
+    stroke: #FFFFFF;
+    /* Cor do traço da seta: BRANCA */
+
+    /* Propriedades para a animação de traçado da seta */
+    stroke-dasharray: 21.21;
+    /* Comprimento exato do path do check */
+    stroke-dashoffset: 21.21;
+    /* Inicia o check invisível */
+
+    /* Propriedades para bordas arredondadas do check */
+    stroke-linecap: round;
+    /* Arredonda as extremidades da linha do check */
+    stroke-linejoin: round;
+    /* Arredonda os cantos (a 'dobra') do check */
+
+    /* Animação para o check ser desenhado */
+    animation: drawCheck 0.4s linear forwards;
+    animation-delay: 0.6s;
+    /* Atraso: após o círculo crescer */
+
+    /* ADIÇÃO: Garante que a seta começa completamente invisível */
+    opacity: 0;
+}
+
+/* Keyframes para animar o círculo a crescer e aparecer */
+@keyframes growAndFadeInCircle {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Keyframes para animar o check a ser desenhado */
+@keyframes drawCheck {
+    from {
+        stroke-dashoffset: 21.21;
+        opacity: 0;
+        /* Começa completamente invisível */
+    }
+
+    to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        /* Termina completamente visível */
+    }
+}
+
+
+/* * ANIMAÇÃO ERRO */ */
+
+.check-containererror {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    margin-top: 2%;
+    margin-left: 1%;
+}
+
+.checkmark-grouperro {
+    width: 40%;
+    height: 40%;
+}
+
+/* Estilos e animação para o CÍRCULO VERDE SÓLIDO */
+.animated-circleerro {
+    fill: #c91700;
+    /* Preenchimento vermelho (corrigido para erro) */
+    stroke: none;
+    /* Remove qualquer contorno */
+
+    transform-origin: center;
+    transform: scale(0);
+    /* Começa invisível e pequeno */
+    opacity: 0;
+    /* Começa transparente */
+    animation: growAndFadeInCircle 0.5s ease-out forwards;
+    /* Animação combinada */
+    animation-delay: 0.1s;
+    /* Pequeno atraso para iniciar */
+}
+
+/* Estilos base para as linhas do X */
+.x-path {
+    fill: none;
+    /* Não preenche o X, ele será desenhado como um traço */
+    stroke-width: 8;
+    /* Espessura da linha do X (mantido) */
+    stroke: #FFFFFF;
+    /* Cor do traço do X: BRANCA */
+
+    /* Propriedades para bordas arredondadas do X */
+    stroke-linecap: round;
+    /* Arredonda as extremidades da linha do X */
+
+    opacity: 0;
+    /* Começa completamente invisível antes da animação */
+}
+
+/* Animação e propriedades específicas para a primeira linha do X */
+.x-path-1 {
+    stroke-dasharray: 31.1;
+    /* NOVO COMPRIMENTO para o X maior */
+    stroke-dashoffset: 31.1;
+    animation: drawX1 0.3s linear forwards;
+    animation-delay: 0.6s;
+    /* Começa depois que o círculo está quase formado */
+}
+
+/* Animação e propriedades específicas para a segunda linha do X */
+.x-path-2 {
+    stroke-dasharray: 31.1;
+    /* NOVO COMPRIMENTO para o X maior */
+    stroke-dashoffset: 31.1;
+    animation: drawX2 0.3s linear forwards;
+    animation-delay: 0.9s;
+    /* Começa depois que a primeira linha do X terminou */
+}
+
+/* Keyframes para animar o círculo a crescer e aparecer */
+@keyframes growAndFadeInCircle {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Keyframes para animar a primeira linha do X */
+@keyframes drawX1 {
+    from {
+        stroke-dashoffset: 31.1;
+        opacity: 0;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* Keyframes para animar a segunda linha do X */
+@keyframes drawX2 {
+    from {
+        stroke-dashoffset: 31.1;
+        opacity: 0;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* ANIMALÇAO ERRO 2 */
+
+.check-containererror2 {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    margin-top: 2%;
+    margin-left: 2%;
+}
+
+.checkmark-grouperro2 {
+    width: 50%;
+    height: 50%;
+}
+
+/* Estilos e animação para o CÍRCULO VERDE SÓLIDO */
+.animated-circleerro2 {
+    fill: #c91700;
+    /* Preenchimento vermelho (corrigido para erro) */
+    stroke: none;
+    /* Remove qualquer contorno */
+
+    transform-origin: center;
+    transform: scale(0);
+    /* Começa invisível e pequeno */
+    opacity: 0;
+    /* Começa transparente */
+    animation: growAndFadeInCircle 0.5s ease-out forwards;
+    /* Animação combinada */
+    animation-delay: 0.1s;
+    /* Pequeno atraso para iniciar */
+}
+
+/* Estilos base para as linhas do X */
+.x-path {
+    fill: none;
+    /* Não preenche o X, ele será desenhado como um traço */
+    stroke-width: 8;
+    /* Espessura da linha do X (mantido) */
+    stroke: #FFFFFF;
+    /* Cor do traço do X: BRANCA */
+
+    /* Propriedades para bordas arredondadas do X */
+    stroke-linecap: round;
+    /* Arredonda as extremidades da linha do X */
+
+    opacity: 0;
+    /* Começa completamente invisível antes da animação */
+}
+
+/* Animação e propriedades específicas para a primeira linha do X */
+.x-path-1 {
+    stroke-dasharray: 31.1;
+    /* NOVO COMPRIMENTO para o X maior */
+    stroke-dashoffset: 31.1;
+    animation: drawX1 0.3s linear forwards;
+    animation-delay: 0.6s;
+    /* Começa depois que o círculo está quase formado */
+}
+
+/* Animação e propriedades específicas para a segunda linha do X */
+.x-path-2 {
+    stroke-dasharray: 31.1;
+    /* NOVO COMPRIMENTO para o X maior */
+    stroke-dashoffset: 31.1;
+    animation: drawX2 0.3s linear forwards;
+    animation-delay: 0.9s;
+    /* Começa depois que a primeira linha do X terminou */
+}
+
+/* Keyframes para animar o círculo a crescer e aparecer */
+@keyframes growAndFadeInCircle {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Keyframes para animar a primeira linha do X */
+@keyframes drawX1 {
+    from {
+        stroke-dashoffset: 31.1;
+        opacity: 0;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* Keyframes para animar a segunda linha do X */
+@keyframes drawX2 {
+    from {
+        stroke-dashoffset: 31.1;
+        opacity: 0;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}

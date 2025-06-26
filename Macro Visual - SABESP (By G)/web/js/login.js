@@ -2,15 +2,19 @@ function mostrarVerificadoEsumirSpinner() {
     return new Promise(resolve => {
         const spinner = document.querySelector('#carregandocerto .spinner-border');
         const imagemVerificado = document.getElementById('verificado');
+        const h1mscerto = document.getElementById('vericandocrecendiaiscerto');
 
         if (spinner && spinner.style.display !== 'none') {
             // Passo 1: Spinner visível por 3 segundos
+            h1mscerto.innerHTML = "Verificando Credenciais";
             setTimeout(() => { // <-- Primeiro timer de 3000ms (3 segundos)
                 if (spinner) {
                     spinner.style.display = 'none'; // Esconde o spinner
                 }
                 if (imagemVerificado) {
                     imagemVerificado.style.display = 'block'; // Mostra a imagem
+                    h1mscerto.innerHTML = "Acesso autorizado. Iniciando sua sessão";
+                    h1mscerto.style.fontWeight = 'bolder'; // Define o título como negrito
 
                     // Passo 2: Imagem visível por mais 3 segundos
                     setTimeout(() => { // <-- Segundo timer de 3000ms (3 segundos)
@@ -39,9 +43,11 @@ function mostrarErroEsumirSpinner() {
         const spinner = document.querySelector('#carregandoerrado .spinner-border');
         const imagemErro = document.getElementById('nao-verificado');
         const carregandoErradoDiv = document.getElementById('carregandoerrado');
+        const h1msgerro = document.getElementById('vericandocrecendiaiserro');
 
         if (carregandoErradoDiv && carregandoErradoDiv.style.display !== 'none') {
             // Passo 1: Spinner visível por 3 segundos
+            h1msgerro.innerHTML = "Verificando Credenciais";
             setTimeout(() => {
                 if (spinner && spinner.style.display !== 'none') {
                     spinner.style.display = 'none'; // Esconde o spinner
@@ -49,6 +55,7 @@ function mostrarErroEsumirSpinner() {
 
                 if (imagemErro) {
                     imagemErro.style.display = 'block'; // Mostra a imagem
+                    h1msgerro.innerHTML = "Não foi possível entrar. Verifique seus dados";// Oculta o título de verificação de credenciais
 
                     // Passo 2: Imagem visível por mais 3 segundos
                     setTimeout(() => {
@@ -167,6 +174,7 @@ async function verificarLogin() {
         console.log("Login falhou. Status:", resultadoLogin ? resultadoLogin.status : 'unknown'); // Loga o status da falha
         console.log("Exibindo tela de erro...");
 
+
         // Original: Oculta a div de sucesso (estado de carregamento)
         carregandoCertoDiv.style.display = 'none';
 
@@ -176,6 +184,7 @@ async function verificarLogin() {
         if (spinnerErro) spinnerErro.style.display = 'block';
         // Corrigido o nome da variável 'imagemImagemErro' para 'imagemErro'
         if (imagemErro) imagemErro.style.display = 'none';
+       
 
         // Original: Mostra a div de erro
         carregandoErradoDiv.style.display = 'flex';
@@ -622,9 +631,10 @@ async function verificarLogindasd() {
 
             console.error("Erro no envio de emails via Python:", resultadoEnvio);
 
-            // Mostra o ícone vermelho de erro e esconde o verde de sucesso
+            // Mostra o ícone de erro (azul com check) e esconde o verde de sucesso
             if (iconeVerificado) iconeVerificado.style.display = 'none'; // Esconde o verde
-            if (iconeNaoVerificado) iconeNaoVerificado.style.display = 'flex'; // Mostra o vermelho
+            if (iconeNaoVerificado) iconeNaoVerificado.style.display = 'flex'; // Mostra o azul com check
+
 
              // Oculta o spinner após exibir ícone de resultado
              if (spinnerprocessando) spinnerprocessando.style.display = 'none';
@@ -681,10 +691,10 @@ async function verificarLogindasd() {
 
         console.error("Erro na chamada Eel ou inesperado:", e);
 
-        // Oculta spinner e mostra ícone vermelho de erro
+        // Oculta spinner e mostra ícone de erro (azul com check)
         if (spinnerprocessando) spinnerprocessando.style.display = 'none'; // Oculta o spinner
         if (iconeVerificado) iconeVerificado.style.display = 'none'; // Esconde o verde
-        if (iconeNaoVerificado) iconeNaoVerificado.style.display = 'flex'; // Mostra o vermelho
+        if (iconeNaoVerificado) iconeNaoVerificado.style.display = 'flex'; // Mostra o azul com check
 
         // *** Captura a mensagem de erro para exibir no formulário de cadastro depois ***
          mensagemErroParaCadastro = communicationError;

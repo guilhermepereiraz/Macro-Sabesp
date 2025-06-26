@@ -645,3 +645,21 @@ function mostrarResumoFinalDeliberacao({
     document.getElementById('error-count').textContent = erros || '0';
     document.getElementById('total-time').textContent = tempoTotal || '-';
 }
+
+// ...removido mostrarToast e fecharToast duplicados, usar apenas as do toast.js...
+
+if (window.eel) {
+    eel.expose(function update_progress(data) {
+        if (data && data.macro_concluida) {
+            mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+            localStorage.setItem('macroFinalizada', 'true');
+        }
+    }, 'update_progress');
+}
+
+window.addEventListener('storage', function(event) {
+    if (event.key === 'macroFinalizada' && event.newValue === 'true') {
+        mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+        localStorage.setItem('macroFinalizada', 'false');
+    }
+});

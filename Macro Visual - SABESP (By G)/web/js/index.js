@@ -1,4 +1,3 @@
-
 window.onload = async function () {
     console.log("[index.js] window.onload UNIFICADO iniciado.");
 
@@ -286,5 +285,19 @@ function iniciarTransicaoPagina() {
             bodyElement.classList.add('is-visible');
         }, 5);
     }
+}
+
+// >>> Removido mostrarToast e fecharToast duplicados, usar apenas o global de toast.js <<<
+
+if (window.eel) {
+    eel.expose(function update_progress(data) {
+        if (data && data.macro_concluida) {
+            mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+            // Sinaliza para outras abas, mas só se não estiver na index
+            if (!window.location.pathname.endsWith('index.html')) {
+                localStorage.setItem('macroFinalizada', 'true');
+            }
+        }
+    }, 'update_progress');
 }
 

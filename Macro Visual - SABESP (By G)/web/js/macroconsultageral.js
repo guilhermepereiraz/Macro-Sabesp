@@ -824,6 +824,14 @@ function update_progress(data) {
     }
 
     // Lógica para lidar com a finalização do processo
+    if (data.macro_concluida) {
+        // Mostra o toast na aba atual
+        if (typeof mostrarToast === 'function') {
+            mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+        }
+        // Dispara evento cross-tab para as outras abas
+        localStorage.setItem('macroFinalizada', 'true');
+    }
     if (data.finalizado) {
         console.log('[update_progress] Sinal de finalização recebido:', data);
         telaFinalExibida = true; // Seta a flag para nunca mais sobrescrever
@@ -961,12 +969,12 @@ function startNewMacro() {
     const oserros = document.getElementById('oserros');
     const tempoEstimado = document.getElementById('tempoestimado');
     const porcentagemConcluida = document.getElementById('porcentagem-concluida');
-    if (osProcessando) osProcessando.innerText = '';
-    if (quantidade) quantidade.innerText = '0';
-    if (totalCount) totalCount.innerText = ' de 0';
-    if (oserros) oserros.innerText = '0';
-    if (tempoEstimado) tempoEstimado.innerText = '00m 00s';
-    if (porcentagemConcluida) porcentagemConcluida.innerText = '0%';
+    if (osProcessando) osProcessando.innerText = 'Calculando..';
+    if (quantidade) quantidade.innerText = 'Calculando..';
+    if (totalCount) totalCount.innerText = '';
+    if (oserros) oserros.innerText = 'Calculando..';
+    if (tempoEstimado) tempoEstimado.innerText = 'Calculando..';
+    if (porcentagemConcluida) porcentagemConcluida.innerText = 'Calculando..';
 }
 
 async function viewResultsFolder() {
@@ -1085,4 +1093,3 @@ async function loadProfilePicture() {
     }
 }
 window.addEventListener('DOMContentLoaded', loadProfilePicture);
-

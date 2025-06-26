@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/sugestao.css">
     <link rel="stylesheet" href="css/botao_fixo.css">
-    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/toast.css">
+    <link rel="shortcut icon" href="imagens/SabespIcon.ico" type="image/x-icon">
 </head>
 <body>
      <header class="header">
@@ -58,7 +59,6 @@
             </div>
         </div>
     </header>
-
 
         <main class="main-content-area">
             <div class="sugestao-container">
@@ -174,9 +174,26 @@
         </div>
     </div>
 
+    <div id="notificacaoMacroToast" class="toast-notification">
+
+        <div class="toast-content">
+            <span class="toast-icon">✔️</span>
+            <div class="toast-text">
+                <h3 class="toast-title">Macro Concluída!</h3>
+                <p class="toast-message">Macro Consulta Geral foi finalizada com êxito.</p>
+            </div>
+        </div>
+
+        <div class="toast-actions">
+            <a href="macroConsultaGeral.html" style="text-decoration: none;" class="btn-toast-secondary">Nova Consulta</a>
+            <button class="btn-toast-primary" onclick="viewResultsFolder()">Ver Resultados</button>
+        </div>
+        <button class="toast-close-btn" onclick="fecharToast()" title="Fechar">&times;</button>
+    </div>
 
     <script type="text/javascript" src="/eel.js"></script>
     <script type="text/javascript" src="js/sugestao.js"></script>
     <script type="text/javascript" src="js/botao_fixo.js"></script>
+    <script src="js/toast.js"></script>
 </body>
 </html>

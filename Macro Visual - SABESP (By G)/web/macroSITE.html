@@ -7,16 +7,17 @@
     <title>Macro JGL - Macro Site</title>
     <link rel="stylesheet" href="css/macrosite.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="shortcut icon" href="imagens/favicon_sabesp55.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="imagens/SabespIcon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/botao_fixo.css">
+    <link rel="stylesheet" href="css/toast.css">
     <script src="js/botao_fixo.js"></script>
     <script type="text/javascript" src="eel.js"></script>
+    <script src="js/toast.js"></script>
     <script type="text/javascript" src="js/macrosite.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
 </head>
 
 <body>
-
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -265,6 +266,24 @@
             </div>
         </div>
     </div>
+
+    <div id="notificacaoMacroToast" class="toast-notification">
+
+        <div class="toast-content">
+            <span class="toast-icon">✔️</span>
+            <div class="toast-text">
+                <h3 class="toast-title">Macro Concluída!</h3>
+                <p class="toast-message">Macro Consulta Geral foi finalizada com êxito.</p>
+            </div>
+        </div>
+
+        <div class="toast-actions">
+            <a href="macroConsultaGeral.html" style="text-decoration: none;" class="btn-toast-secondary">Nova Consulta</a>
+            <button class="btn-toast-primary" onclick="viewResultsFolder()">Ver Resultados</button>
+        </div>
+        <button class="toast-close-btn" onclick="fecharToast()" title="Fechar">&times;</button>
+    </div>
+    
 </body>
 
 </html>

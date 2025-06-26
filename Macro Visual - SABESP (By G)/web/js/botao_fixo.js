@@ -84,16 +84,4 @@ Tawk_API.onChatMinimized = function () {
     document.getElementById("fixedButton")?.style.setProperty("display", "", "important");
 };
 
-window.addEventListener('DOMContentLoaded', function () {
-    const toast = document.getElementById('notificacaoMacroToast');
-    if (toast) {
-        // Garante que a animação reinicia se recarregar
-        toast.classList.remove('visible');
-        setTimeout(() => {
-            toast.classList.add('visible');
-            setTimeout(() => {
-                toast.classList.remove('visible');
-            }, 10000); // 9 segundos visível
-        }, 100); // pequeno delay para suavizar a entrada
-    }
-});
+// (Removido listener de storage e DOMContentLoaded para toast, pois agora tudo está centralizado em toast.js)

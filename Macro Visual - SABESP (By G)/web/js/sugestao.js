@@ -296,6 +296,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+if (window.eel) {
+    eel.expose(function update_progress(data) {
+        if (data && data.macro_concluida) {
+            const toast = document.getElementById('notificacaoMacroToast');
+            if (!toast || !toast.classList.contains('visible')) {
+                mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+                sessionStorage.setItem('toastVisivel', 'true');
+            }
+        }
+    }, 'update_progress');
+}
+
+window.addEventListener('storage', function(event) {
+    if (event.key === 'macroFinalizada' && event.newValue === 'true') {
+        const toast = document.getElementById('notificacaoMacroToast');
+        if (!toast || !toast.classList.contains('visible')) {
+            mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+            sessionStorage.setItem('toastVisivel', 'true');
+        }
+        localStorage.setItem('macroFinalizada', 'false');
+    }
+});
+
+// Ao carregar a página, se o toast está marcado como visível, mostra (sem reiniciar animação)
+document.addEventListener('DOMContentLoaded', function() {
+    const toast = document.getElementById('notificacaoMacroToast');
+    if (sessionStorage.getItem('toastVisivel') === 'true' && toast && !toast.classList.contains('visible')) {
+        mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+    }
+});
+
 function iniciarTransicaoPagina() {
     console.log("[index.js] Chamada a iniciarTransicaoPagina.");
     const bodyElement = document.body;

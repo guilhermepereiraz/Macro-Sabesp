@@ -335,7 +335,7 @@ function deslogar() {
 // eel.expose(atualizar_tempo_restante_js, 'atualizar_tempo_restante_js'); // Certifique-se de que atualizar_tempo_restante_js está definida globalmente se for chamada
 
 
-// >>> Funções relacionadas à Macro Consulta Geral (movidas para macros.js) <<<
+// >>> Funções relacionadas à Macro Consulta Geral (moved to macros.js) <<<
 // Se estas funções são usadas na página macros.html (e não apenas login.html),
 // suas definições precisam estar aqui ou em um arquivo JS compartilhado.
 // Mova as definições das funções da Consulta Geral (lerArquivoSelecionadoconsultageral, fecharconsultageral, etc.)
@@ -506,3 +506,19 @@ async function loadProfilePicture() {
     }
 }
 window.addEventListener('DOMContentLoaded', loadProfilePicture);
+
+if (window.eel) {
+    eel.expose(function update_progress(data) {
+        if (data && data.macro_concluida) {
+            mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+            localStorage.setItem('macroFinalizada', 'true');
+        }
+    }, 'update_progress');
+}
+
+window.addEventListener('storage', function(event) {
+    if (event.key === 'macroFinalizada' && event.newValue === 'true') {
+        mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
+        localStorage.setItem('macroFinalizada', 'false');
+    }
+});

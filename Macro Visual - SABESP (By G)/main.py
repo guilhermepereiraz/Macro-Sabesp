@@ -18,6 +18,7 @@ from VinculoVECTORA import login_vectora
 import multiprocessing
 import threading
 
+
 log_format = '%(asctime)s - %(levelname)s - %(threadName)s - %(message)s'
 logging.basicConfig(level=logging.INFO,
                     format=log_format,
@@ -99,6 +100,7 @@ def verificar_instancia_unica():
 
 # Função para enviar uma solicitação de cadastro automatico por email 
 
+@eel.expose
 def enviar_email_cadastro_automatico(dados_cadastro, destinatario_fixo):
     logging.info(f"Recebida solicitação de envio de dois emails automáticos.")
     logging.info(f"Dados do formulário: {dados_cadastro}")
@@ -144,6 +146,7 @@ Sistema de Cadastro Automático
 
             server = smtplib.SMTP(EMAIL_CONFIG['servidor_smtp'], EMAIL_CONFIG['porta_smtp'])
             server.starttls()
+            server.login(remetente_email, remetente_senha)  # <--- CORRIGIDO: logi  n antes do sendmail
             server.sendmail(remetente_email, destinatario_fixo, msg_detalhes.as_string())
             server.quit()
             logging.info(f"Email de detalhes enviado com sucesso para {destinatario_fixo}")
@@ -416,7 +419,7 @@ def alterar_senha_primeiro_login(user_id, senha_atual, nova_senha):
     print("--> Fim da função alterar_senha_primeiro_login.")
 
 
-# Função para verificar as credenciais do usuário
+# Função para verificar as credenciais do usuário 
 
 @eel.expose
 def verificar_credenciais(email, senha_texto_claro):
@@ -749,17 +752,21 @@ def progress_listener(progress_queue):
 
 @eel.expose
 def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, nome_usuario=None):
+    import datetime
+    logging.info(f"[DEBUG] Python: início da função iniciar_macro_consulta_geral_frontend, timestamp: {datetime.datetime.now().isoformat()}")
     logging.info(f"Chamada para iniciar macro Consulta Geral para '{tipo_pesquisa.upper()}'")
     try:
         if not nome_usuario:
             nome_usuario = "Usuário"
-        logging.info(f"Nome do usuário: {nome_usuario}")
+        logging.info(f"[DEBUG] Nome do usuário recebido: {nome_usuario}")
 
         if tipo_pesquisa.lower() not in ['pde', 'hidro']:
             logging.error(f"Tipo de pesquisa inválido: {tipo_pesquisa}")
             return {"status": "erro", "message": "Tipo de pesquisa deve ser 'pde' ou 'hidro'"}
 
+        logging.info(f"[DEBUG] Antes de criar multiprocessing.Queue() - {datetime.datetime.now().isoformat()}")
         progress_queue = multiprocessing.Queue()
+        logging.info(f"[DEBUG] multiprocessing.Queue() criado - {datetime.datetime.now().isoformat()}")
         args = (
             conteudo_base64,
             login_usuario,
@@ -770,9 +777,13 @@ def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_
             5,  # número de threads, ajuste se necessário
             nome_usuario
         )
+        logging.info(f"[DEBUG] Antes de iniciar thread progress_listener - {datetime.datetime.now().isoformat()}")
         threading.Thread(target=progress_listener, args=(progress_queue,), daemon=True).start()
+        logging.info(f"[DEBUG] Thread progress_listener iniciada - {datetime.datetime.now().isoformat()}")
+        logging.info(f"[DEBUG] Antes de iniciar Process macro_consulta_geral_worker - {datetime.datetime.now().isoformat()}")
         p = multiprocessing.Process(target=macro_consulta_geral_worker, args=(args, progress_queue))
         p.start()
+        logging.info(f"[DEBUG] Process macro_consulta_geral_worker iniciado - {datetime.datetime.now().isoformat()}")
 
         return {"status": "sucesso", "message": "Macro iniciada em background."}
     except Exception as e:

@@ -737,7 +737,7 @@ async function verificarLogindasd() {
 // Função para verificar a versão do aplicativo
 async function checkAppVersionForUpdate() {
     console.log("[login.js] Iniciando verificação de versão do aplicativo.");
-    const localAppVersion = "1.0.5"; // Defina a versão atual do seu aplicativo aqui
+    const localAppVersion = "1.0.6"; // Defina a versão atual do seu aplicativo aqui
     const divAtualizar = document.getElementById('divatualizar');
     const principalDiv = document.getElementById('principal'); // A div principal do conteúdo
 

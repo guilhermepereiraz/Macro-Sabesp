@@ -38,6 +38,14 @@
     opacity: 1;
 }
 
+#notificacaoMacroToast .toast-actions {
+    display: flex !important;
+}
+
+.toast-notification.no-animation {
+    transition: none !important;
+}
+
 /* ------------------------------------------- */
 /* ESTILOS DO CONTEÚDO INTERNO DA NOTIFICAÇÃO */
 /* ------------------------------------------- */

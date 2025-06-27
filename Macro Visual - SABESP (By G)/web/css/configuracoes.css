@@ -760,42 +760,6 @@ input:checked+.slider:before {
     border-radius: 50%;
 }
 
-/* Toast Notification */
-.toast-message {
-    visibility: hidden;
-    min-width: 250px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 16px;
-    position: fixed;
-    z-index: 1000;
-    left: 50%;
-    bottom: 30px;
-    transform: translateX(-50%);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0;
-    transition: opacity 0.3s, visibility 0.3s;
-}
-
-.toast-message.show {
-    visibility: visible;
-    opacity: 1;
-}
-
-.toast-message.success {
-    background-color: #28a745;
-}
-
-.toast-message.error {
-    background-color: #dc3545;
-}
-
-.toast-message.info {
-    background-color: #17a2b8;
-}
-
 /* Tooltips */
 .tooltip-icon {
     position: relative;

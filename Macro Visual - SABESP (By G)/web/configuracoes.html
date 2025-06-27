@@ -7,11 +7,13 @@
     <title>Macro JGL - Configurações</title>
     <link rel="stylesheet" href="css/configuracoes.css">
     <link rel="stylesheet" href="css/toast.css">
+    <script type="text/javascript" src="/eel.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/configuracoes.js"></script>
     <link rel="shortcut icon" href="imagens/SabespIcon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="js/botao_fixo.js"></script>
-
     <link rel="stylesheet" href="css/botao_fixo.css">
 
 </head>
@@ -675,15 +677,13 @@
         </div>
 
         <div class="toast-actions">
-            <a href="macroConsultaGeral.html" style="text-decoration: none;" class="btn-toast-secondary">Nova Consulta</a>
-            <button class="btn-toast-primary" onclick="viewResultsFolder()">Ver Resultados</button>
+                        <a href="macroConsultaGeral.html" style="text-decoration: none;" class="btn-toast-secondary" onclick="fecharToastENavegar(event, this.href)">Nova Consulta</a>
+            <button class="btn-toast-primary" onclick="viewResultsFolderPop()">Ver Resultados</button>
         </div>
         <button class="toast-close-btn" onclick="fecharToast()" title="Fechar">&times;</button>
     </div>
 
-    <script type="text/javascript" src="/eel.js"></script>
-    <script src="js/toast.js"></script>
-    <script src="js/configuracoes.js"></script>
+
     <script src="https://kit.fontawesome.com/your-font-awesome-kit-id.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         xintegrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"

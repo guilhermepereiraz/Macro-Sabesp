@@ -1534,32 +1534,3 @@ async function loadProfilePicture() {
 }
 window.addEventListener('DOMContentLoaded', loadProfilePicture);
 
-if (window.eel) {
-    eel.expose(function update_progress(data) {
-        if (data && data.macro_concluida) {
-            mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
-            localStorage.setItem('macroFinalizada', 'true');
-        }
-    }, 'update_progress');
-}
-
-window.addEventListener('storage', function(event) {
-    if (event.key === 'macroFinalizada' && event.newValue === 'true') {
-        mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
-        localStorage.setItem('macroFinalizada', 'false');
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-        if (sessionStorage.getItem('toastVisivel') === 'true') {
-            // Só mostra se não estiver visível
-            const toast = document.getElementById('notificacaoMacroToast');
-            if (toast && !toast.classList.contains('visible')) {
-                mostrarToast('Macro Consulta Geral foi finalizada com êxito.');
-            } else if (toast && toast.classList.contains('visible')) {
-                // Garante que a mensagem está correta mesmo se já estiver visível
-                const msg = toast.querySelector('.toast-message');
-                if (msg) msg.textContent = 'Macro Consulta Geral foi finalizada com êxito.';
-            }
-        }
-    });

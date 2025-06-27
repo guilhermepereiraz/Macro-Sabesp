@@ -61,46 +61,6 @@ active_drivers = []
 driver_lock = threading.Lock()
 
 @eel.expose
-def encerrar_threads():
-    """
-    Função para encerrar imediatamente a macro e todas as threads.
-    """
-    try:
-        print("\n=== INÍCIO DO ENCERRAMENTO DE THREADS ===")
-        print("Iniciando encerramento forçado da macro...")
-        
-        # Encerra os navegadores ativos
-        with driver_lock:
-            total_drivers = len(active_drivers)
-            print(f"Total de drivers ativos encontrados: {total_drivers}")
-            
-            for i, driver in enumerate(active_drivers, 1):
-                try:
-                    print(f"Tentando encerrar driver {i} de {total_drivers}...")
-                    driver.quit()
-                    print(f"Driver {i} encerrado com sucesso")
-                except Exception as e:
-                    print(f"Erro ao encerrar driver {i}: {str(e)}")
-                    print(f"Detalhes do erro: {traceback.format_exc()}")
-            
-            active_drivers.clear()
-            print("Lista de drivers ativos limpa")
-        
-        print("Todos os navegadores foram processados")
-        print("Preparando para encerrar processo Python...")
-        
-        # Força o encerramento do processo Python
-        import sys
-        print("=== FIM DO ENCERRAMENTO DE THREADS ===\n")
-        sys.exit(0)
-        
-    except Exception as e:
-        error_msg = f"Erro crítico ao encerrar threads: {str(e)}"
-        print(error_msg)
-        print(f"Traceback completo: {traceback.format_exc()}")
-        return {"status": "erro", "message": error_msg}
-
-@eel.expose
 def open_results_folder():
     """
     Abre a pasta de resultados da Macro Consulta Geral no explorador de arquivos.

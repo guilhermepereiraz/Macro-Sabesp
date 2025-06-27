@@ -17,6 +17,7 @@ from VinculoNETA import login_neta
 from VinculoVECTORA import login_vectora
 import multiprocessing
 import threading
+from Consulta_GeraL_Final import open_results_folder
 
 
 log_format = '%(asctime)s - %(levelname)s - %(threadName)s - %(message)s'

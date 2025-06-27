@@ -20,8 +20,8 @@
         </div>
 
         <div class="toast-actions">
-            <a href="macroConsultaGeral.html" style="text-decoration: none;" class="btn-toast-secondary">Nova Consulta</a>
-            <button class="btn-toast-primary" onclick="viewResultsFolder()">Ver Resultados</button>
+            <a href="macroConsultaGeral.html" style="text-decoration: none;" class="btn-toast-secondary" onclick="fecharToastENavegar(event, this.href)">Nova Consulta</a>
+            <button class="btn-toast-primary" onclick="viewResultsFolderPop()">Ver Resultados</button>
         </div>
         <button class="toast-close-btn" onclick="fecharToast()" title="Fechar">&times;</button>
     </div>

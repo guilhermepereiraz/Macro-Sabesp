@@ -20,6 +20,29 @@ function chamarDuvida() {
     }
 }
 
+/**
+ * Altera a interface para o modo de processamento da macro.
+ * Esconde o formulário e exibe a tela de status.
+ */
+function mostrarTelaDeProcessamento() {
+    const sitePreviewDiv = document.getElementById('site-preview');
+    const divprocesso = document.getElementById('macrosite-form');
+    const duvidaIcon = document.getElementById('iconeduvida');
+    const statusProcessamentoDiv = document.getElementById('macrosite-processing-status');
+
+    if (sitePreviewDiv) sitePreviewDiv.style.display = 'none';
+    if (divprocesso) divprocesso.style.display = 'none';
+    if (duvidaIcon) duvidaIcon.style.display = 'none';
+
+    if (statusProcessamentoDiv) {
+        statusProcessamentoDiv.style.display = 'block';
+        // Garante que o ciclo de dicas comece quando a tela de processamento é exibida
+        startTipCycle();
+    }
+
+    console.log("UI alterada para o modo de processamento da macro.");
+}
+
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOMContentLoaded disparado. Chamando iniciarTransicaoPagina.');
     iniciarTransicaoPagina();
@@ -53,8 +76,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     // >>> INICIA O CICLO DE DICAS ASSIM QUE O DOM ESTIVER PRONTO <<<
-    // (Útil para testes se a div de status já está visível no HTML)
-    startTipCycle();
+    // --- NOVO: Verifica se a macro já está rodando ao carregar a página ---
+    if (sessionStorage.getItem('macroConsultaGeralRodando') === 'true') {
+        console.log("Estado 'macroConsultaGeralRodando' encontrado. Exibindo tela de processamento.");
+        mostrarTelaDeProcessamento();
+
+        // --- NOVO: Restaura o último estado da UI a partir do sessionStorage ---
+        const lastProgressJSON = sessionStorage.getItem('lastMacroProgress');
+        if (lastProgressJSON) {
+            try {
+                const lastProgressData = JSON.parse(lastProgressJSON);
+                console.log("Restaurando UI com os últimos dados de progresso:", lastProgressData);
+                populateProgressUI(lastProgressData); // Popula a UI com os dados salvos
+            } catch (e) {
+                console.error("Erro ao parsear os dados de progresso do sessionStorage:", e);
+            }
+        }
+    }
+    // --- FIM DA VERIFICAÇÃO ---
+
 
 });
 
@@ -281,22 +321,11 @@ window.onload = function () {
                 return false;
             }
 
-            if (sitePreviewDiv) sitePreviewDiv.style.display = 'none';
-            if (divprocesso) divprocesso.style.display = 'none';
-
-            var duvidaIcon = document.getElementById('iconeduvida');
-
-            if (duvidaIcon) duvidaIcon.style.display = 'none';
-
-            if (statusProcessamentoDiv) {
-                statusProcessamentoDiv.style.display = 'block';
-                statusProcessamentoDiv.removeAttribute('style');
-                statusProcessamentoDiv.style.display = 'block';
-            }
-
-            // A chamada para startTipCycle foi movida para o DOMContentLoaded para iniciar ao carregar a página para teste.
-            // Removida daqui: startTipCycle();
-
+            // --- NOVO: Marca a macro como rodando e atualiza a UI ---
+            sessionStorage.setItem('macroConsultaGeralRodando', 'true');
+            mostrarTelaDeProcessamento();
+            // --------------------------------------------------------
+            
 
             var tipoPesquisa = (pdeOption && pdeOption.checked) ? 'pde' : (hidroOption && hidroOption.checked) ? 'hidro' : '';
             var tipoArquivo = (csvOption && csvOption.checked) ? 'csv' : (excelOption && excelOption.checked) ? 'excel' : '';
@@ -766,6 +795,42 @@ function fecharEncerramentoFinal() {
 // Flag global para garantir que a tela final nunca seja sobrescrita
 let telaFinalExibida = false;
 
+/**
+ * Popula a interface de progresso com os dados fornecidos.
+ * @param {object} data - O objeto de dados contendo o progresso.
+ */
+function populateProgressUI(data) {
+    if (!data) return;
+
+    const osProcessando = document.getElementById('os-processando');
+    const quantidade = document.getElementById('quantidade');
+    const totalCount = document.getElementById('total-count');
+    const oserros = document.getElementById('oserros');
+    const tempoEstimado = document.getElementById('tempoestimado');
+    const porcentagemConcluida = document.getElementById('porcentagem-concluida');
+
+    if (osProcessando && data.os_processando !== undefined) {
+        osProcessando.innerText = data.os_processando;
+    }
+    if (quantidade && data.quantidade !== undefined) {
+        quantidade.innerText = data.quantidade;
+    }
+    if (totalCount && data.total_count !== undefined) {
+        totalCount.innerText = ` de ${data.total_count}`;
+    } else if (totalCount) {
+        totalCount.innerText = "";
+    }
+    if (oserros && data.oserros !== undefined) {
+        oserros.innerText = data.oserros;
+    }
+    if (tempoEstimado && data.tempoestimado !== undefined) {
+        tempoEstimado.innerText = data.tempoestimado;
+    }
+    if (porcentagemConcluida && data.porcentagem_concluida !== undefined) {
+        porcentagemConcluida.innerText = data.porcentagem_concluida;
+    }
+}
+
 eel.expose(update_progress);
 function update_progress(data) {
     // Proteção: se a tela final já foi exibida, não faz mais nada
@@ -775,53 +840,17 @@ function update_progress(data) {
     }
     console.log("Dados recebidos do Python:", data); // Para depuração
 
-    // Elementos HTML que você deseja atualizar
-    const osProcessando = document.getElementById('os-processando');
-    const quantidade = document.getElementById('quantidade');
-    const totalCount = document.getElementById('total-count');
-    const oserros = document.getElementById('oserros');
-    const tempoEstimado = document.getElementById('tempoestimado');
-    const porcentagemConcluida = document.getElementById('porcentagem-concluida');
-    const divencerrarfinal = document.getElementById('DivencerrarFinal');
-    
-
-    // Atualiza "Processando OS"
-    // Espera-se que 'data.os_processando' contenha o identificador do item atual
-    if (osProcessando && data.os_processando !== undefined) {
-        osProcessando.innerText = data.os_processando;
+    // Salva o progresso mais recente no sessionStorage, mas não se for o pacote final
+    if (!data.finalizado) {
+        try {
+            sessionStorage.setItem('lastMacroProgress', JSON.stringify(data));
+        } catch (e) {
+            console.error("Erro ao salvar progresso no sessionStorage:", e);
+        }
     }
 
-    // Atualiza "OS Processadas" (quantidade)
-    // Espera-se que 'data.quantidade' contenha o número de itens processados
-    if (quantidade && data.quantidade !== undefined) {
-        quantidade.innerText = data.quantidade;
-    }
-
-    // Atualiza o total de OS a serem processadas (total-count)
-    // Espera-se que 'data.total_count' contenha o número total de itens
-    if (totalCount && data.total_count !== undefined) {
-        totalCount.innerText = ` de ${data.total_count}`; // Ex: "150 de 300"
-    } else if (totalCount) {
-        totalCount.innerText = ""; // Limpa se não houver contagem total
-    }
-
-    // Atualiza "OS com Erros"
-    // Espera-se que 'data.oserros' contenha o número de erros
-    if (oserros && data.oserros !== undefined) {
-        oserros.innerText = data.oserros;
-    }
-
-    // Atualiza "Tempo Estimado"
-    // Espera-se que 'data.tempoestimado' contenha a estimativa de tempo
-    if (tempoEstimado && data.tempoestimado !== undefined) {
-        tempoEstimado.innerText = data.tempoestimado;
-    }
-
-    // Atualiza "Porcentagem Concluída"
-    // Espera-se que 'data.porcentagem_concluida' contenha a porcentagem
-    if (porcentagemConcluida && data.porcentagem_concluida !== undefined) {
-        porcentagemConcluida.innerText = data.porcentagem_concluida;
-    }
+    // Popula a UI com os novos dados
+    populateProgressUI(data);
 
     // Lógica para lidar com a finalização do processo
     if (data.macro_concluida) {
@@ -834,6 +863,8 @@ function update_progress(data) {
     }
     if (data.finalizado) {
         console.log('[update_progress] Sinal de finalização recebido:', data);
+        sessionStorage.removeItem('lastMacroProgress'); // Limpa o progresso salvo
+        sessionStorage.removeItem('macroConsultaGeralRodando'); // Limpa o estado
         telaFinalExibida = true; // Seta a flag para nunca mais sobrescrever
         // Esconde status de processamento (robustez extra)
         const procDiv = document.getElementById('macrosite-processing-status');

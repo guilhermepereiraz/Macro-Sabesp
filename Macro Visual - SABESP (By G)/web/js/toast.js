@@ -1,22 +1,40 @@
-// toast.js - Centraliza a lógica do toast de notificação cross-tab
+// Substitua a sua função mostrarToast() em js/toast.js por esta versão:
 
-function mostrarToast(mensagem = 'Macro Consulta Geral foi finalizada com êxito.') {
+/**
+ * Mostra a notificação (toast).
+ * @param {string} mensagem - A mensagem a ser exibida.
+ * @param {boolean} comAnimacao - Se true, exibe com a animação de entrada. Se false, exibe instantaneamente.
+ */
+function mostrarToast(mensagem = 'Macro Consulta Geral foi finalizada com êxito.', comAnimacao = true) {
     const toast = document.getElementById('notificacaoMacroToast');
     if (toast) {
-        // Se já está visível, só mantém, não reinicia animação
-        if (toast.classList.contains('visible')) {
-            // Atualiza a mensagem se for diferente
-            const msg = toast.querySelector('.toast-message');
-            if (msg && msg.textContent !== mensagem) msg.textContent = mensagem;
-            return;
-        }
         const msg = toast.querySelector('.toast-message');
         if (msg) msg.textContent = mensagem;
-        toast.classList.remove('visible');
-        // Força reflow para reiniciar a animação
-        void toast.offsetWidth;
+
+        if (comAnimacao) {
+            // Se for para animar, garantimos que a classe .no-animation seja removida.
+            toast.classList.remove('no-animation');
+            toast.classList.remove('visible');
+            void toast.offsetWidth; // Força o reflow para a animação funcionar
+            
+        } else {
+            // Se NÃO for para animar a entrada:
+            toast.classList.add('no-animation'); // 1. Desativa a animação
+        }
+
+        // Em ambos os casos, tornamos o toast visível
         toast.classList.add('visible');
-        // Marca no sessionStorage que o toast está visível
+        
+        // Se a entrada foi sem animação, reativamos as transições para a SAÍDA.
+        if (!comAnimacao) {
+            // Usamos um pequeno timeout para garantir que o navegador processe
+            // a exibição instantânea antes de reativar as transições.
+            setTimeout(() => {
+                toast.classList.remove('no-animation'); // 2. Reativa a animação para o futuro
+            }, 50); // 50ms é um tempo seguro e imperceptível
+        }
+
+        // Salva no sessionStorage para que ele persista entre as páginas
         sessionStorage.setItem('toastVisivel', 'true');
     }
 }
@@ -25,71 +43,79 @@ function fecharToast() {
     const toast = document.getElementById('notificacaoMacroToast');
     if (toast) {
         toast.classList.remove('visible');
-        // Remove o flag do sessionStorage
+        // Limpa a memória da sessão ao fechar
         sessionStorage.removeItem('toastVisivel');
     }
 }
 
-// Listener para eventos cross-tab via localStorage
+// Listener para o gatilho inicial (quando a macro termina)
+// Este sempre chamará a função COM ANIMAÇÃO.
 window.addEventListener('storage', function(event) {
     if (event.key === 'macroFinalizada' && event.newValue === 'true') {
-        mostrarToast();
-        // Limpa o evento para evitar múltiplos disparos
-        localStorage.setItem('macroFinalizada', 'false');
+        mostrarToast('Macro Consulta Geral foi finalizada com êxito.', true); // true = com animação
+        localStorage.setItem('macroFinalizada', 'false'); // Limpa o gatilho
     }
 });
 
-// Permite disparar o toast manualmente para testes
-window.testarToast = function() {
-    mostrarToast();
-};
+// Listener para quando uma nova página é carregada
+// Este sempre chamará a função SEM ANIMAÇÃO.
+window.addEventListener('DOMContentLoaded', function() {
+    if (sessionStorage.getItem('toastVisivel') === 'true') {
+        const toast = document.getElementById('notificacaoMacroToast');
+        // Mostra o toast se ele estiver na memória da sessão, mas sem animar
+        if (toast && !toast.classList.contains('visible')) {
+            mostrarToast('Macro Consulta Geral foi finalizada com êxito.', false); // false = sem animação
+        }
+    }
+});
 
-async function viewResultsFolder() {
+
+// Função para o botão "Ver Resultados" (código que você já tinha)
+async function viewResultsFolderPop() {
     console.log("Solicitando abertura da pasta de resultados...");
-    try {
-        const result = await eel.open_results_folder()(); // Chama a função Python exposta
-        
-        if (result) { // Verifica se houve um retorno
-            if (result.status === "success") {
-                console.log("Comando para abrir pasta enviado com sucesso:", result.message);
-                // Normalmente, nenhuma mensagem é necessária para o usuário aqui,
-                // pois o explorador de arquivos deve abrir.
-            } else {
-                console.error("Erro retornado pelo Python ao tentar abrir pasta:", result.message);
-                // Você pode exibir uma mensagem de erro para o usuário se desejar
-                const errorDiv = document.getElementById('macrosite-error-message'); // Supondo que você tenha um div para erros
-                if (errorDiv) {
-                    errorDiv.textContent = "Não foi possível abrir a pasta de resultados: " + result.message;
-                    errorDiv.style.display = 'block';
-                    setTimeout(() => { errorDiv.style.display = 'none'; }, 7000); // Esconde após 7 segundos
-                } else {
-                    alert("Erro ao abrir pasta de resultados: " + result.message);
-                }
-            }
-        } else {
-            console.warn("Nenhum resultado retornado pela chamada eel.open_results_folder(). Verifique o backend.");
-            // alert("Não foi possível confirmar a ação de abrir a pasta. Verifique o console do backend.");
+    const toast = document.getElementById('notificacaoMacroToast');
+
+    if (toast) {
+        toast.classList.remove('visible');
+        sessionStorage.removeItem('toastVisivel');
+    }
+
+    if (window.eel) {
+        try {
+            await eel.open_results_folder()();
+            console.log("Comando para abrir pasta enviado com sucesso.");
+            
+        } catch (error) {
+            console.error("Erro ao tentar chamar eel.open_results_folder():", error);
+            alert("Ocorreu um erro ao tentar abrir a pasta de resultados.");
         }
-    } catch (error) {
-        console.error("Erro ao tentar chamar eel.open_results_folder():", error);
-        // Exibe um erro genérico
-        const errorDiv = document.getElementById('macrosite-error-message');
-        if (errorDiv) {
-            errorDiv.textContent = "Erro de comunicação ao tentar abrir a pasta de resultados.";
-            errorDiv.style.display = 'block';
-            setTimeout(() => { errorDiv.style.display = 'none'; }, 7000);
-        } else {
-            alert("Ocorreu um erro ao tentar abrir a pasta de resultados. Verifique o console para mais detalhes.");
-        }
+    } else {
+        alert("A conexão com o backend (Eel) não está disponível.");
     }
 }
 
-// Exibe o toast se o flag estiver ativo ao carregar a página (persistência até fechar)
-window.addEventListener('DOMContentLoaded', function() {
-    const toast = document.getElementById('notificacaoMacroToast');
-    if (sessionStorage.getItem('toastVisivel') === 'true' && toast && !toast.classList.contains('visible')) {
-        mostrarToast();
-    }
-});
+/**
+ * Fecha o toast com animação e, em seguida, navega para uma nova URL.
+ * Impede a navegação padrão para dar tempo para a animação ser concluída.
+ * @param {Event} event - O evento de clique do mouse.
+ * @param {string} url - A URL para a qual navegar após a animação.
+ */
+function fecharToastENavegar(event, url) {
+    // 1. Impede que o link navegue para a URL imediatamente
+    event.preventDefault();
 
-// Exemplo: para disparar manualmente, execute no console: window.testarToast();
+    const toast = document.getElementById('notificacaoMacroToast');
+    if (toast) {
+        // 2. Remove a classe 'visible' para iniciar a animação de saída
+        toast.classList.remove('visible');
+        sessionStorage.removeItem('toastVisivel');
+
+        // 3. Aguarda a animação terminar (ex: 400ms) e SÓ DEPOIS navega
+        //    (O tempo deve ser igual ao 'transition-duration' do seu CSS para o toast)
+        setTimeout(() => {
+            window.location.href = url;
+        }, 400); // Ajuste este valor se a sua animação for mais longa ou curta
+    }
+}
+
+// --- Fim do NOVO código para js/toast.js ---

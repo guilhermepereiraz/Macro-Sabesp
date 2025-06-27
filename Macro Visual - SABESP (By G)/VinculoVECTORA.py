@@ -1,6 +1,19 @@
+import sys
+import os
+import logging
+
+# Função para obter o caminho correto do driver quando compilado
+def get_driver_path():
+    if getattr(sys, 'frozen', False):
+        # Rodando como um executável PyInstaller
+        return os.path.join(sys._MEIPASS, 'msedgedriver.exe')
+    # Rodando como script normal
+    return 'msedgedriver.exe'
+
 def login_vectora(t_costumer, t_login, t_senha):
     global driver, wait, implicit_wait
     from selenium.webdriver.edge.options import Options
+    from selenium.webdriver.edge.service import Service
     from selenium import webdriver
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
@@ -15,7 +28,8 @@ def login_vectora(t_costumer, t_login, t_senha):
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
 
-    driver = webdriver.ChromiumEdge(options=options)
+    service = Service(executable_path=get_driver_path())
+    driver = webdriver.ChromiumEdge(service=service, options=options)
     wait = WebDriverWait(driver, 30)
 
 
@@ -51,7 +65,8 @@ def login_vectora(t_costumer, t_login, t_senha):
             return extracao_de_dados_result  
 
     except Exception as e:
-        print(f"Erro ao interagir com a janela de autenticação: {str(e)}")
+        logging.error(f"Erro ao interagir com a janela de autenticação VECTORA: {str(e)}")
+        return {'nome': '', 'perfil': ''}
 
 def extracao_de_dados():
     from selenium.webdriver.support.ui import WebDriverWait
@@ -62,16 +77,14 @@ def extracao_de_dados():
         EC.presence_of_element_located((By.XPATH, "//html/body/div[1]/div[3]/div[2]/div/div/table/tbody/tr/td[1]"))
     ).text 
     nome = nome_vectora.upper()  # Todas as palavras com a primeira letra maiúscula
-    print(nome)
+    logging.info(f"Nome VECTORA extraído: {nome}")
 
     perfil_vectora = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div[3]/div[2]/div/div/table/tbody/tr/td[2]"))
     ).text
 
     perfil = perfil_vectora # Todas as palavras com a primeira letra maiúscula
-    print(perfil)
+    logging.info(f"Perfil VECTORA extraído: {perfil}")
 
     driver.quit()  # Fecha o navegador após a extração dos dados
     return {"nome": nome, "perfil": perfil}
-
-

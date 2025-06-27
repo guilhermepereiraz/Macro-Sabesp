@@ -1,4 +1,5 @@
 from selenium.webdriver.edge.options import Options
+from selenium.webdriver.edge.service import Service
 from time import sleep
 import time
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, ElementClickInterceptedException
@@ -25,12 +26,22 @@ import base64
 import io
 import eel
 import logging
+import sys
 import csv
 
 # Configura o logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-driver = None
+# Função para obter o caminho correto do driver quando compilado
+def get_driver_path():
+    if getattr(sys, 'frozen', False):
+        # Rodando como um executável PyInstaller
+        return os.path.join(sys._MEIPASS, 'msedgedriver.exe')
+    # Rodando como script normal
+    return 'msedgedriver.exe'
+
+
+driver = None # Mantenha como None para verificação
 wait = None
 implicit_wait = None
 
@@ -279,6 +290,7 @@ def macro(valor):
         time.sleep(1)  # Espera um pouco para garantir que o clique foi registrado
     except:
         print("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.") # Exemplo de log
+        logging.error("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.")
 
     try:
 
@@ -289,6 +301,7 @@ def macro(valor):
         time.sleep(1)  # Espera um pouco para garantir que o clique foi registrado
     except:
         print("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.2") # Exemplo de log
+        logging.error("Erro: Elemento não encontrado ou não clicável dentro do tempo limite.2")
 
     # ARRUMAR ESSA FUNCAO
 
@@ -557,8 +570,7 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
         #     "profile.default_content_setting_values.notifications": 2
         # })
 
-        driver = webdriver.ChromiumEdge(options=options)
-        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        # A inicialização do driver foi movida para baixo para evitar duplicação
 
         if driver is not None:
             logging.warning("Instância do navegador existente detectada antes de iniciar uma nova macro. Fechando.")
@@ -568,7 +580,9 @@ def iniciar_macro(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, t
                 logging.error(f"Erro ao tentar fechar instância de navegador existente: {e}")
             driver = None
 
-        driver = webdriver.ChromiumEdge(options=options)
+        service = Service(executable_path=get_driver_path())
+        driver = webdriver.ChromiumEdge(service=service, options=options)
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         wait = WebDriverWait(driver, 30)
 
         logging.info("Navegador iniciado com sucesso.")

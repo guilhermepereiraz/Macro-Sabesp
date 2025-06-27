@@ -1,8 +1,21 @@
 from time import sleep
+import sys
+import os
+import logging
+
+# Função para obter o caminho correto do driver quando compilado
+def get_driver_path():
+    if getattr(sys, 'frozen', False):
+        # Rodando como um executável PyInstaller
+        return os.path.join(sys._MEIPASS, 'msedgedriver.exe')
+    # Rodando como script normal
+    return 'msedgedriver.exe'
+
 
 def login(l_login, s_senha):
     global driver, waint, implicit_wait
     from selenium.webdriver.edge.options import Options
+    from selenium.webdriver.edge.service import Service
     from selenium import webdriver
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
@@ -17,7 +30,8 @@ def login(l_login, s_senha):
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--ignore-ssl-errors')
 
-    driver = webdriver.ChromiumEdge(options=options)
+    service = Service(executable_path=get_driver_path())
+    driver = webdriver.ChromiumEdge(service=service, options=options)
     wait = WebDriverWait(driver, 30)
 
     driver.get('https://geoprd.sabesp.com.br/sabespwfm/')
@@ -37,7 +51,8 @@ def login(l_login, s_senha):
         extracao_de_dados_result = extracao_de_dados()
         return extracao_de_dados_result  # Deve retornar {'nome': ..., 'perfil': ...}
     except Exception as e:
-        print(f"Erro ao interagir com a janela de autenticação: {str(e)}")
+        logging.error(f"Erro ao interagir com a janela de autenticação: {str(e)}")
+        return {'nome': '', 'perfil': ''}
 
 def extracao_de_dados():
     global driver,waint,implicit_wait
@@ -64,10 +79,9 @@ def extracao_de_dados():
         if isinstance(nome, list):
             nome = ' '.join(nome)
 
-        print(f"Nome: {nome}, Perfil: {perfil}")
+        logging.info(f"Nome WFM extraído: {nome}, Perfil: {perfil}")
         driver.quit()  # Fecha o navegador após a extração dos dados
         return {'nome': nome, 'perfil': perfil}
     except Exception as e:
-        print(f"Erro ao interagir com a janela de autenticação: {str(e)}")
+        logging.error(f"Erro ao extrair dados do WFM: {str(e)}")
         return {'nome': '', 'perfil': ''}
-

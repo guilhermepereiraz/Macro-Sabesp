@@ -19,6 +19,9 @@ import multiprocessing
 import threading
 from Consulta_GeraL_Final import open_results_folder
 
+# Adicionado para compatibilidade com PyInstaller em Windows
+multiprocessing.freeze_support()
+
 
 log_format = '%(asctime)s - %(levelname)s - %(threadName)s - %(message)s'
 logging.basicConfig(level=logging.INFO,
@@ -69,33 +72,48 @@ eel.init('web')
 #Função Para verificar se já existe uma instância do aplicativo em execução
 
 def verificar_instancia_unica():
+    """
+    Verifica se já existe outra instância do aplicativo em execução.
+    Funciona tanto no ambiente de desenvolvimento (script Python) quanto
+    no aplicativo compilado (.exe).
+    """
+    # Importações dentro da função para manter o escopo limpo
     import psutil
     import os
     import sys
+    import ctypes
+
     current_pid = os.getpid()
-    exe_name = os.path.basename(sys.executable).lower()
-    script_path = os.path.abspath(sys.argv[0]).lower()
-    count = 0
+    is_frozen = getattr(sys, 'frozen', False)
+
+    # O caminho do script/executável atual é a referência mais confiável.
+    current_path = os.path.abspath(sys.argv[0]).lower()
+
+    instance_found = False
     for proc in psutil.process_iter(['pid', 'name', 'exe', 'cmdline']):
         try:
+            # Pula o processo atual
             if proc.info['pid'] == current_pid:
                 continue
-            proc_exe = proc.info.get('exe')
-            proc_name = proc.info.get('name', '').lower()
-            cmdline = proc.info.get('cmdline')
-            # Bloqueia se já houver outro EXE igual rodando
-            if proc_exe and os.path.basename(proc_exe).lower() == exe_name:
-                count += 1
-                continue
-            # Bloqueia se já houver outro script Python igual rodando
-            if cmdline and any(os.path.abspath(str(arg)).lower() == script_path for arg in cmdline):
-                count += 1
+
+            if is_frozen:
+                # Se for um app compilado, compara o caminho do executável.
+                if proc.info['exe'] and os.path.abspath(proc.info['exe']).lower() == current_path:
+                    instance_found = True
+                    break
+            else:
+                # Se for um script, verifica se outro processo python está executando o mesmo script.
+                cmdline = proc.info['cmdline']
+                if cmdline and len(cmdline) > 1 and os.path.abspath(cmdline[1]).lower() == current_path:
+                    instance_found = True
+                    break
         except (psutil.NoSuchProcess, psutil.AccessDenied, Exception):
             continue
-    if count > 0:
+
+    if instance_found:
         print("Já existe uma instância do aplicativo em execução. Fechando...")
-        import ctypes
-        ctypes.windll.user32.MessageBoxW(0, "Já existe uma instância do aplicativo em execução", "Aviso", 0x10)
+        # Exibe uma caixa de mensagem de aviso (0x30 = MB_ICONWARNING)
+        ctypes.windll.user32.MessageBoxW(0, "Já existe uma aba do aplicativo em execução.", "Aviso", 0x30)
         sys.exit(0)
 
 
@@ -945,8 +963,9 @@ def close_callback(page, sockets):
 
 if __name__ == "__main__":
     try:
+        verificar_instancia_unica() # Garante que apenas uma instância seja executada
         logging.info("--- Iniciando Aplicação Eel ---")
-        eel.start('login.html', mode='chrome', size=(screen_width, screen_height), close_callback=close_callback)
+        eel.start('login.html', mode='edge', size=(screen_width, screen_height), close_callback=close_callback)
         logging.info("Chamada eel.start retornou.")
     except EnvironmentError as e:
         logging.error(f"Erro de ambiente ao iniciar EEL: {e}")
@@ -958,5 +977,3 @@ if __name__ == "__main__":
         os._exit(1)
 
     logging.info("--- Saindo da Aplicação ---")
-
-

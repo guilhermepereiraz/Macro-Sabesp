@@ -444,9 +444,18 @@ def armazena_final(dados, lock, identificador, nome_arquivo, tipo_arquivo):
         print(f"Erro ao salvar CSV: {e}")
         return False
 
+# Função para obter o caminho correto do driver quando compilado
+def get_driver_path():
+    if getattr(sys, 'frozen', False):
+        # Rodando como um executável PyInstaller
+        return os.path.join(sys._MEIPASS, 'msedgedriver.exe')
+    # Rodando como script normal
+    return 'msedgedriver.exe'
+
 
 def login(thread_id, l_login=None, s_senha=None):
     from selenium.webdriver.edge.options import Options
+    from selenium.webdriver.edge.service import Service
     from selenium import webdriver
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
@@ -456,23 +465,28 @@ def login(thread_id, l_login=None, s_senha=None):
 
     options = Options()
     options.add_argument("--incognito")
-    options.add_argument("--headless") 
+    options.add_argument("--headless") # Considere remover o modo headless para depuração
     options.add_argument("--disable-gpu") 
     options.page_load_strategy = 'normal'
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-extensions")
-    options.add_argument("--guest")
-    options.add_experimental_option("prefs", {
-        'download.prompt_for_download': False,
-        'download.directory_upgrade': True,
-        'safeBrowse.enabled': True,
-        "profile.default_content_setting_values.notifications": 2
-    })
+
+    # --- Adicionar estas opções ---
+    options.add_argument("--disable-in-process-stack-traces")
+    options.add_argument("--disable-logging")
+    options.add_argument("--log-level=3")
+    options.add_argument("--remote-debugging-port=0") # Pede para o sistema escolher uma porta livre
+    options.add_argument("--output=/dev/null") # Suprime logs do driver (para Linux/Mac, em Windows o efeito pode variar)
+    # --- Fim das novas opções ---
+
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
     driver = None
     try:
         print(f"Thread {threading.current_thread().name} - Inicializando driver...")
-        driver = webdriver.ChromiumEdge(options=options) # Supondo Edge, se for Chrome, mudar para webdriver.Chrome
+        service = Service(executable_path=get_driver_path())
+        driver = webdriver.ChromiumEdge(service=service, options=options)
         with driver_lock:
             active_drivers.append(driver)
         print(f"Thread {threading.current_thread().name} - Driver inicializado.")
@@ -1108,38 +1122,57 @@ def thread_task(thread_id, items_chunk, item_type, current_file_lock, current_co
         driver.quit()
         print(f"\nThread {threading.current_thread().name} terminou e saiu do driver.", flush=True)
 
+
+def cleanup_driver(driver_instance, thread_name):
+    """Fecha o driver de forma segura e lida com possíveis erros."""
+    if driver_instance:
+        print(f"Thread {thread_name} - Limpando instância de driver instável...")
+        try:
+            # Encerra o navegador e o processo do driver
+            driver_instance.quit()
+        except Exception as e:
+            # É normal receber um erro aqui se o driver já travou, então apenas registramos.
+            print(f"Thread {thread_name} - Exceção ao chamar driver.quit() (normal se já travado): {e}")
+    # Retorna None para que a variável do driver possa ser zerada
+    return None
+
+# Em Consulta_GeraL_Final.py
+# SUBSTITUA SUA FUNÇÃO ANTIGA PELA VERSÃO ABAIXO
+
 def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None, progress_queue=None):
     global current_os_being_processed, current_os_lock
     global processados, erros, total_processar, tempo_inicial_global
 
     driver = None
-    MAX_RELOGIN_ATTEMPTS = 3  # Corrigido para 3 tentativas, igual ao processamento em lista
+    MAX_RELOGIN_ATTEMPTS = 3
+    thread_name = threading.current_thread().name
 
-    print(f"Thread {threading.current_thread().name} INICIOU")
-    while True:
+    print(f"Thread {thread_name} INICIOU")
+    while not stop_event.is_set():
         try:
             # Envolve todo o loop principal em try/except amplo
             if driver is None:
                 try:
                     driver = login(threading.current_thread().name, l_login, s_senha)
                     if isinstance(driver, dict) and driver.get("status") == "error":
-                        print(f"Thread {threading.current_thread().name} - Erro de login detectado: {driver.get('message')}", flush=True)
+                        print(f"Thread {thread_name} - Erro de login detectado: {driver.get('message')}", flush=True)
                         driver = None
-                        print(f"Thread {threading.current_thread().name} - Tentando novamente login em 5 segundos...")
+                        print(f"Thread {thread_name} - Tentando novamente login em 5 segundos...")
                         time.sleep(5)
                         continue
                 except Exception as e:
-                    print(f"Thread {threading.current_thread().name} - Erro ao inicializar driver: {e}", flush=True)
+                    print(f"Thread {thread_name} - Erro ao inicializar driver: {e}", flush=True)
                     driver = None
-                    print(f"Thread {threading.current_thread().name} - Tentando novamente login em 5 segundos...")
+                    print(f"Thread {thread_name} - Tentando novamente login em 5 segundos...")
                     time.sleep(5)
                     continue
 
             try:
                 item = item_queue.get(timeout=3)
             except queue.Empty:
-                print(f"Thread {threading.current_thread().name} FINALIZOU (fila vazia)")
+                print(f"Thread {thread_name} FINALIZOU (fila vazia)")
                 break
+
             attempts = 0
             processed = False
             while attempts < MAX_RELOGIN_ATTEMPTS and not processed:
@@ -1147,29 +1180,39 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                     try:
                         driver = login(threading.current_thread().name, l_login, s_senha)
                         if isinstance(driver, dict) and driver.get("status") == "error":
-                            print(f"Thread {threading.current_thread().name} - Erro de login detectado (relogin): {driver.get('message')}", flush=True)
+                            print(f"Thread {thread_name} - Erro de login detectado (relogin): {driver.get('message')}", flush=True)
                             driver = None
-                            print(f"Thread {threading.current_thread().name} - Tentando novamente login em 5 segundos...")
+                            print(f"Thread {thread_name} - Tentando novamente login em 5 segundos...")
                             time.sleep(5)
                             continue
                     except Exception as e:
-                        print(f"Thread {threading.current_thread().name} - Erro ao tentar reabrir driver: {e}", flush=True)
+                        print(f"Thread {thread_name} - Erro ao tentar reabrir driver: {e}", flush=True)
                         driver = None
-                        print(f"Thread {threading.current_thread().name} - Tentando novamente login em 5 segundos...")
+                        print(f"Thread {thread_name} - Tentando novamente login em 5 segundos...")
                         time.sleep(5)
                         continue
+                
                 with current_os_lock:
                     current_os_being_processed = str(item).strip()
+                
                 try:
+                    # >>>>> ADIÇÃO 1: VERIFICAÇÃO DE SAÚDE DO DRIVER <<<<<
+                    # Testa se o driver ainda está respondendo antes de executar a macro principal.
+                    # Se o navegador travou, esta linha vai falhar e o código pulará para o 'except'.
+                    driver.execute_script("return 1;")
+
+                    # Chamada original para a sua macro, agora mais segura
                     macro(driver, item, item_type, current_file_lock, item,
                           identificador=identificador,
                           nome_arquivo=nome_arquivo,
                           tipo_arquivo=tipo_arquivo)
+                    
                     with current_counter_lock:
                         processados += 1
                     processed = True
+
                 except Exception as e_macro:
-                    print(f"Thread {threading.current_thread().name} - Erro ao processar item {item} (tentativa {attempts+1}): {e_macro}", flush=True)
+                    print(f"Thread {thread_name} - Erro ao processar item {item} (tentativa {attempts+1}): {e_macro}", flush=True)
                     if driver:
                         try:
                             with driver_lock:
@@ -1177,18 +1220,25 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                                     active_drivers.remove(driver)
                             driver.quit()
                         except Exception as e_close:
-                            print(f"Thread {threading.current_thread().name} - Erro ao fechar driver após falha: {e_close}", flush=True)
-                    attempts += 1  # Tenta de novo
-            # Só conta erro e grava no CSV de erro após TODAS as tentativas falharem
+                            print(f"Thread {thread_name} - Erro ao fechar driver após falha: {e_close}", flush=True)
+                    
+                    # >>>>> ADIÇÃO 2: GARANTIR O RESET COMPLETO DO DRIVER <<<<<
+                    # Garante que, após qualquer erro, a variável 'driver' seja zerada,
+                    # forçando uma nova criação de navegador na próxima tentativa.
+                    driver = None
+                    
+                    attempts += 1  # Sua lógica de tentativas original
+
+            # Lógica original para contar e registrar o erro
             if not processed and attempts >= MAX_RELOGIN_ATTEMPTS:
                 with current_counter_lock:
                     erros += 1
-                # Só grava no arquivo de erro após todas as tentativas falharem
                 if item_type.lower() == "pde":
                     adiciona_nao_encontrado_template_pde(item, current_file_lock)
                 elif item_type.lower() in ["hidro", "hidrometro"]:
                     adiciona_nao_encontrado_template_hidro(item, current_file_lock)
-            # Envio de progresso parcial após cada item processado (sucesso ou erro)
+            
+            # Lógica original para atualizar o progresso (preservada)
             if progress_queue is not None:
                 with current_counter_lock, current_os_lock:
                     completos = processados + erros
@@ -1222,9 +1272,12 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                         "finalizado": False
                     }
                     progress_queue.put(dados_parciais)
+            
             item_queue.task_done()
+
+        # Bloco de erro fatal original (preservado)
         except Exception as e_fatal:
-            print(f"Thread {threading.current_thread().name} - Exceção inesperada global: {e_fatal}", flush=True)
+            print(f"Thread {thread_name} - Exceção inesperada global: {e_fatal}", flush=True)
             traceback.print_exc(file=sys.stdout)
             if driver:
                 try:
@@ -1233,17 +1286,19 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                             active_drivers.remove(driver)
                     driver.quit()
                 except Exception as e_close:
-                    print(f"Thread {threading.current_thread().name} - Erro ao fechar driver após exceção global: {e_close}", flush=True)
+                    print(f"Thread {thread_name} - Erro ao fechar driver após exceção global: {e_close}", flush=True)
                 driver = None
-            print(f"Thread {threading.current_thread().name} - Reiniciando ciclo após exceção global em 5 segundos...")
+            print(f"Thread {thread_name} - Reiniciando ciclo após exceção global em 5 segundos...")
             time.sleep(5)
             continue
+
+    # Lógica final de fechamento do driver (preservada)
     if driver:
         with driver_lock:
             if driver in active_drivers:
                 active_drivers.remove(driver)
         driver.quit()
-        print(f"Thread {threading.current_thread().name} FINALIZOU (driver encerrado)")
+        print(f"Thread {thread_name} FINALIZOU (driver encerrado)")
 
 # (Fim da função thread_task_dynamic)
 # Não deve haver nenhum bloco de ajuste de threads, criação de item_queue ou threads aqui fora de função!

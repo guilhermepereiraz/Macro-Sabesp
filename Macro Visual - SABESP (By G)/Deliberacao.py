@@ -31,6 +31,7 @@ import pandas as pd
 from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException, WebDriverException, TimeoutException, UnexpectedAlertPresentException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
 from selenium import webdriver
@@ -55,6 +56,15 @@ import glob
 
 # Configuração de logging (opcional, mas bom para depuração)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Função para obter o caminho correto do driver quando compilado
+def get_driver_path():
+    if getattr(sys, 'frozen', False):
+        # Rodando como um executável PyInstaller
+        return os.path.join(sys._MEIPASS, 'msedgedriver.exe')
+    # Rodando como script normal
+    return 'msedgedriver.exe'
+
 
 def normalize_url(url_string):
     """
@@ -301,7 +311,8 @@ def login():
     
     # Certifique-se de que o caminho para o msedgedriver.exe está correto ou no PATH do sistema
     # Exemplo: driver = webdriver.Edge(executable_path='C:/caminho/para/msedgedriver.exe', options=options)
-    driver = webdriver.ChromiumEdge(options=options)
+    service = Service(executable_path=get_driver_path())
+    driver = webdriver.ChromiumEdge(service=service, options=options)
     wait = WebDriverWait(driver, 10)
     
     driver.get('http://10.7.41.190/vectorasys/')
@@ -347,7 +358,8 @@ def worker_processar_instalacoes(q, df_template, nome_col_instalacao, output_fil
         'safeBrowse.enabled': True,
         "profile.default_content_setting_values.notifications": 2
     })
-    driver = webdriver.ChromiumEdge(options=options)
+    service = Service(executable_path=get_driver_path())
+    driver = webdriver.ChromiumEdge(service=service, options=options)
     wait = WebDriverWait(driver, 10)
     driver.get('http://10.7.41.190/vectorasys/')
     l_costumer = 'sabesp.mn'

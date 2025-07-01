@@ -546,7 +546,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (otherSettingsGrid) {
             otherSettingsGrid.style.display = 'block'; // Corrigido para 'block' para garantir exibição correta
-            const tiloerro = document.getElementById('tito').style.display = 'none'; // Corrigido para 'block' para garantir exibição correta
         }
         breadcrumb.style.display = 'none';
         currentSectionSpan.textContent = '';
@@ -1533,4 +1532,3 @@ async function loadProfilePicture() {
     }
 }
 window.addEventListener('DOMContentLoaded', loadProfilePicture);
-

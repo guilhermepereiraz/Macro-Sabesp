@@ -1,0 +1,8 @@
+eel
+pandas
+PyMySQL
+selenium
+pypiwin32
+openpyxl
+psutil
+python-dateutil

@@ -373,6 +373,8 @@ body.is-visible {
     padding: 30px;
     margin-bottom: 40px;
     border-left: 5px solid #17a2b8;
+    gap: 20px; /* Espaçamento entre os cards */
+    align-items: stretch;
     /* Cor secundária de destaque */
 }
 
@@ -384,7 +386,7 @@ body.is-visible {
 }
 
 .quick-settings-grid {
-    display: grid;
+    display: flex;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
 }
@@ -397,6 +399,9 @@ body.is-visible {
     text-align: center;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     transition: transform 0.2s ease-in-out;
+    flex: 1; /* Faz com que cada card ocupe o mesmo espaço */
+    display: flex;
+    flex-direction: column; /
 }
 
 .quick-setting-item:hover {
@@ -426,6 +431,11 @@ body.is-visible {
 .quick-setting-item .btn-sm {
     padding: 6px 12px;
     font-size: 0.8em;
+}
+
+.quick-setting-item .btn-secondary {
+    margin-top: auto; /* Esta é a linha principal: cria uma margem automática
+                         acima do botão, empurrando-o para a base do card. */
 }
 
 /* Grid para as categorias de configuração (cards) */

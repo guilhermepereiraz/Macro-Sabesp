@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="css/toast.css">
     <script type="text/javascript" src="/eel.js"></script>
     <script src="js/toast.js"></script>
-    <script src="js/configuracoes.js"></script>
     <link rel="shortcut icon" href="imagens/SabespIcon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -644,6 +643,23 @@
             </section>
         </div>
 
+        <!-- MODAL DE CONFIRMAÇÃO -->
+        <div id="confirmation-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Título do Modal</h3>
+                    <button class="close-button">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-message">Mensagem do modal.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="modal-cancel-btn" class="btn btn-secondary">Cancelar</button>
+                    <button id="modal-confirm-btn" class="btn btn-danger">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
         <div id="transp"></div>
     <div class="fab-button" id="fixedButton" onclick="abrirDuvida()">
         <i class="fas fa-headset icon"></i>
@@ -663,6 +679,9 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO -->
+    
     </main>
 
     <!-- POP_UP macroConsultaGeral -->
@@ -683,7 +702,7 @@
         <button class="toast-close-btn" onclick="fecharToast()" title="Fechar">&times;</button>
     </div>
 
-
+    <script src="js/configuracoes.js"></script>
     <script src="https://kit.fontawesome.com/your-font-awesome-kit-id.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         xintegrity="sha384-DfZ2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"

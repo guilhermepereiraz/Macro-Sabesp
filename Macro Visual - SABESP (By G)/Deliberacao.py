@@ -2,35 +2,6 @@ import pandas as pd
 from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException, WebDriverException, TimeoutException, UnexpectedAlertPresentException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.common.by import By
-from selenium import webdriver
-from datetime import datetime
-import time
-from selenium.webdriver.support.ui import Select
-import threading
-import numpy as np
-import sys
-import traceback
-import eel
-# import logging
-import subprocess
-import pymysql.cursors
-import win32gui
-import win32con
-import os
-import ctypes
-import queue
-import glob
-import openpyxl
-from openpyxl.styles import Font, Alignment # Importa Font e Alignment
-import shutil # Importado para clonar arquivos
-from urllib.parse import urlparse # Importado para normalizar URLs
-from math import ceil
-import pandas as pd
-from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException, WebDriverException, TimeoutException, UnexpectedAlertPresentException
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
@@ -53,6 +24,11 @@ import os
 import ctypes
 import queue
 import glob
+import openpyxl
+from openpyxl.styles import Font, Alignment # Importa Font e Alignment
+import shutil # Importado para clonar arquivos
+from urllib.parse import urlparse # Importado para normalizar URLs
+from math import ceil
 
 # Configuração de logging (opcional, mas bom para depuração)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

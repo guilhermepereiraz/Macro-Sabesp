@@ -15,13 +15,14 @@ import base64
 from VinculoWFM import login
 from VinculoNETA import login_neta
 from VinculoVECTORA import login_vectora
-import multiprocessing
+import multiprocessing 
 import threading
 from Consulta_GeraL_Final import open_results_folder
+from Consulta_GeraL_Final import iniciar_macro_consulta_geral
 
-# Adicionado para compatibilidade com PyInstaller em Windows
-multiprocessing.freeze_support()
 
+stop_macro_event = multiprocessing.Event()
+active_macro_processes = []
 
 log_format = '%(asctime)s - %(levelname)s - %(threadName)s - %(message)s'
 logging.basicConfig(level=logging.INFO,
@@ -67,7 +68,33 @@ try:
 except Exception as e:
     logging.warning(f"Não foi possível obter a resolução da tela, usando valores padrão. Erro: {e}")
 
-eel.init('web') 
+
+
+
+def resource_path(relative_path):
+    """ Retorna o caminho absoluto para o recurso, funciona para dev e para PyInstaller """
+    try:
+        # PyInstaller cria uma pasta temp e armazena o caminho em _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
+web_folder = resource_path('web')
+edgedriver_path = resource_path('msedgedriver.exe')
+
+eel.init(web_folder) 
+
+try:
+    # Pega o DIRETÓRIO onde o msedgedriver.exe está
+    driver_directory = os.path.dirname(edgedriver_path)
+    # Adiciona o diretório ao PATH do sistema para que o Eel/Selenium o encontre
+    os.environ['PATH'] += os.pathsep + driver_directory
+    logging.info(f"Diretório do WebDriver adicionado ao PATH: {driver_directory}")
+except Exception as e:
+    logging.error(f"Não foi possível adicionar o diretório do driver ao PATH: {e}")
 
 #Função Para verificar se já existe uma instância do aplicativo em execução
 
@@ -755,9 +782,9 @@ def iniciar_macro_deliberacaoo(costumer, login, senha, conteudo_base64, nome_arq
 
 # Função para iniciar a macro de Consulta Geral NETA
 
-def macro_consulta_geral_worker(args, progress_queue):
-    from Consulta_GeraL_Final import iniciar_macro_consulta_geral
-    iniciar_macro_consulta_geral(*args, progress_queue=progress_queue)
+# def macro_consulta_geral_worker(args, progress_queue):
+#     from Consulta_GeraL_Final import iniciar_macro_consulta_geral
+#     iniciar_macro_consulta_geral(*args, progress_queue=progress_queue)
 
 def progress_listener(progress_queue):
     while True:
@@ -772,6 +799,8 @@ def progress_listener(progress_queue):
 @eel.expose
 def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, nome_usuario=None):
     import datetime
+    import multiprocessing
+    import sys
     logging.info(f"[DEBUG] Python: início da função iniciar_macro_consulta_geral_frontend, timestamp: {datetime.datetime.now().isoformat()}")
     logging.info(f"Chamada para iniciar macro Consulta Geral para '{tipo_pesquisa.upper()}'")
     try:
@@ -786,6 +815,10 @@ def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_
         logging.info(f"[DEBUG] Antes de criar multiprocessing.Queue() - {datetime.datetime.now().isoformat()}")
         progress_queue = multiprocessing.Queue()
         logging.info(f"[DEBUG] multiprocessing.Queue() criado - {datetime.datetime.now().isoformat()}")
+        
+        stop_macro_event.clear()
+
+        # Os argumentos devem corresponder exatamente aos da função 'iniciar_macro_consulta_geral'
         args = (
             conteudo_base64,
             login_usuario,
@@ -793,16 +826,29 @@ def iniciar_macro_consulta_geral_frontend(conteudo_base64, login_usuario, senha_
             nome_arquivo,
             tipo_arquivo,
             tipo_pesquisa,
-            5,  # número de threads, ajuste se necessário
-            nome_usuario
+            5,  # número de browsers/threads
+            nome_usuario, # identificador
+            progress_queue # a fila para comunicação de volta
         )
+        
         logging.info(f"[DEBUG] Antes de iniciar thread progress_listener - {datetime.datetime.now().isoformat()}")
+        # Esta thread ouve a fila no processo principal (GUI)
         threading.Thread(target=progress_listener, args=(progress_queue,), daemon=True).start()
         logging.info(f"[DEBUG] Thread progress_listener iniciada - {datetime.datetime.now().isoformat()}")
-        logging.info(f"[DEBUG] Antes de iniciar Process macro_consulta_geral_worker - {datetime.datetime.now().isoformat()}")
-        p = multiprocessing.Process(target=macro_consulta_geral_worker, args=(args, progress_queue))
+        
+        logging.info(f"[DEBUG] Antes de iniciar Process - {datetime.datetime.now().isoformat()}")
+        
+        # O target agora é a função importada 'iniciar_macro_consulta_geral'
+        p = multiprocessing.Process(target=iniciar_macro_consulta_geral, args=args)
+
+        # --- ADICIONADO: Define o processo como daemon ---
+        # Isso garante que o processo da macro será encerrado quando a janela principal fechar.
+        p.daemon = True
+        active_macro_processes.append(p)
+
         p.start()
-        logging.info(f"[DEBUG] Process macro_consulta_geral_worker iniciado - {datetime.datetime.now().isoformat()}")
+        
+        logging.info(f"[DEBUG] Processo DAEMON iniciado com target em Consulta_GeraL_Final.py - {datetime.datetime.now().isoformat()}")
 
         return {"status": "sucesso", "message": "Macro iniciada em background."}
     except Exception as e:
@@ -944,36 +990,76 @@ def get_user_profile_data(user_id):
 # Função de callback para fechar o processo Python quando não houver mais conexões WebSocket
 
 def close_callback(page, sockets):
-    import threading
+    import sys
+    import time
     logging.info(f"Conexão websocket fechada para a página: {page}. Sockets restantes: {len(sockets)}")
+    
     def tentar_encerrar():
-        import time
+        """Função que aguarda, sinaliza e encerra o app e os processos filhos."""
+        logging.info("Aguardando 5 segundos para confirmar o encerramento...")
+        time.sleep(5)
         
-        time.sleep(5)  # Aguarda 2 segundo para ver se outro socket abre
-        if not eel._websockets:  # Se ainda não há sockets, encerra
-            logging.info("Nenhuma conexão websocket ativa após delay. Encerrando processo Python.")
-            os._exit(0)
-        else:
-            logging.info("Nova conexão websocket detectada após delay. Não encerra o processo.")
+        # Verifica novamente se alguma janela se reconectou
+        if not eel._websockets:
+            logging.info("Nenhuma conexão ativa. Iniciando processo de encerramento.")
+            
+            # 1. Sinaliza para os processos pararem de forma graciosa
+            stop_macro_event.set()
+            logging.info("Sinal de parada enviado para os processos da macro.")
+            
+            # 2. Itera sobre a lista de processos ativos e os encerra
+            for p in active_macro_processes:
+                if p.is_alive():
+                    logging.warning(f"Processo da macro {p.pid} ainda está ativo. Encerrando...")
+                    p.terminate()  # Envia um sinal de terminação (SIGTERM)
+                    p.join(2)      # Espera até 2s para o processo terminar
+                    if p.is_alive():
+                        p.kill()   # Se ainda estiver vivo, força o encerramento (SIGKILL)
+                        logging.error(f"Processo {p.pid} teve que ser forçado a fechar (killed).")
 
+            logging.info("Todos os processos da macro foram encerrados. Forçando o encerramento da aplicação principal.")
+            os._exit(0) # Força a saída do processo, evitando que ele fique 'preso'.
+        else:
+            logging.info("Nova conexão detectada. O processo não será encerrado.")
+
+    # Se a lista de sockets estiver vazia, significa que a última janela foi fechada.
     if not sockets:
+        # Inicia a thread que fará a verificação após 5 segundos.
         threading.Thread(target=tentar_encerrar, daemon=True).start()
     else:
-        logging.info("Conexões WebSocket ainda ativas ou página irrelevante para a macro.")
+        logging.info("Conexões WebSocket ainda ativas.")
 
 if __name__ == "__main__":
+    # Mantém o suporte para multiprocessing em apps compilados
+    multiprocessing.freeze_support()
+    
     try:
-        verificar_instancia_unica() # Garante que apenas uma instância seja executada
-        logging.info("--- Iniciando Aplicação Eel ---")
-        eel.start('login.html', mode='edge', size=(screen_width, screen_height), close_callback=close_callback)
-        logging.info("Chamada eel.start retornou.")
-    except EnvironmentError as e:
-        logging.error(f"Erro de ambiente ao iniciar EEL: {e}")
-        logging.exception("Detalhes do erro de ambiente ao iniciar EEL:")
-        os._exit(1)
-    except Exception as e:
-        logging.error(f"Erro geral ao iniciar EEL: {e}")
-        logging.exception("Detalhes do erro geral ao iniciar EEL:")
-        os._exit(1)
+        # Sua função para verificar se o app já está rodando
+        # verificar_instancia_unica() 
 
-    logging.info("--- Saindo da Aplicação ---")
+        # Seus logs e prints de debug
+        print("DEBUG: TUDO PRONTO PARA INICIAR O EEL.")
+        logging.info("--- Iniciando Aplicação Eel ---")
+
+        # --- A FORMA CORRETA DE CHAMAR O EEL.START ---
+        # Passando cada argumento diretamente para a função
+        eel.start(
+            'login.html',                                   # Sua página HTML inicial
+            mode='edge',                                    # O modo do navegador
+            host='localhost',                               # O host local
+            port=8000,                                      # A porta de comunicação
+            size=(screen_width, screen_height),             # Seu argumento de tamanho
+            close_callback=close_callback                   # Seu argumento de callback
+        )
+        
+        # Seus logs e prints que rodam após a janela ser fechada
+        print("DEBUG: eel.start() FOI CONCLUIDO (janela foi fechada).")
+        logging.info("Chamada eel.start retornou.")
+
+    except Exception as e:
+        # Seu bloco para capturar e logar erros inesperados
+        logging.error(f"Erro GERAL no bloco main: {e}")
+        logging.exception("Detalhes do erro geral no bloco main:")
+        # Mantém a janela do console aberta para que você possa ler o erro
+        input("ERRO CRÍTICO. Pressione Enter para fechar...")
+        os._exit(1)

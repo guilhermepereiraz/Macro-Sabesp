@@ -636,7 +636,7 @@ def monitor_progresso():
     #         print(f"Erro ao chamar eel.mostrarToast: {e}")
 
 
-def macro(driver, item_value, item_type, current_file_lock, first_column_value, identificador=None, nome_arquivo=None, tipo_arquivo=None):
+def macro(driver, item_value, item_type, current_file_lock, first_column_value, identificador=None, nome_arquivo=None, tipo_arquivo=None, stop_event=None):
     from selenium.webdriver.support.ui import WebDriverWait, Select
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.common.by import By
@@ -650,7 +650,10 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
     processed_successfully = False
 
     try:
-        # Verifica se está pausado antes de iniciar processamento
+        if stop_event and stop_event.is_set():
+            raise ItemProcessingError("Processamento interrompido pelo sinal de parada do usuário")
+        
+         # Verifica se está pausado antes de iniciar processamento
         while pause_event.is_set() and not monitor_stop_event.is_set():
             print(f"Thread {threading.current_thread().name} - Em pausa...", flush=True)
             time.sleep(1)
@@ -768,7 +771,9 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     iframe_detail_sit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
                     driver.switch_to.frame(iframe_detail_sit)
 
-
+                    if stop_event and stop_event.is_set():
+                        raise ItemProcessingError("Processamento interrompido durante a extração")
+                    
                     print("inicando extração de dados do painel SITIA/SITIE...")
                     dados['Status Atual'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
                     dados['ATC'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
@@ -923,7 +928,9 @@ def macro(driver, item_value, item_type, current_file_lock, first_column_value, 
                     iframe_detail_sit = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '//*[@id="NETAModalDialogiFrame_1"]')))
                     driver.switch_to.frame(iframe_detail_sit)
 
-
+                    if stop_event and stop_event.is_set():
+                        raise ItemProcessingError("Processamento interrompido durante a extração")
+                    
                     print("inicando extração de dados do painel SITIA/SITIE...")
                     dados['Status Atual'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[1]/td[2]/span/table/tbody/tr[3]/td/table/tbody/tr[1]/td[1]/table/tbody/tr[1]/td[2]/span'))).text
                     dados['ATC'] = wait_forever(driver, EC.presence_of_element_located((By.XPATH, '/html/body/form/div[5]/span[1]/div/div/fieldset/table/tbody/tr/td/table/tbody/tr[2]/td/div/fieldset/p[8]/input'))).get_attribute('value')
@@ -1139,7 +1146,8 @@ def cleanup_driver(driver_instance, thread_name):
 # Em Consulta_GeraL_Final.py
 # SUBSTITUA SUA FUNÇÃO ANTIGA PELA VERSÃO ABAIXO
 
-def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None, progress_queue=None):
+def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counter_lock, l_login=None, s_senha=None, identificador=None, nome_arquivo=None, tipo_arquivo=None, progress_queue=None, stop_event=None):
+    # ### CORREÇÃO ###: Adicionado 'stop_event=None' para receber o interruptor.
     global current_os_being_processed, current_os_lock
     global processados, erros, total_processar, tempo_inicial_global
 
@@ -1148,10 +1156,14 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
     thread_name = threading.current_thread().name
 
     print(f"Thread {thread_name} INICIOU")
-    while not stop_event.is_set():
+    
+    # ### CORREÇÃO ###: Loop principal agora verifica o evento de parada de forma segura.
+    while not (stop_event and stop_event.is_set()):
         try:
             # Envolve todo o loop principal em try/except amplo
             if driver is None:
+                # ### CORREÇÃO ###: Verifica o sinal antes de tentar logar.
+                if stop_event and stop_event.is_set(): break
                 try:
                     driver = login(threading.current_thread().name, l_login, s_senha)
                     if isinstance(driver, dict) and driver.get("status") == "error":
@@ -1168,15 +1180,29 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                     continue
 
             try:
-                item = item_queue.get(timeout=3)
+                # ### CORREÇÃO ###: Timeout de 1 segundo para o loop ser mais responsivo à parada.
+                item = item_queue.get(timeout=1)
             except queue.Empty:
                 print(f"Thread {thread_name} FINALIZOU (fila vazia)")
+                break
+
+            # ### CORREÇÃO ###: Verifica o sinal DEPOIS de pegar um item.
+            if stop_event and stop_event.is_set():
+                print(f"Thread {thread_name} recebeu sinal de parada após pegar item. Não processando.")
                 break
 
             attempts = 0
             processed = False
             while attempts < MAX_RELOGIN_ATTEMPTS and not processed:
+                
+                # ### CORREÇÃO ###: Verifica o sinal antes de cada tentativa.
+                if stop_event and stop_event.is_set():
+                    print(f"Thread {thread_name} recebeu sinal de parada. Interrompendo tentativas.")
+                    break
+
                 while driver is None:
+                    # ### CORREÇÃO ###: Verifica o sinal antes de tentar re-logar.
+                    if stop_event and stop_event.is_set(): break
                     try:
                         driver = login(threading.current_thread().name, l_login, s_senha)
                         if isinstance(driver, dict) and driver.get("status") == "error":
@@ -1192,20 +1218,21 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                         time.sleep(5)
                         continue
                 
+                # Sai do loop de tentativas se o driver não foi criado e o sinal de parada foi dado
+                if driver is None: break
+
                 with current_os_lock:
                     current_os_being_processed = str(item).strip()
                 
                 try:
-                    # >>>>> ADIÇÃO 1: VERIFICAÇÃO DE SAÚDE DO DRIVER <<<<<
-                    # Testa se o driver ainda está respondendo antes de executar a macro principal.
-                    # Se o navegador travou, esta linha vai falhar e o código pulará para o 'except'.
                     driver.execute_script("return 1;")
 
-                    # Chamada original para a sua macro, agora mais segura
+                    # ### CORREÇÃO ###: Passa o stop_event para a função macro.
                     macro(driver, item, item_type, current_file_lock, item,
                           identificador=identificador,
                           nome_arquivo=nome_arquivo,
-                          tipo_arquivo=tipo_arquivo)
+                          tipo_arquivo=tipo_arquivo,
+                          stop_event=stop_event)
                     
                     with current_counter_lock:
                         processados += 1
@@ -1222,12 +1249,8 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
                         except Exception as e_close:
                             print(f"Thread {thread_name} - Erro ao fechar driver após falha: {e_close}", flush=True)
                     
-                    # >>>>> ADIÇÃO 2: GARANTIR O RESET COMPLETO DO DRIVER <<<<<
-                    # Garante que, após qualquer erro, a variável 'driver' seja zerada,
-                    # forçando uma nova criação de navegador na próxima tentativa.
                     driver = None
-                    
-                    attempts += 1  # Sua lógica de tentativas original
+                    attempts += 1
 
             # Lógica original para contar e registrar o erro
             if not processed and attempts >= MAX_RELOGIN_ATTEMPTS:
@@ -1275,7 +1298,6 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
             
             item_queue.task_done()
 
-        # Bloco de erro fatal original (preservado)
         except Exception as e_fatal:
             print(f"Thread {thread_name} - Exceção inesperada global: {e_fatal}", flush=True)
             traceback.print_exc(file=sys.stdout)
@@ -1298,13 +1320,14 @@ def thread_task_dynamic(item_queue, item_type, current_file_lock, current_counte
             if driver in active_drivers:
                 active_drivers.remove(driver)
         driver.quit()
-        print(f"Thread {thread_name} FINALIZOU (driver encerrado)")
+    print(f"Thread {thread_name} FINALIZOU (driver encerrado)")
+
 
 # (Fim da função thread_task_dynamic)
 # Não deve haver nenhum bloco de ajuste de threads, criação de item_queue ou threads aqui fora de função!
 
 @eel.expose
-def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, num_browsers=5, identificador=None, progress_queue=None):
+def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, nome_arquivo, tipo_arquivo, tipo_pesquisa, num_browsers=5, identificador=None, progress_queue=None, stop_event=None):
     from datetime import datetime
     import pandas as pd
     import io
@@ -1419,14 +1442,24 @@ def iniciar_macro_consulta_geral(conteudo_base64, login_usuario, senha_usuario, 
 
     print(f"[DEBUG] Processados contados: {processados}, Erros contados: {erros}")
 
-    print("[DEBUG] Preparando variáveis globais e locks...")
+    # --- INÍCIO DA CORREÇÃO FINAL ---
+    # Para garantir que os eventos existam no novo processo, nós os recriamos aqui.
+    # Isso informa ao Python que estamos modificando as variáveis globais deste módulo.
+    global monitor_stop_event, pause_event
+    monitor_stop_event = threading.Event()
+    pause_event = threading.Event()
+    
+    # O 'stop_event' principal é passado como argumento, então só o limpamos.
+    if stop_event:
+        stop_event.clear()
+    else:
+        stop_event = threading.Event()
+    # --- FIM DA CORREÇÃO FINAL ---
+    
     with current_os_lock:
         current_os_being_processed = "Calculando..." 
     tempo_inicial_global = datetime.now()
-    monitor_stop_event.clear()
-    pause_event.clear()
-    stop_event.clear()
-
+    
     print("[DEBUG] Iniciando thread de monitoramento de progresso...")
     monitor_thread = threading.Thread(target=monitor_progresso, daemon=True)
     monitor_thread.start()

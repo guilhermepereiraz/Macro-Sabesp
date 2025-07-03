@@ -1,9 +1,16 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+html {
+    font-family: 'Roboto', sans-serif;
+}
+
 /* Estilos Gerais e Reset Básico */
 body {
     font-family: sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6;
+    background-color: #F4F7FA;
     color: #333;
     /* Adicione estas linhas para o fade-in */
     opacity: 0;
@@ -37,18 +44,20 @@ h3 {
 
 /* Estilo do Cabeçalho */
 .header {
-     background: linear-gradient(
-        to left,
-        #084272,         /* cor inicial */
-        #1a7fd1 40%,     /* cor intermediária (um azul mais claro) */
-        #65b1f0 100%     /* cor final (bem clara) */
-    );
+    background: linear-gradient(to left,
+            #084272,
+            /* cor inicial */
+            #1a7fd1 40%,
+            /* cor intermediária (um azul mais claro) */
+            #65b1f0 100%
+            /* cor final (bem clara) */
+        );
     color: white;
     padding: 25px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-family: Arial, sans-serif;
     font-size: 0.9em;
-        position: fixed;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -112,11 +121,14 @@ h3 {
     text-decoration: none;
     font-size: 1em;
     font-weight: bolder;
-    transition: opacity 0.3s ease;
+    font-size: 1.2em;
+    padding: 10px 0px;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s;
 }
 
 .main-nav ul li a:hover {
-    opacity: 0.8;
+    border-bottom-color: white;
 }
 
 .user-actions-group {
@@ -183,82 +195,120 @@ h3 {
 /* Media query para telas menores (992px e abaixo) */
 @media (max-width: 992px) {
     .header-content {
-        flex-direction: column; /* Empilha os itens verticalmente */
-        align-items: center; /* Centraliza horizontalmente */
-        gap: 15px; /* Aumenta o espaçamento entre os blocos (logo, nav, user-actions) */
-        padding: 15px 0; /* Adiciona um pouco de padding vertical */
+        flex-direction: column;
+        /* Empilha os itens verticalmente */
+        align-items: center;
+        /* Centraliza horizontalmente */
+        gap: 15px;
+        /* Aumenta o espaçamento entre os blocos (logo, nav, user-actions) */
+        padding: 15px 0;
+        /* Adiciona um pouco de padding vertical */
     }
 
     .logo-block {
-        flex-direction: column; /* Empilha a imagem e o texto do logo */
-        justify-content: center; /* Centraliza a imagem e o texto dentro do logo-block */
-        gap: 5px; /* Reduz o espaço entre a imagem e o texto do logo */
-        width: auto; /* Permite que o logo-block se ajuste ao conteúdo */
-        margin-left: 0 !important; /* Garante que não há margin-left negativo */
+        flex-direction: column;
+        /* Empilha a imagem e o texto do logo */
+        justify-content: center;
+        /* Centraliza a imagem e o texto dentro do logo-block */
+        gap: 5px;
+        /* Reduz o espaço entre a imagem e o texto do logo */
+        width: auto;
+        /* Permite que o logo-block se ajuste ao conteúdo */
+        margin-left: 0 !important;
+        /* Garante que não há margin-left negativo */
     }
 
     .logo-block img {
-        width: 45px; /* Ajusta o tamanho da imagem para telas menores */
+        width: 45px;
+        /* Ajusta o tamanho da imagem para telas menores */
     }
 
     .logo-block .logo-text {
-        font-size: 1.5em; /* Ajusta o tamanho da fonte para telas menores */
+        font-size: 1.5em;
+        /* Ajusta o tamanho da fonte para telas menores */
     }
 
     .main-nav {
-        order: 1; /* Garante que a navegação venha após o logo */
-        width: 100%; /* Ocupa a largura total */
-        padding: 0 10px; /* Adiciona um pequeno padding horizontal */
-        margin-top: 10px; /* Espaçamento superior */
+        order: 1;
+        /* Garante que a navegação venha após o logo */
+        width: 100%;
+        /* Ocupa a largura total */
+        padding: 0 10px;
+        /* Adiciona um pequeno padding horizontal */
+        margin-top: 10px;
+        /* Espaçamento superior */
     }
 
     .main-nav ul {
-        flex-wrap: wrap; /* Permite que os itens do menu quebrem linha */
-        justify-content: center; /* Centraliza os itens do menu */
-        gap: 10px 15px; /* Espaçamento entre os itens do menu */
+        flex-wrap: wrap;
+        /* Permite que os itens do menu quebrem linha */
+        justify-content: center;
+        /* Centraliza os itens do menu */
+        gap: 10px 15px;
+        /* Espaçamento entre os itens do menu */
     }
 
     .user-actions-group {
-        order: 2; /* Garante que as ações do usuário venham após a navegação */
-        flex-direction: column; /* Empilha as informações do usuário e o botão de logout */
-        align-items: center; /* Centraliza horizontalmente */
-        gap: 15px; /* Espaçamento entre user-info e logout button */
-        width: 100%; /* Ocupa a largura total */
-        margin-top: 15px; /* Espaçamento superior */
+        order: 2;
+        /* Garante que as ações do usuário venham após a navegação */
+        flex-direction: column;
+        /* Empilha as informações do usuário e o botão de logout */
+        align-items: center;
+        /* Centraliza horizontalmente */
+        gap: 15px;
+        /* Espaçamento entre user-info e logout button */
+        width: 100%;
+        /* Ocupa a largura total */
+        margin-top: 15px;
+        /* Espaçamento superior */
 
     }
 
     .user-info {
-        flex-direction: column; /* Empilha as informações de status e tempo */
-        align-items: center; /* Centraliza horizontalmente */
-        gap: 10px; /* Espaçamento entre status-block e time-block */
-        width: 100%; /* Ocupa a largura total */
+        flex-direction: column;
+        /* Empilha as informações de status e tempo */
+        align-items: center;
+        /* Centraliza horizontalmente */
+        gap: 10px;
+        /* Espaçamento entre status-block e time-block */
+        width: 100%;
+        /* Ocupa a largura total */
     }
 
     .user-status-block,
     .user-time-block {
-        flex-direction: row; /* Mantém ícone e texto lado a lado */
+        flex-direction: row;
+        /* Mantém ícone e texto lado a lado */
         align-items: center;
-        justify-content: center; /* Centraliza o conteúdo de cada bloco */
-        width: auto; /* Ajusta a largura ao conteúdo */
+        justify-content: center;
+        /* Centraliza o conteúdo de cada bloco */
+        width: auto;
+        /* Ajusta a largura ao conteúdo */
         text-align: center;
     }
 
     .user-status-text,
     .time-info-text {
-        flex-direction: column; /* Mantém o texto empilhado no mobile */
-        align-items: flex-start; /* Alinha o texto à esquerda dentro do bloco */
-        text-align: left; /* Alinha o texto à esquerda */
+        flex-direction: column;
+        /* Mantém o texto empilhado no mobile */
+        align-items: flex-start;
+        /* Alinha o texto à esquerda dentro do bloco */
+        text-align: left;
+        /* Alinha o texto à esquerda */
     }
 
     .logout-button-styled {
-        width: auto; /* Permite que o botão se ajuste ao conteúdo */
-        padding: 8px 20px; /* Ajusta o padding do botão */
-        margin-left: 0 !important; /* Remove qualquer margin-left problemático */
-        margin-top: 10px; /* Adiciona um pouco de espaço acima do botão */
+        width: auto;
+        /* Permite que o botão se ajuste ao conteúdo */
+        padding: 8px 20px;
+        /* Ajusta o padding do botão */
+        margin-left: 0 !important;
+        /* Remove qualquer margin-left problemático */
+        margin-top: 10px;
+        /* Adiciona um pouco de espaço acima do botão */
     }
 
-    #deslog{
+    #deslog {
         margin-top: 2%;
     }
 }
@@ -266,16 +316,20 @@ h3 {
 /* Media query para telas muito pequenas (celulares) */
 @media (max-width: 480px) {
     .header .container {
-        padding: 0 10px; /* Reduz o padding do container em telas muito pequenas */
+        padding: 0 10px;
+        /* Reduz o padding do container em telas muito pequenas */
     }
 
     .logo-block .logo-text {
-        font-size: 1.3em; /* Reduz o tamanho da fonte do título em telas muito pequenas */
+        font-size: 1.3em;
+        /* Reduz o tamanho da fonte do título em telas muito pequenas */
     }
 
     .main-nav ul {
-        gap: 8px; /* Reduz o espaçamento entre os itens do menu */
-        font-size: 0.9em; /* Reduz o tamanho da fonte do menu */
+        gap: 8px;
+        /* Reduz o espaçamento entre os itens do menu */
+        font-size: 0.9em;
+        /* Reduz o tamanho da fonte do menu */
     }
 
     .user-status-text,
@@ -407,7 +461,7 @@ h3 {
 
 .card-icon {
     font-size: 2em;
-    color: #2b8adf;
+    color: rgb(241, 201, 21);
     margin-bottom: 10px;
 }
 
@@ -428,9 +482,9 @@ h3 {
     display: inline-block;
     background-color: transparent;
     /* Fundo transparente */
-    color: #2b8adf;
+    color: #5cb85c;
     /* Cor do texto primária */
-    border: 1px solid #2b8adf;
+    border: 1px solid #4cae4c;
     /* Contorno com a cor primária */
     text-decoration: none;
     padding: 8px 12px;
@@ -441,7 +495,7 @@ h3 {
 }
 
 .card-button:hover {
-    background-color: #2b8adf;
+    background-color: #4cae4c;
     /* Fundo preenchido no hover */
     color: white;
     /* Texto branco no hover */
@@ -591,7 +645,7 @@ h3 {
 }
 
 .action-button {
-    background-color: #007bff;
+    background-color: rgb(241, 213, 86);
     color: white;
     border: none;
     padding: 10px 15px;
@@ -599,14 +653,17 @@ h3 {
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.3s ease;
+    text-decoration: none;
+    text-align: center;
 }
 
 .action-button.primary {
     background-color: #5cb85c;
+
 }
 
 .action-button:hover {
-    background-color: #0056b3;
+    background-color: rgb(243, 203, 24);
 }
 
 .action-button.primary:hover {
@@ -712,27 +769,40 @@ h3 {
 }
 
 .profile-picture {
-    width: 40px; /* Defina um tamanho fixo para a div */
+    width: 40px;
+    /* Defina um tamanho fixo para a div */
     height: 40px;
-    border-radius: 50%; /* Torna a div circular */
-    overflow: hidden; /* Garante que a imagem seja cortada para o círculo */
-    background-color: #e0e0e0; /* Cor de fundo enquanto a imagem carrega ou se não houver imagem */
-    display: flex; /* Para centralizar o ícone ou a imagem */
+    border-radius: 50%;
+    /* Torna a div circular */
+    overflow: hidden;
+    /* Garante que a imagem seja cortada para o círculo */
+    background-color: #e0e0e0;
+    /* Cor de fundo enquanto a imagem carrega ou se não houver imagem */
+    display: flex;
+    /* Para centralizar o ícone ou a imagem */
     justify-content: center;
     align-items: center;
-    border: 1px solid #000000; /* Borda opcional para destacar */
-    flex-shrink: 0; /* Evita que a div encolha em layouts flex */
+    border: 1px solid #000000;
+    /* Borda opcional para destacar */
+    flex-shrink: 0;
+    /* Evita que a div encolha em layouts flex */
 }
 
 .profile-picture i {
-    font-size: 4em; /* Tamanho do ícone */
-    color: #888; /* Cor do ícone */
+    font-size: 4em;
+    /* Tamanho do ícone */
+    color: #888;
+    /* Cor do ícone */
 }
 
 
 .profile-picture img {
-    width: 100%; /* Faz a imagem preencher a largura da div */
-    height: 100%; /* Faz a imagem preencher a altura da div */
-    object-fit: cover; /* Garante que a imagem cubra a área sem distorção, cortando se necessário */
-    border-radius: 50%; /* Aplica a borda circular à imagem também, para melhor recorte */
+    width: 100%;
+    /* Faz a imagem preencher a largura da div */
+    height: 100%;
+    /* Faz a imagem preencher a altura da div */
+    object-fit: cover;
+    /* Garante que a imagem cubra a área sem distorção, cortando se necessário */
+    border-radius: 50%;
+    /* Aplica a borda circular à imagem também, para melhor recorte */
 }

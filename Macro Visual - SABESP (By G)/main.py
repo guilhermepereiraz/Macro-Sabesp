@@ -43,10 +43,10 @@ logging.info("--- main.py Iniciado ---")
 # Configurações do banco de dados e email
 
 DB_CONFIG = {
-    'host': '10.51.109.123',
+    'host': '127.0.0.1',
     'user': 'root', # **AVISO DE SEGURANÇA**: Não use 'root' em produção
-    'password': 'SB28@sabesp', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
-    'database': 'pendlist'
+    'password': '12kk12kk', # **AVISO de SEGURANÇA**: Não armazene senha diretamente
+    'database': 'pendilist'
 }
 
 EMAIL_CONFIG = {                
